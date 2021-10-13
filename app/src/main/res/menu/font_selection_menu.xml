@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Georgia" android:id="@+id/georgia"></item>
+    <item android:title="Arial" android:id="@+id/arial"></item>
+    <item android:title="Helvetica" android:id="@+id/helvetica"></item>
+    <item android:title="HelveticaBold" android:id="@+id/helvetica_bold"></item>
+    <item android:title="OpenSans" android:id="@+id/opensans"></item>
+    <item android:title="Raleway" android:id="@+id/raleway"></item>
+    <item android:title="Verdana" android:id="@+id/verdana"></item>
+    <item android:title="Calibri" android:id="@+id/calibri"></item>
+</menu>

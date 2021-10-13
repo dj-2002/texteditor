@@ -1,0 +1,114 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppMaterialTheme" parent="superMaterialTheme">
+        <!--    Customise for only lollipop and above versions features. -->
+    </style>
+
+    <style name="ButtonColor" parent="@android:style/Widget.Button">
+        <item name="android:textColor">@color/btnTextColor</item>
+    </style>
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="superMaterialTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <!--        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>-->
+        <!--        <item name="colorOnPrimary">@color/colorAccent</item>-->
+        <!--        &lt;!&ndash; Secondary brand color. &ndash;&gt;-->
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondary</item>
+        <!--        <item name="colorOnSecondary">@color/colorAccent</item>-->
+        <!--    Customise for only lollipop and above versions features. -->
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <!--        <item name="android:buttonStyle">@style/ButtonColor</item>-->
+        <!--        <item name="colorButtonNormal">@color/colorBtn</item>-->
+
+        <item name="android:windowBackground">@color/windowBackground</item>
+
+        <!--        <item name="navigationIconTint">@color/colorAccent</item>-->
+
+        <!--        it set color in overflow menu of action bar icon -->
+        <item name="iconTint">@color/colorAccent</item>
+
+        <!--        it set color in our app for bottom nav icon tint and popup menu icon tint-->
+        <item name="android:tint">@color/colorAccent</item>
+
+        <!--        item icon tint can use in our application in navigation drawer icon color-->
+        <item name="itemIconTint">@color/colorAccent</item>
+
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/MyActionMode</item>
+
+        <item name="alertDialogTheme">@style/AlertDialogTheme</item>
+    </style>
+
+    <style name="MyActionMode" parent="@style/Widget.AppCompat.ActionMode">
+
+        <item name="background">@color/contextualBackground</item>
+        <!--        <item name="titleTextStyle">@style/MyContextualTextStyle</item>-->
+
+        <!--        <item name="actionModeCloseDrawable"></item>-->
+    </style>
+
+    <!--    <style name="MyContextualTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">-->
+    <!--        <item name="android:textColor">@color/white</item>-->
+    <!--    </style>-->
+
+    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+        <!--        <item name="android:tint">@color/colorAccent</item>-->
+        <!--    Customise for only lollipop and above versions features. -->
+    </style>
+
+    <style name="ToolbarPopUpTheme" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:background">@color/white</item>
+        <item name="background">@color/white</item>
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+
+        <!--        <item name="iconTint">@color/colorAccent</item>-->
+        <!--        <item name="itemIconTint">@color/colorAccent</item>-->
+        <!--        <item name="android:tint">@color/colorAccent</item>-->
+
+
+    </style>
+
+
+    <style name="AlertDialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
+    </style>
+
+    <style name="NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">?attr/colorAccent</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">?attr/colorAccent</item>
+    </style>
+
+    <style name="NeutralButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">?attr/colorAccent</item>
+    </style>
+
+    <style name="AppMaterialTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppMaterialTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppMaterialTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+</resources>

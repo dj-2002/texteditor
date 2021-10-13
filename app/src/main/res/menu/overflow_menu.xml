@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        android:icon="@drawable/ic_share"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/search"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/search_replace"
+        android:title="@string/find_amp_replace"
+        android:icon="@drawable/ic_find_replace"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/undo_change"
+        android:title="Undo"
+        android:icon="@drawable/ic_undo"
+        app:showAsAction="ifRoom"/>
+
+
+    <item
+        android:id="@+id/redo_change"
+        android:title="Redo"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_redo">
+    </item>
+
+
+
+    <item
+        android:id="@+id/settings"
+        android:title="@string/setting"
+        android:icon="@drawable/ic_setting"
+        app:showAsAction="never"
+        android:checked="false"/>
+
+    <item
+        android:id="@+id/print"
+        android:title="Print"
+        ></item>
+
+    <item
+        android:id="@+id/advanced_mode"
+        android:title="Advanced mode"></item>
+
+    <item
+        android:id="@+id/run"
+        android:title="Run HTML(BETA)"></item>
+
+</menu>

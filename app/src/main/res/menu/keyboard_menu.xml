@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/tab"
+        android:title="Tab"
+        app:showAsAction="always">
+    </item>
+    <item
+        android:id="@+id/roundOpen"
+        android:title="("
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/roundClose"
+        android:title=")"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/curlyOpen"
+        android:title="{"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/curlyClose"
+        android:title="}"
+        app:showAsAction="always">
+    </item>
+
+
+    <item
+        android:id="@+id/breaketOpen"
+        android:title="["
+        app:showAsAction="always">
+    </item>
+    <item
+        android:id="@+id/breaketClose"
+        android:title="]"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/lessThan"
+        android:title="@string/lessthan"
+        app:showAsAction="always">
+    </item>
+    <item
+        android:id="@+id/greaterThan"
+        android:title="@string/greaterthan"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/dollor"
+        android:title="@string/dollar"
+        app:showAsAction="always">
+    </item>
+    <item
+        android:id="@+id/empercent"
+        android:title="@string/empersand"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/singlequote"
+        android:title="\'"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/doublequote"
+        android:title='\"'
+        app:showAsAction="always"/>
+
+</menu>
+
+

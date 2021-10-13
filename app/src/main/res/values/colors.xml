@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="red">#E10808</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="windowBackground">#FAFAFA</color>
+    <color name="colorSecondary">#03DAC6</color>
+    <color name="colorAccent">#064ACB</color>
+    <color name="colorBtn">@color/colorAccent</color>
+    <color name="btnTextColor">@color/white</color>
+    <color name="over_flow_bg">@android:color/background_light</color>
+    <color name="over_flow_text_color">@android:color/black</color>
+    <color name="colorPrimaryNight">#607D8B</color>
+    <color name="colorAccentNight">#F7B633</color>
+    <color name="contextualBackground">@color/colorPrimary</color>
+
+
+</resources>

@@ -1,0 +1,75 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:key="myPreference"
+    >
+
+    <PreferenceCategory app:title="@string/appereance"
+        android:key="appreance">
+        >
+
+        <SwitchPreference
+            android:key="night_mode_preference"
+            android:icon="@drawable/baseline_dark_mode_24"
+            android:defaultValue="true"
+            android:switchTextOn="Dark"
+            android:switchTextOff="Light"
+            android:title="Night Mode"/>
+
+        <SwitchPreference
+            android:key="syntax_color"
+            android:icon="@drawable/ic_color"
+            android:defaultValue="true"
+            android:summary="Please restart app to enable effect on opened file"
+            android:title="Syntax Color"/>
+
+        <SeekBarPreference
+            android:key="TEXT_SIZE_PREFERENCE"
+            android:icon="@drawable/ic_textsize"
+            app:title="Text Size"
+            app:min="8"
+            android:max="30"
+            app:showSeekBarValue="true"
+            android:defaultValue="16" />
+
+        <ListPreference
+            android:key="font_family"
+            android:title="Select Font"
+            android:entries="@array/font_style_array"
+            app:entryValues="@array/font_style_array"
+            android:defaultValue="DEFAULT"
+            android:icon="@drawable/ic_font"
+            />
+
+
+        <SwitchPreference
+            android:key="word_wrap"
+            android:icon="@drawable/ic_wrap_content"
+            android:title="Word Wrap"
+            android:defaultValue="false"
+            app:summary="Enable Line break to fit screen width"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="About">
+
+        <Preference
+            app:title="Version"
+            app:summary="1.3.1" />
+
+        <Preference
+            app:title="Developer"
+            app:summary="Nbow Developer"
+            />
+
+
+        <Preference
+            android:key="feedback_preference"
+            app:title="Send Feedback"
+            android:defaultValue="@string/feedback"
+            app:summary="Report a bug: If you found any bug or crash please report here " />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

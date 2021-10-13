@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/drawable/touch_selector.xml" value="0.14375" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/activity_format.xml" value="0.1" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/activity_recycler_view.xml" value="0.25" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/activity_web_view.xml" value="0.15670289855072464" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/char_keyboard_layout.xml" value="0.22760416666666666" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/example_item.xml" value="0.4" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/font_selection_popup.xml" value="0.22760416666666666" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/setting_activity.xml" value="0.14266304347826086" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/text_editor_bottam.xml" value="0.14266304347826086" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/z_font_arial.xml" value="0.20625" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/layout/z_font_georgia.xml" value="1.2375" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/menu/font_selection_menu.xml" value="0.20625" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/menu/overflow_menu.xml" value="0.25" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/xml/provider_paths.xml" value="0.25" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/activity_web_view.xml" value="0.25" />
+      </map>
+    </option>
+  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK" />
+</project>

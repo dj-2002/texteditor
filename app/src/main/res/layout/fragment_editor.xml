@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EditorFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        >
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:minWidth="350dp"
+            android:imeOptions="flagNoExtractUi"
+            android:layout_height="match_parent"
+            android:inputType="textNoSuggestions|textMultiLine"
+            android:singleLine="false"
+            android:layout_marginStart="7dp"
+            android:background="@android:color/transparent"
+            android:lastBaselineToBottomHeight="500dp"
+            android:textSize="14sp"
+
+        />
+        <Button
+            android:id="@+id/prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/prev"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="-450dp"
+            android:backgroundTint="?attr/colorAccent"
+            android:textColor="@color/white"
+            android:layout_below="@+id/editText"/>
+        <Button
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_alignParentEnd="true"
+            android:text="@string/next"
+            android:layout_marginTop="-450dp"
+            android:backgroundTint="?attr/colorAccent"
+            android:textColor="@color/white"
+            android:layout_below="@+id/editText"/>
+    </RelativeLayout>
+</ScrollView>

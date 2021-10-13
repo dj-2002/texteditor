@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/special_char_keyboar_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorPrimary"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/char_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            app:menu="@menu/keyboard_menu"
+            android:theme="@style/ToolbarTheme"
+            android:layoutDirection="ltr"
+            />
+    </HorizontalScrollView>
+</LinearLayout>

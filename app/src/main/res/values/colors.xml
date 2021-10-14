@@ -17,4 +17,10 @@
     <color name="contextualBackground">@color/colorPrimary</color>
 
 
+    <color name="nav_bg">#0E66B9</color>
+    <color name="nav_icon_tint">#fff</color>
+
+
+
+
 </resources>

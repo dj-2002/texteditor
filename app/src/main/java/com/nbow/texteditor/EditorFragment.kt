@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.*
 import android.text.style.*
@@ -22,7 +23,11 @@ import android.view.View.OnLongClickListener
 import android.widget.EditText
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
 
 
 class EditorFragment : Fragment {
@@ -46,7 +51,7 @@ class EditorFragment : Fragment {
     private var currentPageIndex : Int = 0
     var hasUnsavedChanges = MutableLiveData(false)
     var hasLongPress = MutableLiveData<Boolean>(false)
-    private var undoRedo=TextViewUndoRedo()
+    //private var undoRedo=TextViewUndoRedo()
 //    private var listOfPageData : MutableList<String> = arrayListOf()
 
     private var dataFile : DataFile? = null
@@ -104,9 +109,19 @@ class EditorFragment : Fragment {
         super.onViewStateRestored(savedInstanceState)
         // data initializing to edit text first time when attach to view
         if(dataFile!=null && currentPageIndex>=0 && currentPageIndex<dataFile!!.listOfPageData.size){
-            undoRedo.mIsUndoOrRedo = true
-            editText!!.setText(dataFile!!.listOfPageData.get(currentPageIndex))
-            undoRedo.mIsUndoOrRedo = false
+           // undoRedo.mIsUndoOrRedo = true
+            Log.e(TAG, "onViewStateRestored: ${dataFile!!.fileExtension}", )
+            if(dataFile!!.fileExtension==".html" || dataFile!!.fileExtension==".txt")
+            {
+                if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N)
+                    editText!!.setText(Html.fromHtml(dataFile!!.listOfPageData[currentPageIndex],Html.FROM_HTML_MODE_LEGACY))
+                else
+                   editText!!. setText(HtmlCompat.fromHtml(dataFile!!.listOfPageData[currentPageIndex], HtmlCompat.FROM_HTML_MODE_LEGACY))
+            }
+            else {
+                editText!!.setText(dataFile!!.listOfPageData.get(currentPageIndex))
+            }
+            //undoRedo.mIsUndoOrRedo = false
             Log.e(TAG, "onViewStateRestored: size : ${dataFile!!.listOfPageData.get(0).length}")
             Log.e(TAG, "onViewStateRestored: number of page : ${dataFile!!.listOfPageData.size}")
 
@@ -119,6 +134,72 @@ class EditorFragment : Fragment {
             false
         })
 
+        editText?.doOnTextChanged { text, start, before, count ->
+
+            run {
+                lifecycleScope.launch(Main) {
+
+
+                    Log.e(
+                        TAG,
+                        "onCreate: ${
+                            text?.subSequence(
+                                start,
+                                start + count
+                            )
+                        } $start $before $count "
+                    )
+                    editText?.text?.apply {
+                        if (before < count) { // adding new text
+                            if (isBoldEnabled) {
+                                Log.e(TAG, "onViewStateRestored: Bold is enabled", )
+                                this.setSpan(
+                                    StyleSpan(Typeface.BOLD),
+                                    start + before,
+                                    start + count,
+                                    flag
+                                )
+                            }
+                            if (isItalicEnabled){
+                                Log.e(TAG, "onViewStateRestored: Italic Enabled", )
+                                this.setSpan(
+                                    StyleSpan(Typeface.ITALIC),
+                                    start + before,
+                                    start + count,
+                                    flag
+                                )}
+
+                            if (isUnderlineEnabled){
+                                Log.e(TAG, "onViewStateRestored: Underline enabled", )
+                                this.setSpan(UnderlineSpan(), start + before, start + count, flag)}
+
+                            if (isStrikethroughEnabled) {
+                                Log.e(TAG, "onViewStateRestored: StrikeThrough enabled", )
+                                this.setSpan(
+                                    StrikethroughSpan(),
+                                    start + before,
+                                    start + count,
+                                    flag
+                                )
+                            }
+
+
+//                            val typeface = Typeface.create(
+//                                context?.let {
+//                                    ResourcesCompat.getFont(
+//                                        it,
+//                                        selectedFont
+//                                    )
+//                                }, Typeface.NORMAL
+//                            )
+//                            this.setSpan(CustomTypefaceSpan(typeface), start, start + count, flag)
+                        }
+                    }
+                }
+            }
+
+        }
+
     }
 
 
@@ -128,9 +209,7 @@ class EditorFragment : Fragment {
         val KEY_TEXT_SIZE = "TEXT_SIZE_PREFERENCE"
         val preference= PreferenceManager.getDefaultSharedPreferences(context)
         var myTextSize:Int = preference.getInt(KEY_TEXT_SIZE,16)
-
         editText?.setTextSize(myTextSize.toFloat())
-
 
         val  f=(preference.getString("font_family","DEFAULT"))
         if(f!="DEFAULT"){
@@ -156,22 +235,9 @@ class EditorFragment : Fragment {
         val preference= PreferenceManager.getDefaultSharedPreferences(context)
         val isWrap = preference.getBoolean(KEY_WRAP,false)
         var layout = R.layout.fragment_editor
-
-
-
         val view = inflater.inflate(layout, container, false)
-
-//        createPagesFromListOfLines()
-
         currentPageIndex = 0
         editText = view.findViewById(R.id.editText)
-
-
-
-//        editText?.inputType =(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_FLAG_MULTI_LINE)
-//        editText?.isSingleLine = false
-
-
         val prev = view.findViewById<Button>(R.id.prev)
         val next = view.findViewById<Button>(R.id.next)
 
@@ -207,67 +273,10 @@ class EditorFragment : Fragment {
                 editText!!.setText(dataFile!!.listOfPageData.get(currentPageIndex))
             }
         })
-
 //        editText.setHorizontallyScrolling(false)
         if(editText!=null) {
-            undoRedo = TextViewUndoRedo(editText,viewLifecycleOwner)
+           // undoRedo = TextViewUndoRedo(editText,viewLifecycleOwner)
         }
-
-        editText?.doOnTextChanged { text, start, before, count ->
-            run {
-                Log.e(
-                    TAG,
-                    "onCreate: ${
-                        text?.subSequence(
-                            start,
-                            start + count
-                        )
-                    } $start $before $count "
-                )
-                editText?.text?.apply {
-                    if (before < count) { // adding new text
-                        if (isBoldEnabled)
-                            this.setSpan(
-                                StyleSpan(Typeface.BOLD),
-                                start + before,
-                                start + count,
-                                flag
-                            )
-                        if (isItalicEnabled)
-                            this.setSpan(
-                                StyleSpan(Typeface.ITALIC),
-                                start + before,
-                                start + count,
-                                flag
-                            )
-
-                        if (isUnderlineEnabled)
-                            this.setSpan(UnderlineSpan(), start + before, start + count, flag)
-
-                        if (isStrikethroughEnabled)
-                            this.setSpan(
-                                StrikethroughSpan(),
-                                start + before,
-                                start + count,
-                                flag
-                            )
-
-
-                        val typeface = Typeface.create(
-                            context?.let {
-                                ResourcesCompat.getFont(
-                                    it,
-                                    selectedFont
-                                )
-                            }, Typeface.NORMAL
-                        )
-                        this.setSpan(CustomTypefaceSpan(typeface), start, start + count, flag)
-                    }
-                }
-            }
-
-        }
-
 
         return view
     }
@@ -438,31 +447,38 @@ class EditorFragment : Fragment {
 
     fun undoChanges()
     {
-        if(!undoRedo.canUndo){
-            Toast.makeText(this.context, "no more Undo", Toast.LENGTH_SHORT).show()
-        }
-        var before = undoRedo.undo()
-        while(before!=null && before.length>0 && before[0]!=' ' ) {
-            before =  undoRedo.undo()
-        }
+//        if(!undoRedo.canUndo){
+//            Toast.makeText(this.context, "no more Undo", Toast.LENGTH_SHORT).show()
+//        }
+//        var before = undoRedo.undo()
+//        while(before!=null && before.length>0 && before[0]!=' ' ) {
+//            before =  undoRedo.undo()
+//        }
 
 
     }
     fun redoChanges()
     {
-        if(!undoRedo.canRedo){
-            Toast.makeText(this.context, "no more Redo", Toast.LENGTH_SHORT).show()
-        }
-        var after=undoRedo.redo()
-        while(after!=null && after.length>0 && after.last()!=' ' ) {
-            after =  undoRedo.redo()
-        }
+//        if(!undoRedo.canRedo){
+//            Toast.makeText(this.context, "no more Redo", Toast.LENGTH_SHORT).show()
+//        }
+//        var after=undoRedo.redo()
+//        while(after!=null && after.length>0 && after.last()!=' ' ) {
+//            after =  undoRedo.redo()
+//        }
     }
 
 
     fun saveDataToPage() {
         if(editText!=null) {
-            val page = editText!!.text.toString()
+            var page=""
+            if(dataFile!!.fileExtension==".html" || dataFile!!.fileExtension==".txt" )
+            {
+                page=HtmlCompat.toHtml(editText!!.text,HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
+            }
+            else {
+                 page = editText!!.text.toString()
+            }
             if (dataFile != null) {
                 dataFile!!.listOfPageData.removeAt(currentPageIndex)
                 dataFile!!.listOfPageData.add(currentPageIndex, page)
@@ -588,29 +604,33 @@ class EditorFragment : Fragment {
     fun boldClicked()
     {
         editText?.apply {
-            if(selectionStart!=selectionEnd) isBoldEnabled=!isBoldEnabled
+            if(selectionStart!=selectionEnd)
             changeSelectedTextStyle(bold=true)
         }
+        isBoldEnabled=!isBoldEnabled
     }
     fun italicClicked(){
         editText?.apply {
-            if(selectionStart!=selectionEnd) isItalicEnabled=!isItalicEnabled
+            if(selectionStart!=selectionEnd)
             changeSelectedTextStyle(italic = true)
         }
+        isItalicEnabled=!isItalicEnabled
     }
 
     fun underlineClicked() {
         editText?.apply {
-            if(selectionStart!=selectionEnd) isUnderlineEnabled = !isUnderlineEnabled
+            if(selectionStart!=selectionEnd)
             changeSelectedTextStyle(underline = true)
         }
+        isUnderlineEnabled = !isUnderlineEnabled
     }
     fun strikeThroughClicked() {
         editText?.apply {
                     if(selectionStart!=selectionEnd)
-                        isStrikethroughEnabled = !isStrikethroughEnabled
+
             changeSelectedTextStyle(strikethrough = true)
         }
+        isStrikethroughEnabled = !isStrikethroughEnabled
     }
     fun alignCenter() {
         changeAlignmentValue(center = true)
@@ -638,6 +658,12 @@ class EditorFragment : Fragment {
                 flag
             )
         }
+    }
+
+    fun getEditable(): Editable? {
+        if(editText!=null)
+            return editText!!.text
+        return null
     }
 
 }

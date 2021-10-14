@@ -1,7 +1,6 @@
 package com.nbow.texteditor
 
 import android.app.Activity
-import android.app.Application
 import android.content.*
 import android.content.ClipboardManager
 import android.net.Uri
@@ -14,7 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -45,11 +43,11 @@ import android.graphics.Typeface
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.text.*
-import android.text.style.ForegroundColorSpan
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.HtmlCompat
 import top.defaults.colorpicker.ColorPickerPopup
 
 
@@ -146,7 +144,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     binding.textEditorBottam.italic.apply {
 
-                        if (cf.isItalicEnabled) setBackgroundColor(Color.GREEN)
+                        if (cf.isItalicEnabled) setBackgroundColor(Color.RED)
                         else setBackgroundColor(Color.GRAY)
                     }
                 }
@@ -162,7 +160,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     cf.underlineClicked()
 
                     binding.textEditorBottam.underline.apply {
-                        if (cf.isUnderlineEnabled) setBackgroundColor(Color.GREEN)
+                        if (cf.isUnderlineEnabled) setBackgroundColor(Color.RED)
                         else setBackgroundColor(Color.GRAY)
                     }
                 }
@@ -175,7 +173,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     cf.strikeThroughClicked()
 //
                     binding.textEditorBottam.strikethrough.apply {
-                        if (cf.isStrikethroughEnabled) setBackgroundColor(Color.GREEN)
+                        if (cf.isStrikethroughEnabled) setBackgroundColor(Color.RED)
                         else setBackgroundColor(Color.GRAY)
                     }
                 }
@@ -511,7 +509,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    private fun initFontPopUpMenu(popup: PopupMenu, res:Int, fontId : Int, title : String)
+    private fun initFontPopUpMenu(popup: android.widget.PopupMenu, res:Int, fontId: Int, title: String)
     {
         var menuItem  = popup.menu.findItem(res)
         val ss = SpannableStringBuilder(title)
@@ -524,8 +522,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     private fun showFontSelectionPopUp() {
-
-        val popup = PopupMenu(applicationContext, binding.textEditorBottam.root)
+        //val view = findViewById<View>(item.itemId)
+        val view = binding.textEditorBottam.textFont as View
+        val popup = android.widget.PopupMenu(applicationContext,view)
         popup.inflate(R.menu.font_selection_menu)
         initFontPopUpMenu(popup,R.id.helvetica_bold,R.font.helvetica_bold,"Helvetica bold")
         initFontPopUpMenu(popup,R.id.helvetica,R.font.helvetica,"Helvetica")
@@ -752,14 +751,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 R.id.save_as -> {
-                    saveAsIntent(currentFragment)
+                    saveAsDialog()
                 }
                 R.id.save -> {
                     if (currentFragment != null) {
-                        if (currentFragment.hasUnsavedChanges.value != false)
                             saveFile(currentFragment, currentFragment.getUri())
-                        else
-                            Toast.makeText(this, "No Changes Found", Toast.LENGTH_SHORT).show()
                     }
                 }
                 R.id.close -> {
@@ -1157,7 +1153,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fragment: EditorFragment,
         uri: Uri?,
         isSaveAs: Boolean = false,
-        isCloseFlag: Boolean = false
+        isCloseFlag: Boolean = false,
+        isHtml:Boolean = true
     ) {
 
 //        val uri = fragment.getUri()
@@ -1169,9 +1166,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     applicationContext.contentResolver.takePersistableUriPermission(uri, takeFlags)
                 contentResolver.openFileDescriptor(uri, "wt")?.use {
                     FileOutputStream(it.fileDescriptor).use {
-                        it.write(
-                            fragment.getEditTextData().toString().toByteArray()
-                        )
+                        if(isHtml)
+                        {
+                            it.write(
+                                fragment.getEditable()?.let { it1 -> HtmlCompat.toHtml(it1, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE).toByteArray() }
+                            )
+                        }
+                        else {
+                            it.write(
+                                fragment.getEditTextData().toString().toByteArray()
+                            )
+                        }
                         if (!isSaveAs)
                             fragment.hasUnsavedChanges.value = false
                         if (isValidTab()) setCustomTabLayout(
@@ -1212,7 +1217,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         builder.setPositiveButton(this.getString(R.string.save_as)) { dialogInterface, which ->
             run {
-                saveAsIntent(fragment)
+                saveAsIntent(fragment.getFileExtension())
                 dialogInterface.dismiss()
             }
         }
@@ -1230,27 +1235,67 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    private fun saveAsIntent(currentFragment: EditorFragment?) {
-        if (currentFragment != null) {
-
-            try {
-                if (currentFragment != null) {
-
-                    val fileExtension = currentFragment.getFileExtension()
-                    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                        addCategory(Intent.CATEGORY_OPENABLE)
-                        type = "*/*"
-                        putExtra(Intent.EXTRA_TITLE, "untitled${fileExtension}")
-                    }
-                    saveAsSystemPickerLauncher.launch(intent)
+    private fun saveAsIntent(fileExtension : String) {
+        try {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*" //TODO :
+                    putExtra(Intent.EXTRA_TITLE, "untitled${fileExtension}")
                 }
+                saveAsSystemPickerLauncher.launch(intent)
+            } else {
+                val intent: Intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*"
+                    putExtra(Intent.EXTRA_TITLE, "untitled${fileExtension}")
+                }
+                saveAsSystemPickerLauncher.launch(intent)
             }
-            catch (e:Exception)
-            {
-                Toast.makeText(applicationContext, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "saveAsIntent: ${e.toString()}.", )
+
+        }
+        catch (e:Exception)
+        {
+            Toast.makeText(applicationContext, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "saveAsIntent: ${e.toString()}.", )
+        }
+
+    }
+
+
+    private fun saveAsDialog() {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Save As")
+        builder.setIcon(R.drawable.ic_save_as)
+
+        val view = LayoutInflater.from(this).inflate(R.layout.save_as_dialog, null, false)
+        val radioGroupExtension = view.findViewById<RadioGroup>(R.id.radio_group_extension)
+
+        builder.setView(view)
+
+        builder.setPositiveButton(this.getString(R.string.save_as)) { dialogInterface, which ->
+            run {
+                //TODO : according to radio btn
+                if(radioGroupExtension.checkedRadioButtonId==R.id.radio_html)
+                    saveAsIntent(".html") //TODO : .txt.html
+                else
+                    saveAsIntent(".txt")
+                dialogInterface.dismiss()
             }
         }
+        //performing cancel action
+        builder.setNeutralButton(this.getString(R.string.cancel)) { dialogInterface, which ->
+            dialogInterface.dismiss()
+        }
+
+        // Create the AlertDialog
+        val alertDialog: AlertDialog = builder.create()
+        // Set other dialog properties
+        alertDialog.setCancelable(true)
+        alertDialog.show()
+
+
     }
 
 

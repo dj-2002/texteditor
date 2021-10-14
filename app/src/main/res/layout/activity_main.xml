@@ -99,11 +99,15 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:background="@color/nav_bg"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-
-        app:menu="@menu/activity_main_drawer" />
+        app:itemIconTint="@color/nav_icon_tint"
+        app:menu="@menu/activity_main_drawer"
+        app:itemBackground="@drawable/menu_item_padding"
+        app:itemTextAppearance="@style/TextViewStyle"
+        app:itemHorizontalPadding="40dp" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

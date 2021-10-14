@@ -18,6 +18,7 @@
             android:minWidth="350dp"
             android:imeOptions="flagNoExtractUi"
             android:layout_height="match_parent"
+
             android:inputType="textNoSuggestions|textMultiLine"
             android:singleLine="false"
             android:layout_marginStart="7dp"

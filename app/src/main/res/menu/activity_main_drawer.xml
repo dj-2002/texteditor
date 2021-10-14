@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:id="@+id/nav_up">
+    <group android:id="@+id/nav_up" android:checkableBehavior="single">
         <item
             android:id="@+id/textColor"
             android:icon="@drawable/ic_color_text"

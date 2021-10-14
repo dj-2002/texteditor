@@ -6,9 +6,5 @@ data class ExampleItem(
 
      var fileName:String,
      var date:String,
-     var fileSize:String,
-     var file:File,
-     var checkbox: Boolean = false
-) {
-
-}
+     var fileSize:String
+)

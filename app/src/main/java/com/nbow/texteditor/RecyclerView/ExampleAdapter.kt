@@ -3,7 +3,7 @@ package com.nbow.texteditor.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.nbow.texteditor.R
@@ -15,7 +15,7 @@ class ExampleAdapter(private val mExampleList: ArrayList<ExampleItem>) :
 
     interface OnItemClickListener {
         fun onItemClick(position: Int)
-
+        fun onDeleteClick(position: Int)
     }
 
     fun setOnItemClickListener(listener: OnItemClickListener?) {
@@ -27,26 +27,30 @@ class ExampleAdapter(private val mExampleList: ArrayList<ExampleItem>) :
         var fileName: TextView
         var fileSize: TextView
         var date: TextView
-        var checkBox : CheckBox
-
+        var mDeleteImage: ImageView
 
         init {
             fileName = itemView.findViewById(R.id.file_name)
             fileSize = itemView.findViewById(R.id.file_size)
             date = itemView.findViewById(R.id.date)
-            checkBox=itemView.findViewById(R.id.checkbox_recyclerview)
-
+            mDeleteImage=itemView.findViewById(R.id.image_delete)
 
             itemView.setOnClickListener {
                 if (listener != null) {
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onItemClick(position)
-
                     }
                 }
             }
-
+            mDeleteImage.setOnClickListener {
+                if (listener != null) {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        listener.onDeleteClick(position)
+                    }
+                }
+            }
         }
     }
 
@@ -61,11 +65,6 @@ class ExampleAdapter(private val mExampleList: ArrayList<ExampleItem>) :
         holder.fileName.setText(currentItem.fileName)
         holder.fileSize.setText(currentItem.fileSize)
         holder.date.setText(currentItem.date)
-        holder.checkBox.isChecked=currentItem.checkbox
-        if(currentItem.checkbox==false)
-            holder.checkBox.visibility=View.INVISIBLE
-        else
-            holder.checkBox.visibility=View.VISIBLE
     }
 
     override fun getItemCount(): Int {

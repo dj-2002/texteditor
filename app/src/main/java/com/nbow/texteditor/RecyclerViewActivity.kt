@@ -1,70 +1,57 @@
+
 package com.nbow.texteditor
-
-
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.nbow.texteditor.RecyclerView.ExampleItem
 import com.nbow.texteditor.RecyclerView.ExampleAdapter
-import java.io.File
+
+import com.nbow.texteditor.RecyclerView.ExampleItem
 import java.text.DecimalFormat
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 class RecyclerViewActivity : AppCompatActivity() {
     private var mExampleList: ArrayList<ExampleItem> = arrayListOf()
     lateinit var mRecyclerView: RecyclerView
-    private  val TAG = "RecyclerViewActivity"
     lateinit var mAdapter: ExampleAdapter
-     var listOfUri : MutableList<File> = arrayListOf()
     lateinit var mLayoutManager: RecyclerView.LayoutManager
-    var currentFile = File("/sdcard/")
-    lateinit var toolbar: Toolbar
+    lateinit var model: MyViewModel
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recycler_view)
-        toolbar = findViewById(R.id.toolbar)
+        val toolbar:Toolbar = findViewById(R.id.toolbar)
         toolbar.setTitle("Recent File")
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         buildRecyclerView()
-        listFiles(File("/sdcard/"))
 
-        val floatingActionButton:FloatingActionButton  = findViewById(R.id.fab_recyclerview)
-        floatingActionButton.setOnClickListener {
+        model = ViewModelProvider(this,MyViewModelFactory(this.application)).get(MyViewModel::class.java)
 
-
-
-            val bundle = Bundle()
-            val temp:ArrayList<String> = arrayListOf()
-            for(t in listOfUri) {
-                var myuri = ""
-                if (Build.VERSION.SDK_INT >= 24)
-                    myuri = FileProvider.getUriForFile(RecyclerViewActivity@this, BuildConfig.APPLICATION_ID + ".provider", t).toString();
-                else
-                    myuri = Uri.fromFile(t).toString();
-                Log.e(TAG, "onCreate: ${myuri}", )
-                temp.add(myuri)
+        model.getRecentFileList().observe(this){
+            Log.e("RecyclerViewActivity","size of list ${it.size}")
+            for(r in it){
+                Log.e("e","${r.fileName}")
+                val fileSize:String=getFileSize(r.fileSize)
+                mExampleList.add(ExampleItem(r.fileName,r.date,fileSize))
             }
-            bundle.putStringArrayList("uri",temp)
-            intent.putExtra(
-                "mbundle",
-                bundle
-            )
-            setResult(RESULT_OK, intent)
-            finish()
+
+            if(mExampleList.size>200)
+            {
+                var tempSize=mExampleList.size
+                while(tempSize>200)
+                {
+                    removeItem(tempSize)
+                    tempSize--
+                }
+            }
+            mAdapter.notifyDataSetChanged()
         }
 
     }
@@ -76,18 +63,18 @@ class RecyclerViewActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
-          R.id.clear_history -> clearAllFiles()
+            R.id.clear_history -> clearAllFiles()
         }
         return super.onOptionsItemSelected(item)
     }
 
     private fun clearAllFiles() {
-        //model.deleteAllRecentFile()
+        model.deleteAllRecentFile()
         mExampleList.clear()
         mAdapter.notifyDataSetChanged()
     }
 
-    private fun getFileSize(fileSize: Long): String {
+    private fun getFileSize(fileSize: Int): String {
         var size="";
         val k:Double=fileSize/(1024.0)
         val m:Double=k/(1024.0)
@@ -107,7 +94,15 @@ class RecyclerViewActivity : AppCompatActivity() {
         return  size
     }
 
+    fun removeItem(position: Int) {
+        mExampleList.removeAt(position)
+        val recentFile = model.getRecentFileList().value!!.get(position)
+        model.deleteRecentFile(recentFile)
+        if(position>=0 && position<model.getFragmentList().value!!.size)
+            model.getRecentFileList().value!!.remove(recentFile)
+        mAdapter.notifyItemRemoved(position)
 
+    }
 
 
     fun buildRecyclerView() {
@@ -119,50 +114,15 @@ class RecyclerViewActivity : AppCompatActivity() {
         mRecyclerView.setAdapter(mAdapter)
         mAdapter.setOnItemClickListener(object : ExampleAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                //var cUri:Uri= Uri.parse(mExampleList.get(position).uri)
-                var cfile =mExampleList.get(position).file
-                if(cfile.isDirectory) {
-
-                    listFiles(cfile)
-
-                }
-                else {
-
-//
-                    mExampleList.get(position).checkbox=!(mExampleList.get(position).checkbox)
-                    mAdapter.notifyItemChanged(position)
-                    if(listOfUri.contains(mExampleList.get(position).file))
-                        listOfUri.remove(mExampleList.get(position).file)
-                    else
-                        listOfUri.add(mExampleList.get(position).file)
-                }
+                intent.putExtra("uri",model.getRecentFileList().value!!.get(position).uriString)
+                setResult(RESULT_OK,intent)
+                finish()
             }
 
-
+            override fun onDeleteClick(position: Int) {
+                removeItem(position)
+            }
         })
-    }
-
-    override fun onBackPressed() {
-        if(currentFile!=File("/sdcard/"))
-        listFiles(currentFile.parentFile)
-        else
-        super.onBackPressed()
-    }
-
-    private fun listFiles(directory: File) {
-        toolbar.title=directory.name
-        currentFile=directory
-        mExampleList.clear()
-        val files = directory.listFiles()
-        if (files != null) {
-            for (file in files) {
-                if (file != null) {
-                    mExampleList.add(ExampleItem(file.name,
-                        SimpleDateFormat("dd MMM HH:mm").format(Date(file.lastModified())).toString(),getFileSize(file.length()),file))
-                }
-            }
-        }
-        mAdapter.notifyDataSetChanged()
     }
 
 

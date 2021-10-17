@@ -4,16 +4,30 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#E10808</color>
-    <color name="colorPrimary">#6200EE</color>
+
+
+
     <color name="windowBackground">#FAFAFA</color>
-    <color name="colorSecondary">#03DAC6</color>
-    <color name="colorAccent">#064ACB</color>
+
+    <color name="colorPrimary">#0E66B9</color>
+    <color name="colorPrimaryDark">#0F589C</color>
+    <color name="colorAccent">#FFB740</color>
+
+    <color name="navigationIconColor">@color/colorAccent</color>
+
+    <!--    tab layout color-->
+    <!--    <color name="colorSecondary">#1F5B95</color>-->
+    <!--    <color name="colorSecondary">#0E66B9</color>-->
+    <color name="colorSecondary">#ECECEC</color>
+
+    <color name="bottomNavigationBgUndoRedo">@color/colorPrimaryDark</color>
+
     <color name="colorBtn">@color/colorAccent</color>
     <color name="btnTextColor">@color/white</color>
     <color name="over_flow_bg">@android:color/background_light</color>
     <color name="over_flow_text_color">@android:color/black</color>
-    <color name="colorPrimaryNight">#607D8B</color>
-    <color name="colorAccentNight">#F7B633</color>
+    <!--    <color name="colorPrimaryNight">#607D8B</color>-->
+    <!--    <color name="colorAccentNight">#F7B633</color>-->
     <color name="contextualBackground">@color/colorPrimary</color>
 
 

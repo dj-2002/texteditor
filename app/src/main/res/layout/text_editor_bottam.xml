@@ -13,60 +13,79 @@
     >
     <ImageButton
         android:id="@+id/bold"
+        android:background="@drawable/round_btn_white"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_bold"/>
+        android:src="@drawable/ic_bold"
+       />
 
     <ImageButton
         android:id="@+id/italic"
+        android:background="@drawable/round_btn_white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_italic"></ImageButton>
+        android:src="@drawable/ic_italic"
+        />
 
     <ImageButton
         android:id="@+id/underline"
+        android:background="@drawable/round_btn_white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_underline"></ImageButton>
+        android:src="@drawable/ic_underline"/>
 
     <ImageButton
         android:id="@+id/strikethrough"
+        android:background="@drawable/round_btn_white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_strikethrough"
-        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck"></ImageButton>
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck"/>
 
     <ImageButton
         android:id="@+id/color_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_color_text"></ImageButton>
+        android:background="@drawable/round_btn_white"
 
+        android:src="@drawable/ic_color_text"/>
 
+    <ImageButton
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_btn_white"
+        android:src="@drawable/ic_close"
+        />
 
 
     <ImageButton
         android:id="@+id/align_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_align_left"></ImageButton>
+        android:background="@drawable/round_btn_white"
+        android:src="@drawable/ic_align_left"/>
 
 
     <ImageButton
         android:id="@+id/align_center"
+        android:background="@drawable/round_btn_white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_align_center"
-        ></ImageButton>
+        />
 
     <ImageButton
         android:id="@+id/align_right"
+        android:background="@drawable/round_btn_white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_align_right"></ImageButton>
 
     <ImageButton
         android:id="@+id/textFont"
+      android:background="@drawable/round_btn_white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_font"></ImageButton>

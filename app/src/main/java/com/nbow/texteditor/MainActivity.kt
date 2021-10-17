@@ -43,6 +43,9 @@ import android.graphics.Typeface
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.text.*
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -117,8 +120,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
 
+
         binding.textEditorBottam.apply {
 
+
+            close.setOnClickListener({
+                if (isValidTab()) {
+                val cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+
+                if (cf.hasUnsavedChanges.value ?: false) {
+                    showUnsavedDialog(cf)
+                } else {
+                    closeTab()
+                }
+
+            }
+            })
 
             bold.setOnClickListener({
                  if (isValidTab()) {
@@ -128,8 +145,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     binding.textEditorBottam.bold.apply {
 
                         if (cf.isBoldEnabled)
-                            this.setBackgroundColor(Color.RED)
-                        else setBackgroundColor(Color.GRAY)
+                            this.setBackgroundResource(R.drawable.round_btn)
+                        else this.background = null
                     }
                 }
 
@@ -144,8 +161,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     binding.textEditorBottam.italic.apply {
 
-                        if (cf.isItalicEnabled) setBackgroundColor(Color.RED)
-                        else setBackgroundColor(Color.GRAY)
+                        if (cf.isItalicEnabled)  this.setBackgroundResource(R.drawable.round_btn)
+                        else this.background = null
                     }
                 }
 
@@ -160,8 +177,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     cf.underlineClicked()
 
                     binding.textEditorBottam.underline.apply {
-                        if (cf.isUnderlineEnabled) setBackgroundColor(Color.RED)
-                        else setBackgroundColor(Color.GRAY)
+                        if (cf.isUnderlineEnabled) this.setBackgroundResource(R.drawable.round_btn)
+                        else this.background = null
                     }
                 }
 
@@ -173,8 +190,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     cf.strikeThroughClicked()
 //
                     binding.textEditorBottam.strikethrough.apply {
-                        if (cf.isStrikethroughEnabled) setBackgroundColor(Color.RED)
-                        else setBackgroundColor(Color.GRAY)
+                        if (cf.isStrikethroughEnabled) this.setBackgroundResource(R.drawable.round_btn)
+                        else this.background = null
                     }
                 }
 //
@@ -646,12 +663,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 fragment.hasLongPress.observe(this@MainActivity) {
                     if (it) {
+
+
                         startActionMode(actionModeCallbackCopyPaste)
                         fragment.hasLongPress.value = false
                     }
 
 
                 }
+                fragment.cursorChanged.observe(this@MainActivity) {
+                    if (it) {
+
+                        changeColorBottamText()
+                        fragment.cursorChanged.value=false
+
+                    }
+
+
+                }
+
             }
 
             binding.tabLayout.apply {
@@ -666,8 +696,47 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+    private fun changeColorBottamText() {
+
+        if (isValidTab()) {
 
 
+            binding.textEditorBottam.apply {
+                this.bold.background=null
+                this.italic.background=null
+                this.strikethrough.background=null
+                this.underline.background=null
+            }
+
+            var cf =
+                adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+
+            val spans = cf.getCurrentSpan()
+            if (spans != null) {
+                for (span in spans) {
+                    if (span is StyleSpan) {
+                        val spn = span as StyleSpan
+                        if (spn.style == Typeface.BOLD) {
+                            binding.textEditorBottam.bold.setBackgroundResource(R.drawable.round_btn)
+                        } else if (spn.style == Typeface.ITALIC) {
+                            binding.textEditorBottam.italic.setBackgroundResource(R.drawable.round_btn)
+
+                        }
+
+                    } else if (span is UnderlineSpan) {
+                        binding.textEditorBottam.underline.setBackgroundResource(R.drawable.round_btn)
+
+
+                    } else if (span is StrikethroughSpan) {
+                        binding.textEditorBottam.strikethrough.setBackgroundResource(R.drawable.round_btn)
+
+                    }
+
+                }
+
+            }
+        }
+    }
 
     override fun onStop() {
         super.onStop()
@@ -679,9 +748,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         for (frag in adapter.fragmentList) {
             val fragment = frag as EditorFragment
-            fragment.saveDataToPage()
+            fragment.saveDataToDataFile()
         }
-        model.addHistories()
+        model.addHistories(applicationContext)
     }
 
     override fun onDestroy() {
@@ -718,18 +787,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    private fun showPopupMenu(item: MenuItem, menuResourceId: Int) {
-        val view = findViewById<View>(item.itemId)
-        val popup = PopupMenu(this, view)
+    private fun showPopupMenu(menuItem: MenuItem, menuResourceId: Int) {
+        val view = findViewById<View>(menuItem.itemId)
+        val contextThemeWrapper = ContextThemeWrapper(this,R.style.ToolbarPopUpTheme)
+        val popup = PopupMenu(contextThemeWrapper, view)
 
         popup.inflate(menuResourceId)
 
         val preference = PreferenceManager.getDefaultSharedPreferences(this)
         val isWrap = preference.getBoolean("word_wrap", false)
 
-        val item = popup.menu.findItem(R.id.go_to_line)
-        if (item != null) {
-            item.setVisible(!isWrap)
+        val itemGoToLine = popup.menu.findItem(R.id.go_to_line)
+        if (itemGoToLine != null) {
+            itemGoToLine.setVisible(!isWrap)
         }
         popup.setOnMenuItemClickListener { item -> //TODO : list all action for menu popup
 //            Log.e(TAG, "onMenuItemClick: " + item.title)
@@ -755,7 +825,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 R.id.save -> {
                     if (currentFragment != null) {
-                            saveFile(currentFragment, currentFragment.getUri())
+                        if (currentFragment.hasUnsavedChanges.value != false)
+                            saveFile(currentFragment, currentFragment.getUri(),isHtml = (currentFragment.getFileExtension()==".html" || currentFragment.getFileExtension()==".txt"))
+                        else
+                            Toast.makeText(this, "No Changes Found", Toast.LENGTH_SHORT).show()
                     }
                 }
                 R.id.close -> {
@@ -953,11 +1026,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val clipData = result.data?.clipData
+                Log.e(TAG, "clipdata: $clipData")
                 if (clipData != null) {
-                    for (i in 0..clipData.itemCount-1) {
-                        val uri = clipData.getItemAt(i).uri
-                        if (uri !== null) readFileUsingUri(uri)
-                    }
+                    Log.e(TAG, "${clipData.itemCount}: ", )
+                        var i = 0
+                        while (i < clipData.itemCount) {
+                            val uri = clipData.getItemAt(i).uri
+                            if (uri !== null) readFileUsingUri(uri)
+                            i++
+                        }
+                }
+                else{
+                    val uri = result.data?.data
+                    if(uri!=null)
+                        readFileUsingUri(uri)
                 }
             }
         }
@@ -981,38 +1063,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val inputStream: InputStream? = contentResolver.openInputStream(uri)
             val fileSize: Int = inputStream!!.available()
             val bufferedReader = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
-            val listOfLines: MutableList<String> = arrayListOf()
-            val listOfPageData: MutableList<String> = arrayListOf()
+            val data:StringBuilder = java.lang.StringBuilder()
 
             bufferedReader.forEachLine {
-                listOfLines.add(it)
+                data.append(it).append("\n")
             }
 
-            val temp = StringBuilder("")
-            var count = 0
-            for (line in listOfLines) {
-                temp.append(line)
-                count++
-                if (count >= 2000 || temp.length >= 100000) { // 100kb
-//                Log.e(TAG, "readFileUsingUri: temp : at $count : $temp")
-                    listOfPageData.add(temp.toString())
-                    temp.clear()
-                    count = 0
-                } else temp.append("\n")
-            }
-            if (temp.length > 0) {
-                listOfPageData.add(temp.toString())
-            }
-            if (listOfLines.size == 0) {
-                listOfPageData.add(temp.toString())
-            }
 
             val fileName: String = helper.queryName(contentResolver, uri)
             val dataFile = DataFile(
                 fileName = fileName,
                 filePath = uri.path!!,
                 uri = uri,
-                listOfPageData = listOfPageData
+                data = Utils.htmlToSpannable(data.toString())
             )
             val fragment = EditorFragment(dataFile,applicationContext)
 
@@ -1052,11 +1115,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 else setCustomTabLayout(binding.tabLayout.selectedTabPosition, "$fileName")
             }
             fragment.hasLongPress.observe(this@MainActivity){
-                if(it) {
-                    startActionMode(actionModeCallbackCopyPaste)
-                    fragment.hasLongPress.value = false
+                if (it) {
+                    changeColorBottamText()
+                    fragment.cursorChanged.value=false
+
                 }
             }
+
             Log.e(
                 TAG,
                 "readFileUsingUri : tab layout selected position : ${binding.tabLayout.selectedTabPosition}"
@@ -1176,6 +1241,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             it.write(
                                 fragment.getEditTextData().toString().toByteArray()
                             )
+
                         }
                         if (!isSaveAs)
                             fragment.hasUnsavedChanges.value = false
@@ -1185,7 +1251,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         )
 //                        Toast.makeText(applicationContext, "File Saved", Toast.LENGTH_SHORT).show()
 
-                        showProgressBarDialog("Saved Successfully", isCloseFlag)
+                            showProgressBarDialog("Saved Successfully", isCloseFlag)
+                        if(!isHtml)
+                            Toast.makeText(applicationContext, "Please saveAs to save formatting ", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: FileNotFoundException) {

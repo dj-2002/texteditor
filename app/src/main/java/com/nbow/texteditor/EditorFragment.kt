@@ -20,6 +20,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 
 import android.view.View.OnLongClickListener
+import android.view.accessibility.AccessibilityEvent
 import android.widget.EditText
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
@@ -46,13 +47,11 @@ class EditorFragment : Fragment {
     val flag = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 
 
-
     private var editText : EditText? = null
-    private var currentPageIndex : Int = 0
     var hasUnsavedChanges = MutableLiveData(false)
     var hasLongPress = MutableLiveData<Boolean>(false)
+    var cursorChanged  =MutableLiveData<Boolean>(false)
     //private var undoRedo=TextViewUndoRedo()
-//    private var listOfPageData : MutableList<String> = arrayListOf()
 
     private var dataFile : DataFile? = null
 
@@ -61,13 +60,8 @@ class EditorFragment : Fragment {
     }
 
     fun getEditTextData():StringBuilder{
-        val temp = StringBuilder("")
-        saveDataToPage()
-        if(dataFile!=null){
-            for(page in dataFile!!.listOfPageData){
-                temp.append("$page\n")
-            }
-        }
+        val temp =java.lang.StringBuilder()
+        temp.append(editText!!.text.toString())
         return temp
     }
     fun selectAll(){
@@ -90,7 +84,7 @@ class EditorFragment : Fragment {
 
 
     override fun onDestroyView() {
-        saveDataToPage()
+        saveDataToDataFile()
         super.onDestroyView()
     }
 
@@ -108,34 +102,53 @@ class EditorFragment : Fragment {
         }
         super.onViewStateRestored(savedInstanceState)
         // data initializing to edit text first time when attach to view
-        if(dataFile!=null && currentPageIndex>=0 && currentPageIndex<dataFile!!.listOfPageData.size){
-           // undoRedo.mIsUndoOrRedo = true
-            Log.e(TAG, "onViewStateRestored: ${dataFile!!.fileExtension}", )
-            if(dataFile!!.fileExtension==".html" || dataFile!!.fileExtension==".txt")
-            {
-                if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N)
-                    editText!!.setText(Html.fromHtml(dataFile!!.listOfPageData[currentPageIndex],Html.FROM_HTML_MODE_LEGACY))
-                else
-                   editText!!. setText(HtmlCompat.fromHtml(dataFile!!.listOfPageData[currentPageIndex], HtmlCompat.FROM_HTML_MODE_LEGACY))
-            }
-            else {
-                editText!!.setText(dataFile!!.listOfPageData.get(currentPageIndex))
-            }
-            //undoRedo.mIsUndoOrRedo = false
-            Log.e(TAG, "onViewStateRestored: size : ${dataFile!!.listOfPageData.get(0).length}")
-            Log.e(TAG, "onViewStateRestored: number of page : ${dataFile!!.listOfPageData.size}")
-
-
+        if(dataFile!=null){
+           editText?.setText(dataFile!!.data)            //undoRedo.mIsUndoOrRedo = false
         }
-        Log.e(TAG, "onViewStateRestored: current index of page : $currentPageIndex")
 
         editText?.setOnLongClickListener(OnLongClickListener {
             hasLongPress.value = true
             false
         })
 
-        editText?.doOnTextChanged { text, start, before, count ->
 
+        editText?.setAccessibilityDelegate(object : View.AccessibilityDelegate() {
+            override fun sendAccessibilityEvent(host: View?, eventType: Int) {
+                super.sendAccessibilityEvent(host, eventType)
+                if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED){
+                    cursorChanged.value = true
+                }
+            }
+        })
+//        editText?.customSelectionActionModeCallback = object : ActionMode.Callback {
+//
+//            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+//                return false
+//            }
+//
+//            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+//                return false
+//            }
+//
+//            override fun onActionItemClicked(
+//                mode: ActionMode?,
+//                item: MenuItem?
+//            ): Boolean {
+//                return false
+//            }
+//
+//            override fun onDestroyActionMode(mode: ActionMode?) {
+//
+//            }
+//
+//        }
+//        editText?.apply {
+//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//                customInsertionActionModeCallback = customSelectionActionModeCallback
+//        }
+
+        editText?.doOnTextChanged { text, start, before, count ->
+            hasUnsavedChanges.value = true
             run {
                 lifecycleScope.launch(Main) {
 
@@ -236,43 +249,8 @@ class EditorFragment : Fragment {
         val isWrap = preference.getBoolean(KEY_WRAP,false)
         var layout = R.layout.fragment_editor
         val view = inflater.inflate(layout, container, false)
-        currentPageIndex = 0
         editText = view.findViewById(R.id.editText)
-        val prev = view.findViewById<Button>(R.id.prev)
-        val next = view.findViewById<Button>(R.id.next)
 
-        if(dataFile !=null && dataFile!!.listOfPageData.size==1){
-            prev.visibility  = View.GONE
-            next.visibility = View.GONE
-        }
-        prev.setOnClickListener(View.OnClickListener {
-//            Toast.makeText(context, "prev clicked", Toast.LENGTH_SHORT).show()
-            if(currentPageIndex>0 && currentPageIndex < dataFile!!.listOfPageData.size && editText!=null){
-                saveDataToPage()
-                next.isEnabled = true
-                currentPageIndex--
-                if(currentPageIndex==0){
-                    prev.isEnabled = false
-                }
-//                Toast.makeText(context, "page $currentPageIndex", Toast.LENGTH_SHORT).show()
-                editText!!.setText(dataFile!!.listOfPageData.get(currentPageIndex))
-//                Log.e(TAG, "onCreateView: starting index $startingIndexOfCurrentPage")
-//                editText.setStartIndex(startingIndexOfCurrentPage)
-                //TODO : if not ....
-            }
-        })
-        next.setOnClickListener(View.OnClickListener {
-            if(currentPageIndex>=0 && currentPageIndex < dataFile!!.listOfPageData.size-1 && editText!=null){
-                prev.isEnabled = true
-                saveDataToPage()
-                currentPageIndex++
-                if(currentPageIndex==dataFile!!.listOfPageData.size-1){
-                    next.isEnabled = false
-                }
-//                Toast.makeText(context, "page $currentPageIndex", Toast.LENGTH_SHORT).show()
-                editText!!.setText(dataFile!!.listOfPageData.get(currentPageIndex))
-            }
-        })
 //        editText.setHorizontallyScrolling(false)
         if(editText!=null) {
            // undoRedo = TextViewUndoRedo(editText,viewLifecycleOwner)
@@ -469,20 +447,9 @@ class EditorFragment : Fragment {
     }
 
 
-    fun saveDataToPage() {
-        if(editText!=null) {
-            var page=""
-            if(dataFile!!.fileExtension==".html" || dataFile!!.fileExtension==".txt" )
-            {
-                page=HtmlCompat.toHtml(editText!!.text,HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
-            }
-            else {
-                 page = editText!!.text.toString()
-            }
-            if (dataFile != null) {
-                dataFile!!.listOfPageData.removeAt(currentPageIndex)
-                dataFile!!.listOfPageData.add(currentPageIndex, page)
-            }
+    fun saveDataToDataFile() {
+        if(editText!=null && dataFile!=null) {
+            dataFile!!.data= editText!!.text
         }
     }
 
@@ -571,10 +538,6 @@ class EditorFragment : Fragment {
     }
 
 
-    fun getListOfPages() : MutableList<String>{
-        return dataFile?.listOfPageData!!
-    }
-
 
     fun insertSpecialChar(specialChar : String){
         if(editText!=null && editText!!.isFocused){
@@ -603,34 +566,36 @@ class EditorFragment : Fragment {
 
     fun boldClicked()
     {
+        isBoldEnabled=!isBoldEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
             changeSelectedTextStyle(bold=true)
         }
-        isBoldEnabled=!isBoldEnabled
+
     }
     fun italicClicked(){
+        isItalicEnabled=!isItalicEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
-            changeSelectedTextStyle(italic = true)
+                changeSelectedTextStyle(italic = true)
         }
-        isItalicEnabled=!isItalicEnabled
     }
 
     fun underlineClicked() {
+        isUnderlineEnabled = !isUnderlineEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
-            changeSelectedTextStyle(underline = true)
+                changeSelectedTextStyle(underline = true)
         }
-        isUnderlineEnabled = !isUnderlineEnabled
+
     }
     fun strikeThroughClicked() {
-        editText?.apply {
-                    if(selectionStart!=selectionEnd)
-
-            changeSelectedTextStyle(strikethrough = true)
-        }
         isStrikethroughEnabled = !isStrikethroughEnabled
+        editText?.apply {
+            if(selectionStart!=selectionEnd)
+                changeSelectedTextStyle(strikethrough = true)
+        }
+
     }
     fun alignCenter() {
         changeAlignmentValue(center = true)
@@ -660,9 +625,21 @@ class EditorFragment : Fragment {
         }
     }
 
-    fun getEditable(): Editable? {
-        if(editText!=null)
+    fun getEditable(): Spanned? {
+        saveDataToDataFile()
+        if(editText!=null) {
             return editText!!.text
+        }
+        else if(dataFile!=null) {
+            return dataFile!!.data
+        }
+        return null
+    }
+
+    fun getCurrentSpan() : Array<CharacterStyle>?{
+        if(editText!=null ) {
+            return editText!!.text.getSpans(editText!!.selectionStart,editText!!.selectionStart+1,CharacterStyle::class.java)
+        }
         return null
     }
 

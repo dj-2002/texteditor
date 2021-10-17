@@ -27,26 +27,5 @@
             android:textSize="14sp"
 
         />
-        <Button
-            android:id="@+id/prev"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/prev"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="-450dp"
-            android:backgroundTint="?attr/colorAccent"
-            android:textColor="@color/white"
-            android:layout_below="@+id/editText"/>
-        <Button
-            android:id="@+id/next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:layout_alignParentEnd="true"
-            android:text="@string/next"
-            android:layout_marginTop="-450dp"
-            android:backgroundTint="?attr/colorAccent"
-            android:textColor="@color/white"
-            android:layout_below="@+id/editText"/>
     </RelativeLayout>
 </ScrollView>

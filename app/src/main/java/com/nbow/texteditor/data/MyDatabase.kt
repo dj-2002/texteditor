@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 
 
-@Database(entities = arrayOf(History::class, RecentFile::class,Page::class), version = 1 )
+@Database(entities = arrayOf(History::class, RecentFile::class), version = 1 )
 abstract class MyDatabase : RoomDatabase() {
     abstract fun HistoryDao(): HistoryDao
     abstract fun RecentFileDao(): RecentFileDao
@@ -25,7 +25,7 @@ abstract class MyDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     MyDatabase::class.java,
-                    "word_database"
+                    "text_editor_database"
                 ).build()
                 INSTANCE = instance
                 // return instance

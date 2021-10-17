@@ -6,14 +6,15 @@ import androidx.room.PrimaryKey
 
 
 import androidx.room.Index
+import java.lang.StringBuilder
 
 @Entity(indices = [Index(value = ["uriString"], unique = true)] , tableName = "history")
 data class History(
         @PrimaryKey(autoGenerate = true)
         val historyId: Long,             //file id
-        val fileName: String,
-        val uriString: String,
-        val hasUnsavedData : Boolean,
-        val time : String
+        val uriString: String?,
+        val fileName:String,
+        val realFileName:String,
+        val hasUnsavedData : Boolean
 )
 

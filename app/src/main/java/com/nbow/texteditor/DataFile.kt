@@ -1,12 +1,13 @@
 package com.nbow.texteditor
 
 import android.net.Uri
+import android.text.Spanned
 
 data class DataFile (
     val fileName : String,
     val filePath : String,
     val uri : Uri,
-    val listOfPageData : MutableList<String> = arrayListOf()
+    var data : Spanned
     ){
     val fileExtension = when(val index = fileName.lastIndexOf(".")){
         -1 -> String()

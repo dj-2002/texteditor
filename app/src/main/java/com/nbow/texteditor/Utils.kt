@@ -10,11 +10,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.OpenableColumns
+import android.text.Html
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.text.HtmlCompat
 
 class Utils {
 
@@ -22,6 +26,20 @@ class Utils {
     private val TAG = "Utils"
     private var activity: AppCompatActivity? = null
     private var permission11Launcher: ActivityResultLauncher<Intent>? = null
+
+
+    companion object{
+        fun htmlToSpannable(data : String): Spanned {
+            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N)
+                return Html.fromHtml(data, Html.FROM_HTML_MODE_LEGACY)
+            else
+                return HtmlCompat.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        }
+
+        fun spannableToHtml(data : Spanned): String {
+                return HtmlCompat.toHtml(data, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
+        }
+    }
 
     constructor(activity: AppCompatActivity) {
         this.activity = activity

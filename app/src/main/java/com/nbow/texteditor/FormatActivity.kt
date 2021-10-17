@@ -637,14 +637,14 @@ class FormatActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelect
 //                    if (currentFragment != null)
 //                        search(currentFragment, true)
                 }
-                R.id.run->{
-//                    val intent:Intent = Intent(this,WebViewActivity::class.java)
-//                    if(currentFragment!=null) {
-//                        intent.putExtra("data", currentFragment.getEditTextData().toString())
-//                        startActivity(intent)
-//                    }
-
-                }
+//                R.id.run->{
+////                    val intent:Intent = Intent(this,WebViewActivity::class.java)
+////                    if(currentFragment!=null) {
+////                        intent.putExtra("data", currentFragment.getEditTextData().toString())
+////                        startActivity(intent)
+////                    }
+//
+//                }
                 R.id.settings -> {
                     Log.e(TAG, "onNavigationItemSelected: clicked")
                     val intent: Intent = Intent(this@FormatActivity, SettingActivity::class.java)

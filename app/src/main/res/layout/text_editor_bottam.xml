@@ -84,6 +84,13 @@
         android:src="@drawable/ic_align_right"></ImageButton>
 
     <ImageButton
+        android:id="@+id/textSize"
+        android:background="@drawable/round_btn_white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_textsize" />
+
+    <ImageButton
         android:id="@+id/textFont"
       android:background="@drawable/round_btn_white"
         android:layout_width="wrap_content"

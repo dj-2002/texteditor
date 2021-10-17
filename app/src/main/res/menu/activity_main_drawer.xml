@@ -6,7 +6,7 @@
     <group android:id="@+id/nav_up" android:checkableBehavior="single">
         <item
             android:id="@+id/textColor"
-            android:icon="@drawable/ic_color_text"
+            android:icon="@drawable/ic_color_brush"
             android:title="Text Color" />
         <item
             android:id="@+id/textFont"

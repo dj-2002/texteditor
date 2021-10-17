@@ -24,7 +24,7 @@
             android:layout_marginStart="7dp"
             android:background="@android:color/transparent"
             android:lastBaselineToBottomHeight="500dp"
-            android:textSize="14sp"
+            android:textSize="16dp"
 
         />
     </RelativeLayout>

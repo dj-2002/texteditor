@@ -22,40 +22,13 @@
         app:showAsAction="never"
         />
 
-    <item
-        android:id="@+id/undo_change"
-        android:title="Undo"
-        android:icon="@drawable/ic_undo"
-        app:showAsAction="ifRoom"/>
-
-
-    <item
-        android:id="@+id/redo_change"
-        android:title="Redo"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_redo">
-    </item>
-
-
-
-    <item
-        android:id="@+id/settings"
-        android:title="@string/setting"
-        android:icon="@drawable/ic_setting"
-        app:showAsAction="never"
-        android:checked="false"/>
 
     <item
         android:id="@+id/print"
         android:title="Print"
+        android:icon="@drawable/ic_print"
         ></item>
 
-    <item
-        android:id="@+id/advanced_mode"
-        android:title="Advanced mode"></item>
 
-    <item
-        android:id="@+id/run"
-        android:title="Run HTML(BETA)"></item>
 
 </menu>

@@ -45,12 +45,13 @@ class EditorFragment : Fragment {
     var isAlignLeftEnabled = true
     var isAlignRightEnabled = false
     val flag = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+    var isTextChanged = false
 
 
     private var editText : EditText? = null
     var hasUnsavedChanges = MutableLiveData(false)
     var hasLongPress = MutableLiveData<Boolean>(false)
-    var cursorChanged  =MutableLiveData<Boolean>(false)
+    var cursorChanged = MutableLiveData<Boolean>(false)
     //private var undoRedo=TextViewUndoRedo()
 
     private var dataFile : DataFile? = null
@@ -111,43 +112,22 @@ class EditorFragment : Fragment {
             false
         })
 
-
         editText?.setAccessibilityDelegate(object : View.AccessibilityDelegate() {
             override fun sendAccessibilityEvent(host: View?, eventType: Int) {
                 super.sendAccessibilityEvent(host, eventType)
-                if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED){
+                if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED && !isTextChanged){
                     cursorChanged.value = true
                 }
+                isTextChanged = false
             }
         })
-//        editText?.customSelectionActionModeCallback = object : ActionMode.Callback {
-//
-//            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-//                return false
-//            }
-//
-//            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-//                return false
-//            }
-//
-//            override fun onActionItemClicked(
-//                mode: ActionMode?,
-//                item: MenuItem?
-//            ): Boolean {
-//                return false
-//            }
-//
-//            override fun onDestroyActionMode(mode: ActionMode?) {
-//
-//            }
-//
-//        }
-//        editText?.apply {
-//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//                customInsertionActionModeCallback = customSelectionActionModeCallback
-//        }
+
+
 
         editText?.doOnTextChanged { text, start, before, count ->
+
+            isTextChanged = true
+            Log.e(TAG, "onViewStateRestored: do on text changed listner", )
             hasUnsavedChanges.value = true
             run {
                 lifecycleScope.launch(Main) {
@@ -286,50 +266,50 @@ class EditorFragment : Fragment {
 
 
 
-            if (editText != null ){
-                editText!!.apply {
-                    if (selectionEnd != selectionStart && text!=null) {
+        if (editText != null ){
+            editText!!.apply {
+                if (selectionEnd != selectionStart && text!=null) {
 
-                        if ((bold && !isBoldEnabled) || (italic && !isItalicEnabled) || (strikethrough && !isStrikethroughEnabled) || (underline && !isUnderlineEnabled)) {
-                            var next: Int
+                    if ((bold && !isBoldEnabled) || (italic && !isItalicEnabled) || (strikethrough && !isStrikethroughEnabled) || (underline && !isUnderlineEnabled)) {
+                        var next: Int
 
-                            var i = selectionStart
-                            while (i < selectionEnd) {
+                        var i = selectionStart
+                        while (i < selectionEnd) {
 
-                                // find the next span transition
-                                next =
-                                    text!!.nextSpanTransition(i, selectionEnd, CharacterStyle::class.java)
+                            // find the next span transition
+                            next =
+                                text!!.nextSpanTransition(i, selectionEnd, CharacterStyle::class.java)
 
-                                val spans: Array<CharacterStyle> =
-                                    text!!.getSpans(i, next, CharacterStyle::class.java)
+                            val spans: Array<CharacterStyle> =
+                                text!!.getSpans(i, next, CharacterStyle::class.java)
 
-                                for (span in spans) {
+                            for (span in spans) {
 
-                                    if (span is StyleSpan) {
-                                        val spn = span as StyleSpan
-                                        if ((spn.style == Typeface.BOLD && bold) || (spn.style == Typeface.ITALIC && italic))
-                                            text!!.removeSpan(spn)
-                                    } else if ((span is UnderlineSpan && underline) || (span is StrikethroughSpan && strikethrough)) {
-                                        text!!.removeSpan(span)
-                                    }
+                                if (span is StyleSpan) {
+                                    val spn = span as StyleSpan
+                                    if ((spn.style == Typeface.BOLD && bold) || (spn.style == Typeface.ITALIC && italic))
+                                        text!!.removeSpan(spn)
+                                } else if ((span is UnderlineSpan && underline) || (span is StrikethroughSpan && strikethrough)) {
+                                    text!!.removeSpan(span)
                                 }
-                                i = next
                             }
+                            i = next
+                        }
 
-                        } else if (bold)
-                            text!!.setSpan(StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, flag)
-                        else if (italic)
-                            text!!.setSpan(StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, flag)
-                        else if (underline)
-                            text!!.setSpan(UnderlineSpan(), selectionStart, selectionEnd, flag)
-                        else if (strikethrough)
-                            text!!.setSpan(StrikethroughSpan(), selectionStart, selectionEnd, flag)
+                    } else if (bold)
+                        text!!.setSpan(StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, flag)
+                    else if (italic)
+                        text!!.setSpan(StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, flag)
+                    else if (underline)
+                        text!!.setSpan(UnderlineSpan(), selectionStart, selectionEnd, flag)
+                    else if (strikethrough)
+                        text!!.setSpan(StrikethroughSpan(), selectionStart, selectionEnd, flag)
 
 
-                    }
                 }
             }
         }
+    }
 
 
     fun changeParagraphStyle(alignCenter:Boolean=false,alignLeft:Boolean=false,alignRight:Boolean = false,){
@@ -421,6 +401,15 @@ class EditorFragment : Fragment {
         }
     }
 
+    fun settingColor(color: Int){
+        editText!!.setTextColor(color)
+    }
+    fun settingFont(font:Int)
+    {
+        editText!!.apply {
+            this.typeface = Typeface.create(ResourcesCompat.getFont(context, font), Typeface.NORMAL)
+        }
+    }
 
 
     fun undoChanges()
@@ -566,34 +555,126 @@ class EditorFragment : Fragment {
 
     fun boldClicked()
     {
+
         isBoldEnabled=!isBoldEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
             changeSelectedTextStyle(bold=true)
+            else{
+                var ss=selectionStart
+                var se=selectionEnd
+                
+                var text:CharSequence=editText!!.text
+
+                if(se < (text.length-2)) {
+
+                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                        ss--;
+                    }
+                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
+                        se++;
+                    }
+                    if (ss != se) {
+                        setSelection(ss, se)
+                        changeSelectedTextStyle(bold = true)
+
+                    }
+                }
+                        
+            }
         }
 
     }
     fun italicClicked(){
+
         isItalicEnabled=!isItalicEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
                 changeSelectedTextStyle(italic = true)
+            else{
+                var ss=selectionStart
+                var se=selectionEnd
+
+                var text:CharSequence=editText!!.text
+
+                if(se < (text.length-2)) {
+
+                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                        ss--;
+                    }
+                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
+                        se++;
+                    }
+                    if (ss != se) {
+                        setSelection(ss, se)
+                        changeSelectedTextStyle(italic = true)
+
+                    }
+                }
+
+            }
         }
     }
 
     fun underlineClicked() {
+
         isUnderlineEnabled = !isUnderlineEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
                 changeSelectedTextStyle(underline = true)
+            else{
+                var ss=selectionStart
+                var se=selectionEnd
+
+                var text:CharSequence=editText!!.text
+
+                if(se < (text.length-2)) {
+
+                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                        ss--;
+                    }
+                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
+                        se++;
+                    }
+                    if (ss != se) {
+                        setSelection(ss, se)
+                        changeSelectedTextStyle(underline = true)
+
+                    }
+                }
+
+            }
         }
 
     }
     fun strikeThroughClicked() {
+
         isStrikethroughEnabled = !isStrikethroughEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
                 changeSelectedTextStyle(strikethrough = true)
+            else{
+                var ss=selectionStart
+                var se=selectionEnd
+
+                var text:CharSequence=editText!!.text
+
+                if(se < (text.length-2)) {
+
+                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                        ss--;
+                    }
+                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
+                        se++;
+                    }
+                    if (ss != se) {
+                        setSelection(ss, se)
+                        changeSelectedTextStyle(strikethrough = true)
+
+                    }
+                }
+
+            }
         }
 
     }
@@ -638,9 +719,39 @@ class EditorFragment : Fragment {
 
     fun getCurrentSpan() : Array<CharacterStyle>?{
         if(editText!=null ) {
-            return editText!!.text.getSpans(editText!!.selectionStart,editText!!.selectionStart+1,CharacterStyle::class.java)
+            return editText!!.text.getSpans(editText!!.selectionStart,editText!!.selectionEnd,CharacterStyle::class.java)
         }
         return null
+    }
+
+    fun isSelected(): Boolean{
+        if(editText!=null)
+        {
+            if(editText!!.selectionStart==editText!!.selectionEnd)
+                return false
+            else
+                return true
+        }
+        return false
+    }
+
+    fun changeTextSize(x:Float) {
+        Log.e(TAG, "changeTextSize: $x", )
+        if(editText!=null)
+        {
+            editText!!.apply {
+                textSize=x;
+            }
+        }
+    }
+
+    fun getTextSize(context: Context): Float {
+        if(editText!=null)
+        {
+            var size = (editText!!.textSize) / (context.resources.displayMetrics.density)
+            return size
+        }
+        return 16f;
     }
 
 }

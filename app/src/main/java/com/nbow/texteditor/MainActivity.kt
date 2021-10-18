@@ -52,6 +52,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.get
 import top.defaults.colorpicker.ColorPickerPopup
 import kotlin.math.roundToInt
 
@@ -229,11 +230,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //
             })
             colorText.setOnClickListener({
-                pickColor(false)
+                pickColor()
             })
             textFont.setOnClickListener({
 //
-                showFontSelectionPopUp(false)
+                showFontSelectionPopUp()
 //
             })
 
@@ -244,7 +245,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-    fun pickColor(isApply:Boolean) {
+    fun pickColor() {
         val v:View = binding.textEditorBottam.root as View
         ColorPickerPopup.Builder(this)
             .initialColor(Color.RED) // Set initial color
@@ -259,7 +260,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 override fun onColorPicked(color: Int) {
                     if (isValidTab()) {
                         var cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                            if (isApply) {
+                            if (!cf.isSelected()) {
                                 cf.settingColor(color)
                             }
                             else {
@@ -609,12 +610,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
 
             R.id.textFont->{
-                showFontSelectionPopUp(true)
-
+                showFontSelectionPopUp()
             }
             R.id.textColor->{
-                        pickColor(true)
-
+                pickColor()
             }
 
             R.id.nav_history -> {
@@ -655,7 +654,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-    private fun showFontSelectionPopUp(isApply: Boolean) {
+    private fun showFontSelectionPopUp() {
         //val view = findViewById<View>(item.itemId)
 
         var view = binding.textEditorBottam.root as View
@@ -679,50 +678,60 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
                when (item.itemId) {
+
+                   R.id.normal -> {
+
+                       if ( !currentFragment.isSelected())
+                           currentFragment.settingFont(null)
+                       else
+                           currentFragment.applyFontEdittext(null)
+
+                   }
+
                    R.id.georgia -> {
-                       if (isApply)
+                       if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.georgia)
                        else
                            currentFragment.applyFontEdittext(R.font.georgia)
                    }
                    R.id.arial -> {
-                       if (isApply)
+                       if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.arial)
                        else
                            currentFragment.applyFontEdittext(R.font.arial)
                    }
                    R.id.helvetica_bold -> {
-                       if (isApply)
+                       if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.helvetica_bold)
                        else
                            currentFragment.applyFontEdittext(R.font.helvetica_bold)
                    }
                    R.id.helvetica -> {
-                       if (isApply)
+                       if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.helvetica)
                        else
                            currentFragment.applyFontEdittext(R.font.helvetica)
                    }
                    R.id.opensans -> {
-                       if (isApply)
+                       if (!currentFragment.isSelected())
                            currentFragment.settingFont(R.font.opensans)
                        else
                            currentFragment.applyFontEdittext(R.font.opensans)
                    }
                    R.id.raleway -> {
-                       if (isApply)
+                       if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.raleway)
                        else
                            currentFragment.applyFontEdittext(R.font.raleway)
                    }
                    R.id.verdana -> {
-                       if (isApply)
+                       if (!currentFragment.isSelected())
                            currentFragment.settingFont(R.font.verdana)
                        else
                            currentFragment.applyFontEdittext(R.font.verdana)
                    }
                    R.id.calibri -> {
-                       if (isApply)
+                       if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.calibri)
                        else
                            currentFragment.applyFontEdittext(R.font.calibri)
@@ -972,12 +981,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 R.id.save_as -> {
-                    saveAsDialog()
+                    if(currentFragment!=null)
+                        saveAsDialog(currentFragment.getFileExtension())
                 }
                 R.id.save -> {
                     if (currentFragment != null) {
-                        if (currentFragment.hasUnsavedChanges.value != false)
-                            saveFile(currentFragment, currentFragment.getUri(),isHtml = (currentFragment.getFileExtension()==".html" || currentFragment.getFileExtension()==".txt"))
+                        if (currentFragment.hasUnsavedChanges.value != false) {
+
+                            if(currentFragment.getFileExtension()==".html") {
+                                saveFile(
+                                    currentFragment,
+                                    currentFragment.getUri(),
+                                    isHtml = (currentFragment.getFileExtension() == ".html")
+                                )
+                            }
+                            else  saveAsDialog(currentFragment.getFileExtension())
+                        }
                         else
                             Toast.makeText(this, "No Changes Found", Toast.LENGTH_SHORT).show()
                     }
@@ -1419,16 +1438,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             } catch (e: FileNotFoundException) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "saveFile: ${e.message}", )
                 e.printStackTrace()
 
             } catch (e: IOException) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
+                Log.e(TAG, "saveFile: ${e.message}", )
+
             } catch (e: SecurityException) {
                 showSecureSaveAsDialog(fragment)
             } catch (e: Exception) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
+                Log.e(TAG, "saveFile: ${e.message}", )
+
             }
         }
     }
@@ -1492,7 +1516,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    private fun saveAsDialog() {
+    private fun saveAsDialog(ext:String) {
         val builder = AlertDialog.Builder(this)
 
         builder.setTitle("Save As")
@@ -1500,7 +1524,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val view = LayoutInflater.from(this).inflate(R.layout.save_as_dialog, null, false)
         val radioGroupExtension = view.findViewById<RadioGroup>(R.id.radio_group_extension)
-
+        val radioButton = view.findViewById<RadioButton>(R.id.radio_txt)
+        radioButton.setText(ext)
         builder.setView(view)
 
         builder.setPositiveButton(this.getString(R.string.save_as)) { dialogInterface, which ->
@@ -1509,7 +1534,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if(radioGroupExtension.checkedRadioButtonId==R.id.radio_html)
                     saveAsIntent(".html") //TODO : .txt.html
                 else
-                    saveAsIntent(".txt")
+                    saveAsIntent(ext)
                 dialogInterface.dismiss()
             }
         }

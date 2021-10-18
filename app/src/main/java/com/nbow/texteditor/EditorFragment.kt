@@ -381,33 +381,51 @@ class EditorFragment : Fragment {
     }
 
 
-    fun applyFontEdittext(fontRes: Int) {
-        editText?.apply {
-            if(selectionStart!=selectionEnd) {
-                val myTypeface = Typeface.create(
-                    ResourcesCompat.getFont(context, fontRes),
-                    Typeface.NORMAL
-                )
-                (text as Spannable).setSpan(
-                    CustomTypefaceSpan(myTypeface),
-                    selectionStart,
-                    selectionEnd,
-                    flag
-                )
-            } else {
-                selectedFont=fontRes
-            }
+    fun applyFontEdittext(fontRes: Int?) {
 
+        editText?.apply {
+
+            if(fontRes!=null) {
+                if (selectionStart != selectionEnd) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, fontRes),
+                        Typeface.NORMAL
+                    )
+                    (text as Spannable).setSpan(
+                        CustomTypefaceSpan(myTypeface),
+                        selectionStart,
+                        selectionEnd,
+                        flag
+                    )
+                } else {
+                    selectedFont = fontRes
+                }
+            }
+            else{
+
+                if(selectionStart != selectionEnd) {
+                    val myTypeface = Typeface.NORMAL
+                    (text as Spannable).setSpan(
+                        myTypeface,
+                        selectionStart,
+                        selectionEnd,
+                        flag
+                    )
+                }
+            }
         }
     }
 
     fun settingColor(color: Int){
         editText!!.setTextColor(color)
     }
-    fun settingFont(font:Int)
+    fun settingFont(font:Int?)
     {
         editText!!.apply {
-            this.typeface = Typeface.create(ResourcesCompat.getFont(context, font), Typeface.NORMAL)
+            if(font!=null)
+                this.typeface = Typeface.create(ResourcesCompat.getFont(context, font), Typeface.NORMAL)
+            else
+                this.typeface=Typeface.DEFAULT
         }
     }
 

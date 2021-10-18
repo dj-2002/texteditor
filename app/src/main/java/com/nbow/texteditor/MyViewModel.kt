@@ -53,7 +53,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
     fun addHistories(context: Context){
 
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteAllHistory()
+            repository.deleteAllHistory(context)
             for(frag : Fragment in fragmentList.value!!){
                 val editorFragment = frag as EditorFragment
                 val uniqueFileName = editorFragment.getFileName() + (0..10000).random()
@@ -62,7 +62,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                 context.openFileOutput(uniqueFileName, Context.MODE_PRIVATE).use {
                     it.write(
                         editorFragment.getEditable()?.let
-                            { it1 -> Utils.spannableToHtml(it1).toString().toByteArray() })
+                            { it1 -> customHtmlCompact.spannedtoHtml(it1).toByteArray() })
                 }
                 val history = History(0,editorFragment.getUri().toString(),uniqueFileName,editorFragment.getFileName(),editorFragment.hasUnsavedChanges.value?:true)
 

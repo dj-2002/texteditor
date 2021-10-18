@@ -31,7 +31,7 @@ class Utils {
     companion object{
         fun htmlToSpannable(data : String): Spanned {
             if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N)
-                return Html.fromHtml(data, Html.FROM_HTML_MODE_LEGACY)
+                return Html.fromHtml(data, Html.FROM_HTML_SEPARATOR_LINE_BREAK_DIV)
             else
                 return HtmlCompat.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY)
         }

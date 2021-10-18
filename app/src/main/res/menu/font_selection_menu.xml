@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:title="Normal" android:id="@+id/normal"></item>
     <item android:title="Georgia" android:id="@+id/georgia"></item>
     <item android:title="Arial" android:id="@+id/arial"></item>
     <item android:title="Helvetica" android:id="@+id/helvetica"></item>

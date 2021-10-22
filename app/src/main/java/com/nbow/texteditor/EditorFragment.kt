@@ -772,4 +772,44 @@ class EditorFragment : Fragment {
         return 16f;
     }
 
+    fun makeH1(value : Float) {
+        editText?.apply {
+
+            val spans = text.getSpans(selectionStart,selectionEnd,RelativeSizeSpan::class.java)
+            for(span in spans){
+                if(span is RelativeSizeSpan){
+                    text.removeSpan(span)
+                }
+            }
+
+            var ss=selectionStart
+            var se=selectionEnd
+
+            var text:CharSequence=editText!!.text
+
+            if(se < (text.length-2)) {
+
+                while (  text[ss] != '\n' && ss > 0  ) {
+                    ss--
+                }
+                while (text[se] != '\n' && se < text.length) {
+                    se++;
+                }
+                if (ss != se) {
+                    if(ss==0)
+                        setSelection(ss,se)
+                    else
+                        setSelection(ss+1, se)
+                }
+            }
+
+            editText!!.apply {
+                this.text.setSpan(RelativeSizeSpan(value), selectionStart,selectionEnd, flag)
+                this.text.setSpan(StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, flag)
+            }
+        }
+//        Log.e("utils hello :", Utils.spannableToHtml(Utils.htmlToSpannable("<h1>Hello</h1>")))
+
+    }
+
 }

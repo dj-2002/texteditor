@@ -62,7 +62,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                 context.openFileOutput(uniqueFileName, Context.MODE_PRIVATE).use {
                     it.write(
                         editorFragment.getEditable()?.let
-                            { it1 -> customHtmlCompact.spannedtoHtml(it1).toByteArray() })
+                            { it1 -> Utils.spannableToHtml(it1).toByteArray() })
                 }
                 val history = History(0,editorFragment.getUri().toString(),uniqueFileName,editorFragment.getFileName(),editorFragment.hasUnsavedChanges.value?:true)
 

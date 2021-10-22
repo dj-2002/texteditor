@@ -29,15 +29,25 @@ class Utils {
 
 
     companion object{
+        private val TAG = "Utils"
+//        val heading = arrayListOf(2f,1.5f,1.17f,1f,0.83f,0.67f)
+        val heading = arrayListOf(1.5f,1.4f,1.3f,1.2f,1.1f,1f)
+
         fun htmlToSpannable(data : String): Spanned {
-            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N)
-                return Html.fromHtml(data, Html.FROM_HTML_SEPARATOR_LINE_BREAK_DIV)
+
+            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N) {
+                val s =   Html.fromHtml(data, Html.FROM_HTML_SEPARATOR_LINE_BREAK_DIV)
+                Log.e(TAG, "htmlToSpannable: ${s}", )
+                return  s;
+            }
             else
                 return HtmlCompat.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY)
         }
 
         fun spannableToHtml(data : Spanned): String {
-                return HtmlCompat.toHtml(data, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
+                val s= customHtmlCompact.spannedtoHtml(data)
+            Log.e(TAG, "spannableToHtml: $s", )
+            return s;
         }
     }
 

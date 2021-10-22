@@ -130,6 +130,56 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     seekbarDialog()
             })
 
+            h1.setOnClickListener({
+                if (isValidTab()) {
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H1)
+                    cf.makeH1(Utils.heading[0])
+                }
+            })
+            h2.setOnClickListener({
+                if (isValidTab()) {
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                    cf.makeH1(Utils.heading[1])
+                }
+            })
+            h3.setOnClickListener({
+                if (isValidTab()) {
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H3)
+                    cf.makeH1(Utils.heading[2])
+                }
+            })
+            h4.setOnClickListener({
+                if (isValidTab()) {
+                    val cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H4)
+                    cf.makeH1(Utils.heading[3])
+                }
+            })
+            h5.setOnClickListener({
+                if (isValidTab()) {
+                    val cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H5)
+                    cf.makeH1(Utils.heading[4])
+                }
+
+
+            })
+            h6.setOnClickListener({
+                if (isValidTab()) {
+                    val cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H6)
+                    cf.makeH1(Utils.heading[5])
+                }
+            })
+
 
             close.setOnClickListener({
                 if (isValidTab()) {
@@ -204,6 +254,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //
             })
             alignCenter.setOnClickListener({
+
                 if (isValidTab()) {
                     var cf =
                         adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment

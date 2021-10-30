@@ -46,7 +46,6 @@ import android.text.*
 import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
-import android.text.style.UnderlineSpan
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -55,6 +54,18 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.get
 import top.defaults.colorpicker.ColorPickerPopup
 import kotlin.math.roundToInt
+import android.view.MotionEvent
+
+import android.view.Gravity
+
+import android.widget.PopupWindow
+
+import android.widget.LinearLayout
+
+import android.view.LayoutInflater
+
+
+
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -130,55 +141,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     seekbarDialog()
             })
 
-            h1.setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H1)
-                    cf.makeH1(Utils.heading[0])
-                }
+            heading.setOnClickListener({
+                showHeadingPopUp()
             })
-            h2.setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.makeH1(Utils.heading[1])
-                }
-            })
-            h3.setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H3)
-                    cf.makeH1(Utils.heading[2])
-                }
-            })
-            h4.setOnClickListener({
-                if (isValidTab()) {
-                    val cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H4)
-                    cf.makeH1(Utils.heading[3])
-                }
-            })
-            h5.setOnClickListener({
-                if (isValidTab()) {
-                    val cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H5)
-                    cf.makeH1(Utils.heading[4])
-                }
 
 
-            })
-            h6.setOnClickListener({
-                if (isValidTab()) {
-                    val cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H6)
-                    cf.makeH1(Utils.heading[5])
-                }
-            })
 
 
             close.setOnClickListener({
@@ -295,6 +262,75 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
+    fun showHeadingPopUp()
+    {
+
+        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupView: View = inflater.inflate(R.layout.heading_popup_layout, null)
+        val width = LinearLayout.LayoutParams.WRAP_CONTENT
+        val height = LinearLayout.LayoutParams.WRAP_CONTENT
+        val focusable = true // lets taps outside the popup also dismiss it
+
+        val popupWindow = PopupWindow(popupView, width, height, focusable)
+
+        popupWindow.showAtLocation(binding.textEditorBottam.heading, Gravity.CENTER, 0,0 )
+
+        popupView.apply {
+
+            this.findViewById<ImageButton>(R.id.h1).setOnClickListener({
+                if (isValidTab()) {
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H1)
+                    cf.makeH1(Utils.heading[0])
+
+                }
+            })
+            this.findViewById<ImageButton>(R.id.h2).setOnClickListener({
+                if (isValidTab()) {
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                    cf.makeH1(Utils.heading[1])
+                }
+            })
+            this.findViewById<ImageButton>(R.id.h3).setOnClickListener({
+                if (isValidTab()) {
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H3)
+                    cf.makeH1(Utils.heading[2])
+                }
+            })
+            this.findViewById<ImageButton>(R.id.h4).setOnClickListener({
+                if (isValidTab()) {
+                    val cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H4)
+                    cf.makeH1(Utils.heading[3])
+                }
+            })
+            this.findViewById<ImageButton>(R.id.h5).setOnClickListener({
+                if (isValidTab()) {
+                    val cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H5)
+                    cf.makeH1(Utils.heading[4])
+                }
+
+
+            })
+            this.findViewById<ImageButton>(R.id.h6).setOnClickListener({
+                if (isValidTab()) {
+                    val cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.applyStyle(R.style.H6)
+                    cf.makeH1(Utils.heading[5])
+                }
+            })
+
+        }
+    }
+
 
     fun pickColor() {
         val v:View = binding.textEditorBottam.root as View
@@ -358,7 +394,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             catch (e:Exception)
             {
                 Toast.makeText(applicationContext, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "newFileLauncher: ${e.toString()}.", )
+                Log.e(TAG, "newFileLauncher: ${e.toString()}.")
             }
 
         })
@@ -524,8 +560,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.apply {
             if(tabLayout.tabCount==0)
             {
-                noTabLayout.root.visibility=View.VISIBLE
-                constraintLayoutMain.visibility = View.GONE
+                val dir = File(applicationContext.filesDir,"note")
+                if(!dir.exists())
+                    dir.mkdir()
+                val uniqueFileName = "untitled"
+                val file = File(dir,uniqueFileName)
+                if(!file.exists()) file.createNewFile()
+
+                makeBlankFragment(uniqueFileName)
+
             }
             else
             {
@@ -533,6 +576,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 constraintLayoutMain.visibility = View.VISIBLE
             }
         }
+    }
+
+    fun makeBlankFragment(fileName: String)
+    {
+        val dataFile = DataFile(
+            fileName = fileName,
+            filePath = "note",
+            uri = null,
+            data = Utils.htmlToSpannable("")
+        )
+        val fragment = EditorFragment(dataFile,applicationContext)
+        adapter.addFragment(fragment)
+        binding.tabLayout.apply {
+            this.addTab(newTab())
+            setCustomTabLayout(tabCount - 1, fileName)
+            adapter.notifyItemInserted(tabCount - 1)
+            selectTab(getTabAt(tabCount - 1))
+        }
+
     }
 
     private fun showUnsavedDialog(currentFragment: EditorFragment) {
@@ -644,7 +706,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent: Intent? = result.data
                 val bundle = intent?.getBundleExtra("mbundle")
                 val listofuri = bundle?.getStringArrayList("uri")
-                Log.e(TAG, "${listofuri.toString()} ", )
+                Log.e(TAG, "${listofuri.toString()} ")
                 if (listofuri != null) {
                     for (uriS:String in listofuri) {
                         val uri = Uri.parse(uriS)
@@ -903,7 +965,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
     private fun changeColorBottamText() {
-        Log.e(TAG, "changeColorBottamText: called", )
+        Log.e(TAG, "changeColorBottamText: called")
         if (isValidTab() ) {
             var cf =
                 adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
@@ -934,7 +996,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             cf.isItalicEnabled = true
                         }
 
-                    } else if (span is UnderlineSpan) {
+                    } else if (span is CustomUnderlineSpan) {
                         binding.textEditorBottam.underline.setBackgroundResource(R.drawable.round_btn)
                         cf.isUnderlineEnabled = true
 
@@ -1040,6 +1102,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         if (currentFragment.hasUnsavedChanges.value != false) {
 
                             if(currentFragment.getFileExtension()==".html") {
+
                                 saveFile(
                                     currentFragment,
                                     currentFragment.getUri(),
@@ -1076,7 +1139,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     catch (e:Exception)
                     {
                         Toast.makeText(applicationContext, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
-                        Log.e(TAG, "newFileLauncher: ${e.toString()}.", )
+                        Log.e(TAG, "newFileLauncher: ${e.toString()}.")
                     }
                 }
                 R.id.paste -> {
@@ -1250,7 +1313,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val clipData = result.data?.clipData
                 Log.e(TAG, "clipdata: $clipData")
                 if (clipData != null) {
-                    Log.e(TAG, "${clipData.itemCount}: ", )
+                    Log.e(TAG, "${clipData.itemCount}: ")
                         var i = 0
                         while (i < clipData.itemCount) {
                             val uri = clipData.getItemAt(i).uri
@@ -1454,13 +1517,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     ) {
 
 //        val uri = fragment.getUri()
-        if (uri !== null) {
+        if (uri !== null || isSaveAs==false) {
             try {
                 val takeFlags: Int =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                    applicationContext.contentResolver.takePersistableUriPermission(uri, takeFlags)
-                contentResolver.openFileDescriptor(uri, "wt")?.use {
+                    applicationContext.contentResolver.takePersistableUriPermission(uri!!, takeFlags)
+                contentResolver.openFileDescriptor(uri!!, "wt")?.use {
                     FileOutputStream(it.fileDescriptor).use {
                         if(isHtml)
                         {
@@ -1489,22 +1552,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             } catch (e: FileNotFoundException) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "saveFile: ${e.message}", )
+                Log.e(TAG, "saveFile: ${e.message}")
                 e.printStackTrace()
 
             } catch (e: IOException) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
-                Log.e(TAG, "saveFile: ${e.message}", )
+                Log.e(TAG, "saveFile: ${e.message}")
 
             } catch (e: SecurityException) {
                 showSecureSaveAsDialog(fragment)
             } catch (e: Exception) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
-                Log.e(TAG, "saveFile: ${e.message}", )
+                Log.e(TAG, "saveFile: ${e.message}")
 
             }
+        }
+        else
+        {
+            saveAsDialog(".txt")
         }
     }
 
@@ -1561,22 +1628,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         catch (e:Exception)
         {
             Toast.makeText(applicationContext, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
-            Log.e(TAG, "saveAsIntent: ${e.toString()}.", )
+            Log.e(TAG, "saveAsIntent: ${e.toString()}.")
         }
 
     }
 
 
     private fun saveAsDialog(ext:String) {
-        val builder = AlertDialog.Builder(this)
 
+        var extension = ext
+        if(extension=="")
+            extension=".txt"
+        val builder = AlertDialog.Builder(this)
         builder.setTitle("Save As")
         builder.setIcon(R.drawable.ic_save_as)
 
         val view = LayoutInflater.from(this).inflate(R.layout.save_as_dialog, null, false)
         val radioGroupExtension = view.findViewById<RadioGroup>(R.id.radio_group_extension)
         val radioButton = view.findViewById<RadioButton>(R.id.radio_txt)
-        radioButton.setText(ext)
+
+        radioButton.setText(extension)
         builder.setView(view)
 
         builder.setPositiveButton(this.getString(R.string.save_as)) { dialogInterface, which ->
@@ -1585,7 +1656,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if(radioGroupExtension.checkedRadioButtonId==R.id.radio_html)
                     saveAsIntent(".html") //TODO : .txt.html
                 else
-                    saveAsIntent(ext)
+                    saveAsIntent(extension)
                 dialogInterface.dismiss()
             }
         }

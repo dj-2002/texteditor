@@ -25,6 +25,7 @@ import android.widget.EditText
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.doOnPreDraw
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -129,21 +130,28 @@ class EditorFragment : Fragment {
             isTextChanged = true
             Log.e(TAG, "onViewStateRestored: do on text changed listner", )
             hasUnsavedChanges.value = true
+
+
+
             run {
                 lifecycleScope.launch(Main) {
 
-
-                    Log.e(
-                        TAG,
-                        "onCreate: ${
-                            text?.subSequence(
-                                start,
-                                start + count
-                            )
-                        } $start $before $count "
-                    )
                     editText?.text?.apply {
+
+
+
                         if (before < count) { // adding new text
+
+
+                            var underlineSpans = getSpans(start,start+count,UnderlineSpan::class.java)
+                            if(underlineSpans!=null){
+                                for(span in underlineSpans){
+                                    if(span is UnderlineSpan && !(span is CustomUnderlineSpan)){
+                                        removeSpan(span)
+                                    }
+                                }
+                            }
+
                             if (isBoldEnabled) {
                                 Log.e(TAG, "onViewStateRestored: Bold is enabled", )
                                 this.setSpan(
@@ -164,7 +172,7 @@ class EditorFragment : Fragment {
 
                             if (isUnderlineEnabled){
                                 Log.e(TAG, "onViewStateRestored: Underline enabled", )
-                                this.setSpan(UnderlineSpan(), start + before, start + count, flag)}
+                                this.setSpan(CustomUnderlineSpan(), start + before, start + count, flag)}
 
                             if (isStrikethroughEnabled) {
                                 Log.e(TAG, "onViewStateRestored: StrikeThrough enabled", )
@@ -289,7 +297,7 @@ class EditorFragment : Fragment {
                                     val spn = span as StyleSpan
                                     if ((spn.style == Typeface.BOLD && bold) || (spn.style == Typeface.ITALIC && italic))
                                         text!!.removeSpan(spn)
-                                } else if ((span is UnderlineSpan && underline) || (span is StrikethroughSpan && strikethrough)) {
+                                } else if ((span is CustomUnderlineSpan && underline) || (span is StrikethroughSpan && strikethrough)) {
                                     text!!.removeSpan(span)
                                 }
                             }
@@ -301,7 +309,7 @@ class EditorFragment : Fragment {
                     else if (italic)
                         text!!.setSpan(StyleSpan(Typeface.ITALIC), selectionStart, selectionEnd, flag)
                     else if (underline)
-                        text!!.setSpan(UnderlineSpan(), selectionStart, selectionEnd, flag)
+                        text!!.setSpan(CustomUnderlineSpan(), selectionStart, selectionEnd, flag)
                     else if (strikethrough)
                         text!!.setSpan(StrikethroughSpan(), selectionStart, selectionEnd, flag)
 
@@ -697,8 +705,24 @@ class EditorFragment : Fragment {
 
     }
     fun alignCenter() {
-        changeAlignmentValue(center = true)
-        changeParagraphStyle(alignCenter = true)
+        val text = editText!!.text
+        var ss= editText!!.selectionStart
+        var isEmptyLine = false;
+
+        if(ss==text.length)
+            ss--;
+        if(text[ss] == '\n' && text[ss-1] == '\n'){
+            isEmptyLine = true
+        }
+
+        if(isEmptyLine==false) {
+            changeAlignmentValue(center = true)
+            changeParagraphStyle(alignCenter = true)
+        }
+        else
+        {
+            Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun alignLeft()
@@ -789,10 +813,10 @@ class EditorFragment : Fragment {
 
             if(se < (text.length-2)) {
 
-                while (  text[ss] != '\n' && ss > 0  ) {
+                while (  ss > 0 && text[ss] != '\n'    ) {
                     ss--
                 }
-                while (text[se] != '\n' && se < text.length) {
+                while ( se < text.length && text[se] != '\n' ) {
                     se++;
                 }
                 if (ss != se) {
@@ -806,6 +830,10 @@ class EditorFragment : Fragment {
             editText!!.apply {
                 this.text.setSpan(RelativeSizeSpan(value), selectionStart,selectionEnd, flag)
                 this.text.setSpan(StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, flag)
+//                      this.doOnPreDraw {
+//
+//                    }
+
             }
         }
 //        Log.e("utils hello :", Utils.spannableToHtml(Utils.htmlToSpannable("<h1>Hello</h1>")))

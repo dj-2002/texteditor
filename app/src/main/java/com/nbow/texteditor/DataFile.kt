@@ -6,7 +6,7 @@ import android.text.Spanned
 data class DataFile (
     val fileName : String,
     val filePath : String,
-    val uri : Uri,
+    val uri : Uri?,
     var data : Spanned
     ){
     val fileExtension = when(val index = fileName.lastIndexOf(".")){

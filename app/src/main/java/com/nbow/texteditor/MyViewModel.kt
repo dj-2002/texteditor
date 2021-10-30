@@ -56,23 +56,36 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
             repository.deleteAllHistory(context)
             for(frag : Fragment in fragmentList.value!!){
                 val editorFragment = frag as EditorFragment
-                val uniqueFileName = editorFragment.getFileName() + (0..10000).random()
-                val file = File(context.filesDir,uniqueFileName)
-                if(!file.exists()) file.createNewFile()
-                context.openFileOutput(uniqueFileName, Context.MODE_PRIVATE).use {
-                    it.write(
-                        editorFragment.getEditable()?.let
+
+
+                    val uniqueFileName = editorFragment.getFileName() + (0..10000).random()
+                    val file = File(context.filesDir, uniqueFileName)
+                    if (!file.exists()) file.createNewFile()
+                    context.openFileOutput(uniqueFileName, Context.MODE_PRIVATE).use {
+                        it.write(
+                            editorFragment.getEditable()?.let
                             { it1 -> Utils.spannableToHtml(it1).toByteArray() })
+                    }
+
+
+                    var uriString: String? = null
+                    if(editorFragment.getUri()!=null)
+                        uriString=editorFragment.getUri().toString()
+                        val history = History(
+                        0,
+                        uriString,
+                        uniqueFileName,
+                        editorFragment.getFileName(),
+                        editorFragment.hasUnsavedChanges.value ?: true
+                    )
+
+                    Log.e(TAG, "saving new file to databse: file id ${history.historyId}")
+                    repository.addHistory(history)
                 }
-                val history = History(0,editorFragment.getUri().toString(),uniqueFileName,editorFragment.getFileName(),editorFragment.hasUnsavedChanges.value?:true)
-
-                Log.e(TAG, "saving new file to databse: file id ${history.historyId}")
-                repository.addHistory(history)
-
 
             }
         }
-    }
+
 
     fun loadHistory( context: Context){
 
@@ -81,20 +94,40 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
             val historyList:MutableList<History> = repository.getHistory()
             Log.e("view model","size history ${historyList.size} fragment list size : ${fragmentList.value!!.size}")
 
-            for(history in historyList){
-                val uri : Uri = Uri.parse(history.uriString)
-                var data:StringBuilder = StringBuilder()
+            for(history in historyList) {
+                if (history.uriString != null) {
+                    val uri: Uri = Uri.parse(history.uriString)
+                    var data: StringBuilder = StringBuilder()
 
-
-                context.openFileInput(history.fileName).bufferedReader().forEachLine { line ->
-                    data.append(line+"\n")
-                }
-
-                val datafile  = DataFile(history.realFileName,uri.path!!,uri,Utils.htmlToSpannable(data.toString()))
-                val frag = EditorFragment(datafile,getApplication(),history.hasUnsavedData)
-                (fragmentList.value?: arrayListOf()).add(frag)
+                    context.openFileInput(history.fileName).bufferedReader().forEachLine { line ->
+                        data.append(line + "\n")
+                    }
+                    val datafile = DataFile(
+                        history.realFileName,
+                        uri.path!!,
+                        uri,
+                        Utils.htmlToSpannable(data.toString())
+                    )
+                    val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
+                    (fragmentList.value ?: arrayListOf()).add(frag)
 //                Log.e(TAG, "loadHistory: ${history.fileName} => hasUnsavedData ${history.hasUnsavedData} and frag unsaved data : ${frag.hasUnsavedChanges.value}")
 
+                }
+                else {
+                    var data: StringBuilder = StringBuilder()
+
+                    context.openFileInput(history.fileName).bufferedReader().forEachLine { line ->
+                        data.append(line + "\n")
+                    }
+                    val datafile = DataFile(
+                        history.realFileName,
+                        "note/untitled.html",
+                        null,
+                        Utils.htmlToSpannable(data.toString())
+                    )
+                    val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
+                    (fragmentList.value ?: arrayListOf()).add(frag)
+                }
             }
             isHistoryLoaded.postValue(true)
         }

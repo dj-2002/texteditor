@@ -12,7 +12,7 @@
         android:id="@+id/view"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:background="@mipmap/ic_launcher_foreground"
+        android:background="@mipmap/ic_logo_round"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"

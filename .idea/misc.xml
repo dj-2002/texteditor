@@ -17,6 +17,7 @@
         <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/menu/font_selection_menu.xml" value="0.20625" />
         <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/menu/overflow_menu.xml" value="0.25" />
         <entry key="..\:/Users/J/AndroidStudioProjects/ACE/app/src/main/res/xml/provider_paths.xml" value="0.25" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/drawable/ic_arrow_forward.xml" value="0.26197916666666665" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/drawable/ic_h6.xml" value="0.26614583333333336" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/drawable/ic_navigation.xml" value="0.26614583333333336" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/drawable/menu_back_indication_state.xml" value="0.26614583333333336" />
@@ -25,9 +26,13 @@
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/drawable/round_btn_white.xml" value="0.26614583333333336" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/activity_web_view.xml" value="0.25" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/heading_popup_layout.xml" value="0.25" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/seekbar_layout.xml" value="0.22291666666666668" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/tab_layout.xml" value="0.25" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/text_editor_bottam.xml" value="0.264" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.26197916666666665" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.26197916666666665" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/mipmap-anydpi-v26/ic_logo.xml" value="0.26197916666666665" />
       </map>
     </option>
   </component>

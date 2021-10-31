@@ -43,7 +43,6 @@ import android.graphics.Typeface
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.text.*
-import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.webkit.WebResourceRequest
@@ -51,10 +50,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
-import androidx.core.view.get
 import top.defaults.colorpicker.ColorPickerPopup
-import kotlin.math.roundToInt
-import android.view.MotionEvent
 
 import android.view.Gravity
 
@@ -63,9 +59,7 @@ import android.widget.PopupWindow
 import android.widget.LinearLayout
 
 import android.view.LayoutInflater
-
-
-
+import androidx.core.view.get
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -558,23 +552,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun changeNoTabLayout() {
         binding.apply {
-            if(tabLayout.tabCount==0)
-            {
-                val dir = File(applicationContext.filesDir,"note")
-                if(!dir.exists())
-                    dir.mkdir()
-                val uniqueFileName = "untitled"
-                val file = File(dir,uniqueFileName)
-                if(!file.exists()) file.createNewFile()
 
-                makeBlankFragment(uniqueFileName)
 
-            }
-            else
-            {
+            if(tabLayout.tabCount>0) {
                 (noTabLayout.root).visibility = View.GONE
                 constraintLayoutMain.visibility = View.VISIBLE
             }
+            else{
+                (noTabLayout.root).visibility = View.VISIBLE
+                constraintLayoutMain.visibility = View.GONE
+            }
+
         }
     }
 
@@ -717,6 +705,48 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+    val noteActivityLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent: Intent? = result.data
+                if(intent!=null) {
+                    val fileName = intent.getStringExtra("file_name")
+                    Log.e(TAG, "$fileName: ", )
+                    if(fileName!=null)
+                    createFragmentFromNote(fileName!!)
+                }
+            }
+        }
+
+
+    fun createFragmentFromNote(fileName: String){
+
+        val dir = File(applicationContext.filesDir,"note")
+        val file= File(dir,fileName)
+        val bufferedReader = BufferedReader(FileReader(file))
+        val content = java.lang.StringBuilder()
+        bufferedReader.forEachLine {
+            content.append(it+'\n')
+        }
+
+        Log.e(TAG, "createFragmentFromNote: $content", )
+        val dataFile = DataFile(
+            fileName = fileName,
+            filePath = "note",
+            uri = null,
+            data = Utils.htmlToSpannable(content.toString())
+        )
+        val fragment = EditorFragment(dataFile,applicationContext)
+        adapter.addFragment(fragment)
+        binding.tabLayout.apply {
+            this.addTab(newTab())
+            setCustomTabLayout(tabCount - 1, fileName)
+            adapter.notifyItemInserted(tabCount - 1)
+            selectTab(getTabAt(tabCount - 1))
+        }
+
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         Log.e(TAG, "onNavigationItemSelected: outside ")
@@ -746,6 +776,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_feedback -> {
                 feedback()
+            }
+            R.id.note_list -> {
+                Log.e(TAG, "onNavigationItemSelected: clicked")
+                val intent = Intent(this@MainActivity, NoteActivity::class.java)
+                noteActivityLauncher.launch(intent)
             }
 
         }
@@ -945,6 +980,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
                 }
+
+                if(binding.tabLayout.tabCount==0)
+                {
+                    val dir = File(applicationContext.filesDir,"note")
+                    if(!dir.exists())
+                        dir.mkdir()
+
+
+                    var count = 1
+                    var file = File(dir,"untitled.html")
+
+                    while(file.exists()){
+
+                        file=File(dir,"untitled"+count+".html")
+                        count++
+                    }
+
+                    // file.createNewFile()
+                    makeBlankFragment("untitled"+count+".html")
+
+                }
             }
 
 
@@ -1097,6 +1153,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if(currentFragment!=null)
                         saveAsDialog(currentFragment.getFileExtension())
                 }
+
+                R.id.save_as_note -> {
+                    if(currentFragment!=null)
+                    {
+                        model.saveAsNote(applicationContext,binding.tabLayout.selectedTabPosition)
+                    }
+
+                }
+
+
                 R.id.save -> {
                     if (currentFragment != null) {
                         if (currentFragment.hasUnsavedChanges.value != false) {
@@ -1517,7 +1583,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     ) {
 
 //        val uri = fragment.getUri()
-        if (uri !== null || isSaveAs==false) {
+        if (uri !== null && isSaveAs==false) {
             try {
                 val takeFlags: Int =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -1569,10 +1635,96 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
         }
+        else if(uri==null && isSaveAs==false)
+        {
+
+            val uniqueFileName = fragment.getFileName()
+            val dir = File(applicationContext.filesDir, "note")
+            if (!dir.exists())
+                dir.mkdir()
+            var file = File(dir, uniqueFileName)
+            if (!file.exists()) {
+
+                createNewNoteFile(uniqueFileName,fragment)
+                //file.createNewFile()
+            }
+            else
+            {
+                file.bufferedWriter().use {
+                    it.write("${Utils.spannableToHtml(fragment.getEditable()?: SpannableStringBuilder(""))}")
+                }
+            }
+        }
         else
         {
             saveAsDialog(".txt")
         }
+    }
+
+    private fun createNewNoteFile(uniqueFileName: String, fragment: EditorFragment) {
+        val dir = File(applicationContext.filesDir, "note")
+
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Enter File Name")
+        builder.setIcon(R.drawable.ic_search)
+
+        val view = LayoutInflater.from(this).inflate(R.layout.file_name_input_dialog, null, false)
+        val editText = view.findViewById<EditText>(R.id.file_name)
+        editText.setText(uniqueFileName)
+        builder.setView(view)
+        builder.setPositiveButton("OK") { dialogInterface, which ->
+            run {
+                findText = editText.text.toString()
+
+                var file = File(dir,findText)
+                if(!file.exists())
+                {
+                    file.createNewFile()
+                    fragment.setFileName(findText)
+                    setCustomTabLayout(binding.tabLayout.selectedTabPosition,findText)
+                }
+                else
+                {
+                    Toast.makeText(applicationContext, "File already exist", Toast.LENGTH_SHORT).show()
+                    createNewNoteFile(uniqueFileName,fragment)
+                }
+
+                file.bufferedWriter().use {
+                    it.write("${Utils.spannableToHtml(fragment.getEditable()?: SpannableStringBuilder(""))}")
+                }
+
+                dialogInterface.dismiss()
+            }
+        }
+        //performing cancel action
+        builder.setNeutralButton("Cancel") { dialogInterface, which ->
+            //Toast.makeText(applicationContext, "operation cancel", Toast.LENGTH_LONG).show()
+            dialogInterface.dismiss()
+        }
+
+        // Create the AlertDialog
+        val alertDialog: AlertDialog = builder.create()
+        // Set other dialog properties
+        alertDialog.setCancelable(true)
+        alertDialog.show()
+        if (TextUtils.isEmpty(editText.text)) {
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+        }
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !TextUtils.isEmpty(s)
+            }
+        })
+
+
+
     }
 
     private fun showSecureSaveAsDialog(fragment: EditorFragment) {
@@ -1646,8 +1798,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val view = LayoutInflater.from(this).inflate(R.layout.save_as_dialog, null, false)
         val radioGroupExtension = view.findViewById<RadioGroup>(R.id.radio_group_extension)
         val radioButton = view.findViewById<RadioButton>(R.id.radio_txt)
-
-        radioButton.setText(extension)
         builder.setView(view)
 
         builder.setPositiveButton(this.getString(R.string.save_as)) { dialogInterface, which ->
@@ -1656,7 +1806,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if(radioGroupExtension.checkedRadioButtonId==R.id.radio_html)
                     saveAsIntent(".html") //TODO : .txt.html
                 else
-                    saveAsIntent(extension)
+                    saveAsIntent(".txt")
                 dialogInterface.dismiss()
             }
         }

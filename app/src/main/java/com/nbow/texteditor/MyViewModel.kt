@@ -4,7 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.text.Spannable
 import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
@@ -164,5 +166,24 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    fun saveAsNote(context: Context,index:Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val editorFragment = fragmentList.value!!.get(index) as EditorFragment
+            Log.e(TAG, "saveAsNote: ${editorFragment.getEditable().toString()}", )
+            val uniqueFileName = editorFragment.getFileName()
+            val dir = File(context.filesDir, "note")
+            if (!dir.exists())
+                dir.mkdir()
+            val file = File(dir, uniqueFileName)
+            if (!file.exists()) file.createNewFile()
+
+            file.bufferedWriter().use {
+                it.write("${Utils.spannableToHtml(editorFragment.getEditable()?: SpannableStringBuilder(""))}")
+            }
+
+        }
+    }
 
 }

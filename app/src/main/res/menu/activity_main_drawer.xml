@@ -30,6 +30,11 @@
             android:id="@+id/nav_setting"
             android:icon="@drawable/ic_setting"
             android:title="@string/setting"/>
+
+        <item
+            android:id="@+id/note_list"
+            android:title="Notes" />
+
     </group>
     <group android:id="@+id/nav_bottom">
         <item

@@ -840,4 +840,10 @@ class EditorFragment : Fragment {
 
     }
 
+    fun setFileName(findText: String) {
+        if(dataFile!=null)
+            dataFile!!.fileName=findText
+
+    }
+
 }

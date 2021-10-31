@@ -7,7 +7,7 @@ import android.text.style.*
 import android.util.Log
 import androidx.core.text.HtmlCompat
 
-class customHtmlCompact {
+class CustomHtmlCompact {
 
     constructor() {
 
@@ -105,7 +105,44 @@ class customHtmlCompact {
                     nl++
                     next++
                 }
+                val spans = text.getSpans(i,next-nl,RelativeSizeSpan::class.java)
+                for(span in spans){
+                    if(span is RelativeSizeSpan){
+                        if(span.sizeChange == Utils.heading[0]){
+                            out.append("<h1>")
+                        }else if(span.sizeChange == Utils.heading[1]){
+                            out.append("<h2>")
+                        }else if(span.sizeChange == Utils.heading[2]){
+                            out.append("<h3>")
+                        }else if(span.sizeChange == Utils.heading[3]){
+                            out.append("<h4>")
+                        }else if(span.sizeChange == Utils.heading[4]){
+                            out.append("<h5>")
+                        }else if(span.sizeChange == Utils.heading[5]){
+                            out.append("<h6>")
+                        }
+                    }
+                }
+
                 withinParagraph(out, text, i, next - nl)
+                for(span in spans){
+                    if(span is RelativeSizeSpan){
+                        if(span.sizeChange == Utils.heading[0]){
+                            out.append("</h1>")
+                        }else if(span.sizeChange == Utils.heading[1]){
+                            out.append("</h2>")
+                        }else if(span.sizeChange == Utils.heading[2]){
+                            out.append("</h3>")
+                        }else if(span.sizeChange == Utils.heading[3]){
+                            out.append("</h4>")
+                        }else if(span.sizeChange == Utils.heading[4]){
+                            out.append("</h5>")
+                        }else if(span.sizeChange == Utils.heading[5]){
+                            out.append("</h6>")
+                        }
+                    }
+                }
+
                 if (nl == 1) {
                     out.append("<br>\n")
                 } else {
@@ -192,32 +229,10 @@ class customHtmlCompact {
                     }
                     if (style[j] is RelativeSizeSpan) {
                         val sizeEm = (style[j] as RelativeSizeSpan).sizeChange
-                        if(sizeEm==Utils.heading[0]) {
-                            out.append("<h1>")
-                            hCount=1;
-                        }
-                        else if(sizeEm==Utils.heading[1]) {
-                            out.append("<h2>")
-                            hCount=2;
-                        }
-                        else if(sizeEm==Utils.heading[2]){
-                            out.append("<h3>")
-                            hCount=3;
-                        }
-                        else if(sizeEm==Utils.heading[3]) {
-                            out.append("<h4>")
-                            hCount=4;
-                        }
-                        else if(sizeEm==Utils.heading[4]) {
-                            out.append("<h5>")
-                            hCount=5;
-                        }
-                        else if(sizeEm==Utils.heading[5]) {
-                            out.append("<h6>")
-                            hCount=6;
-                        }
-                        else
+                        if(!(sizeEm==Utils.heading[0] || sizeEm==Utils.heading[1] || sizeEm==Utils.heading[2] || sizeEm==Utils.heading[3] || sizeEm==Utils.heading[4] || sizeEm==Utils.heading[5])) {
                             out.append(String.format("<span style=\"font-size:%.2fem;\">", sizeEm))
+                            hCount = 0
+                        }
                     }
                     if (style[j] is ForegroundColorSpan) {
                         val color = (style[j] as ForegroundColorSpan).foregroundColor
@@ -248,10 +263,10 @@ class customHtmlCompact {
                     }
                     if (style[j] is RelativeSizeSpan) {
 
-                        if(hCount>=1 && hCount<=6)
-                            out.append("</h$hCount>")
-                        else
+                        if(hCount==0) {
                             out.append("</span>")
+                            hCount = -1
+                        }
                     }
                     if (style[j] is AbsoluteSizeSpan) {
                         out.append("</span>")

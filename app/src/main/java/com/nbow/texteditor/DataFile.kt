@@ -4,7 +4,7 @@ import android.net.Uri
 import android.text.Spanned
 
 data class DataFile (
-    val fileName : String,
+    var fileName : String,
     val filePath : String,
     val uri : Uri?,
     var data : Spanned

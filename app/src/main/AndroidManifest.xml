@@ -18,29 +18,27 @@
         android:supportsRtl="true"
         android:theme="@style/AppMaterialTheme">
         <activity
-            android:name="com.nbow.texteditor.FormatActivity"
+            android:name=".NoteActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FormatActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"
-            >
-
-        </activity>
-
-
-
+            android:windowSoftInputMode="adjustResize"></activity>
         <activity
-            android:name="com.nbow.texteditor.SplashScreen"
+            android:name=".SplashScreen"
             android:noHistory="true"
-            android:theme="@style/SplashTheme">
-        </activity>
+            android:theme="@style/SplashTheme"></activity>
         <activity
-            android:name="com.nbow.texteditor.MainActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <action android:name="android.intent.action.SEND" />
             </intent-filter>
             <intent-filter>
@@ -78,13 +76,12 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-
         <activity
-            android:name="com.nbow.texteditor.SettingActivity"
-            android:parentActivityName="com.nbow.texteditor.MainActivity" />
+            android:name=".SettingActivity"
+            android:parentActivityName=".MainActivity" />
         <activity
-            android:name="com.nbow.texteditor.RecyclerViewActivity"
-            android:parentActivityName="com.nbow.texteditor.MainActivity" />
+            android:name=".RecyclerViewActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

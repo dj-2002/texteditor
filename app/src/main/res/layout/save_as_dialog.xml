@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:minHeight="48dp"
-            android:text=".txt" />
+            android:text=".txt(Without Formatting)" />
 
         <RadioButton
             android:id="@+id/radio_html"
@@ -44,6 +44,6 @@
             android:layout_marginStart="8dp"
             android:checked="true"
             android:minHeight="48dp"
-            android:text=".html" />
+            android:text=".html(With Formatting)" />
     </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Environment
 import android.provider.OpenableColumns
 import android.text.Html
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
@@ -45,7 +44,7 @@ class Utils {
         }
 
         fun spannableToHtml(data : Spanned): String {
-                val s= customHtmlCompact.spannedtoHtml(data)
+                val s= CustomHtmlCompact.spannedtoHtml(data)
             Log.e(TAG, "spannableToHtml: $s", )
             return s;
         }

@@ -29,11 +29,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.android.play.core.review.testing.FakeReviewManager
-import com.nbow.texteditor.data.RecentFile
 import com.nbow.texteditor.databinding.ActivityMainBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.*
 import java.net.URLConnection
 import java.util.*
@@ -43,6 +39,7 @@ import android.graphics.Typeface
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.text.*
+import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.webkit.WebResourceRequest
@@ -52,26 +49,15 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import top.defaults.colorpicker.ColorPickerPopup
 
-import android.view.Gravity
-
-import android.widget.PopupWindow
-
-import android.widget.LinearLayout
-
 import android.view.LayoutInflater
-import androidx.core.view.get
+import kotlinx.coroutines.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val TAG = "MainActivity"
-
     private val THEME_PREFERENCE_KEY = "night_mode_preference"
-
-    val mimeType =
-        "text/* |application/java |application/sql |application/php |application/x-php |application/x-javascript |application/javascript |application/x-tcl |application/xml |application/octet-stream"
-
+    val mimeType = "text/* |application/java |application/sql |application/php |application/x-php |application/x-javascript |application/javascript |application/x-tcl |application/xml |application/octet-stream"
     val TEXT = "text/*"
-
     val JAVA = "application/java"
     val SQL = "application/sql"
     val PHP = "application/php"
@@ -81,9 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     val X_TCL = "application/x-tcl"
     val XML = "application/xml"
     val OCTECT_STRM = "application/octet-stream"
-
-    private var supportedMimeTypes =
-        arrayOf(TEXT, JAVA, SQL, PHP, X_PHP, X_JS, JS, X_TCL, XML, OCTECT_STRM)
+    private var supportedMimeTypes = arrayOf(TEXT, JAVA, SQL, PHP, X_PHP, X_JS, JS, X_TCL, XML, OCTECT_STRM)
     private lateinit var toolbar: Toolbar
 
     //    private lateinit var pager2 : ViewPager2
@@ -125,9 +109,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 readFileUsingUri(uri,true)
             }
         }
-
-
-
         binding.textEditorBottam.apply {
 
 
@@ -136,11 +117,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             })
 
             heading.setOnClickListener({
-                showHeadingPopUp()
+                showHeadingSelectionPopUp()
             })
-
-
-
 
             close.setOnClickListener({
                 if (isValidTab()) {
@@ -252,78 +230,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         }
-
     }
 
 
-    fun showHeadingPopUp()
-    {
-
-        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupView: View = inflater.inflate(R.layout.heading_popup_layout, null)
-        val width = LinearLayout.LayoutParams.WRAP_CONTENT
-        val height = LinearLayout.LayoutParams.WRAP_CONTENT
-        val focusable = true // lets taps outside the popup also dismiss it
-
-        val popupWindow = PopupWindow(popupView, width, height, focusable)
-
-        popupWindow.showAtLocation(binding.textEditorBottam.heading, Gravity.CENTER, 0,0 )
-
-        popupView.apply {
-
-            this.findViewById<ImageButton>(R.id.h1).setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H1)
-                    cf.makeH1(Utils.heading[0])
-
-                }
-            })
-            this.findViewById<ImageButton>(R.id.h2).setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.makeH1(Utils.heading[1])
-                }
-            })
-            this.findViewById<ImageButton>(R.id.h3).setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H3)
-                    cf.makeH1(Utils.heading[2])
-                }
-            })
-            this.findViewById<ImageButton>(R.id.h4).setOnClickListener({
-                if (isValidTab()) {
-                    val cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H4)
-                    cf.makeH1(Utils.heading[3])
-                }
-            })
-            this.findViewById<ImageButton>(R.id.h5).setOnClickListener({
-                if (isValidTab()) {
-                    val cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H5)
-                    cf.makeH1(Utils.heading[4])
-                }
-
-
-            })
-            this.findViewById<ImageButton>(R.id.h6).setOnClickListener({
-                if (isValidTab()) {
-                    val cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-//                    cf.applyStyle(R.style.H6)
-                    cf.makeH1(Utils.heading[5])
-                }
-            })
-
-        }
-    }
 
 
     fun pickColor() {
@@ -357,8 +266,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
-
     private fun init() {
 
 
@@ -520,7 +427,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
     private fun changeBottamBarColor() {
         if(isValidTab())
         {
@@ -549,7 +455,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         }
     }
-
     private fun changeNoTabLayout() {
         binding.apply {
 
@@ -565,14 +470,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         }
     }
-
     fun makeBlankFragment(fileName: String)
     {
+
+        Log.e(TAG, "makeBlankFragment: " )
         val dataFile = DataFile(
             fileName = fileName,
             filePath = "note",
             uri = null,
-            data = Utils.htmlToSpannable("")
+            data = Utils.htmlToSpannable(""),
+            isNote = true
         )
         val fragment = EditorFragment(dataFile,applicationContext)
         adapter.addFragment(fragment)
@@ -584,7 +491,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-
     private fun showUnsavedDialog(currentFragment: EditorFragment) {
         val builder = AlertDialog.Builder(this)
 
@@ -687,24 +593,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-
-    val recyclerViewLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val intent: Intent? = result.data
-                val bundle = intent?.getBundleExtra("mbundle")
-                val listofuri = bundle?.getStringArrayList("uri")
-                Log.e(TAG, "${listofuri.toString()} ")
-                if (listofuri != null) {
-                    for (uriS:String in listofuri) {
-                        val uri = Uri.parse(uriS)
-                        Log.e(TAG, "$uri: " )
-                        if (uri != null) readFileUsingUri(uri)
-                    }
-                }
-            }
-        }
-
     val noteActivityLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -713,12 +601,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val fileName = intent.getStringExtra("file_name")
                     Log.e(TAG, "$fileName: ", )
                     if(fileName!=null)
-                    createFragmentFromNote(fileName!!)
+                    createFragmentFromNote(fileName)
                 }
             }
         }
-
-
     fun createFragmentFromNote(fileName: String){
 
         val dir = File(applicationContext.filesDir,"note")
@@ -734,7 +620,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fileName = fileName,
             filePath = "note",
             uri = null,
-            data = Utils.htmlToSpannable(content.toString())
+            data = Utils.htmlToSpannable(content.toString()),
+            isNote = true
         )
         val fragment = EditorFragment(dataFile,applicationContext)
         adapter.addFragment(fragment)
@@ -746,7 +633,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         Log.e(TAG, "onNavigationItemSelected: outside ")
@@ -759,11 +645,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 pickColor()
             }
 
-            R.id.nav_history -> {
-                // Handle the camera action
-                var intent: Intent = Intent(this, RecyclerViewActivity::class.java)
-                recyclerViewLauncher.launch(intent)
-            }
+
             R.id.nav_setting -> {
                 Log.e(TAG, "onNavigationItemSelected: clicked")
                 val intent = Intent(this@MainActivity, SettingActivity::class.java)
@@ -788,8 +670,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
-
-
     private fun initFontPopUpMenu(popup: android.widget.PopupMenu, res:Int, fontId: Int, title: String)
     {
         var menuItem  = popup.menu.findItem(res)
@@ -799,13 +679,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         menuItem.title= SpannableString(ss)
     }
 
-
-
+    private fun initHeading(popup: android.widget.PopupMenu, res:Int,size:Float,text:String)
+    {
+        var menuItem  = popup.menu.findItem(res)
+        val ss = SpannableStringBuilder(text)
+        ss.setSpan(RelativeSizeSpan(size),0,ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        menuItem.title= SpannableString(ss)
+    }
 
     private fun showFontSelectionPopUp() {
         //val view = findViewById<View>(item.itemId)
 
-        var view = binding.textEditorBottam.root as View
+        var view = binding.textEditorBottam.textFont as View
 
         val popup = android.widget.PopupMenu(applicationContext,view)
         popup.inflate(R.menu.font_selection_menu)
@@ -892,6 +777,67 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+    private fun showHeadingSelectionPopUp() {
+        //val view = findViewById<View>(item.itemId)
+
+        var view = binding.textEditorBottam.heading as View
+
+        val popup = android.widget.PopupMenu(applicationContext,view)
+        popup.inflate(R.menu.heading_menu)
+
+        initHeading(popup,R.id.h1,Utils.heading[0],"Heading 1")
+        initHeading(popup,R.id.h2,Utils.heading[1],"Heading 2")
+        initHeading(popup,R.id.h3,Utils.heading[2],"Heading 3")
+        initHeading(popup,R.id.h4,Utils.heading[3],"Heading 4")
+        initHeading(popup,R.id.h5,Utils.heading[4],"Heading 5")
+
+        popup.setOnMenuItemClickListener { item ->
+            if(isValidTab()) {
+                val currentFragment =
+                    adapter.fragmentList[binding.tabLayout.selectedTabPosition] as EditorFragment
+
+                when (item.itemId) {
+
+                    R.id.h1 -> {
+                        if (isValidTab()) {
+                            currentFragment.makeH1(Utils.heading[0])
+                        }
+                    }
+                    R.id.h2-> {
+                        if (isValidTab()) {
+                            currentFragment.makeH1(Utils.heading[1])
+                        }
+                    }
+                    R.id.h3 -> {
+                        if (isValidTab()) {
+                            currentFragment.makeH1(Utils.heading[2])
+                        }
+                    }
+                    R.id.h4 -> {
+                        if (isValidTab()) {
+                            currentFragment.makeH1(Utils.heading[3])
+                        }
+                    }
+                    R.id.h5 -> {
+                        if (isValidTab()) {
+                            currentFragment.makeH1(Utils.heading[4])
+                        }
+                    }
+                    R.id.h6 -> {
+                        if (isValidTab()) {
+                            currentFragment.makeH1(Utils.heading[5])
+                        }
+                    }
+
+                }
+            }
+            false
+        }
+        popup.show()
+
+    }
+
+
     private fun down(currentFragment: EditorFragment) {
         if (index != -1) {
             indexList.add(index)
@@ -903,8 +849,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             index = currentFragment.highlight(findText, index, ignoreCase)
         }
     }
-
-
     private fun closeTab() {
         binding.tabLayout.apply {
             if (isValidTab()) {
@@ -920,14 +864,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-
     private fun setDefaultToolbarTitle() {
         toolbar.apply {
             setTitle(R.string.greet_line)
             changeNoTabLayout()
         }
     }
-
     private fun isValidTab(): Boolean {
         binding.tabLayout.apply {
             if (tabCount > 0 && selectedTabPosition >= 0 && selectedTabPosition < adapter.itemCount)
@@ -935,7 +877,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return false
         }
     }
-
     override fun onResume() {
         super.onResume()
 
@@ -972,7 +913,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     fragment.cursorChanged.observe(this@MainActivity) {
                         if (it) {
                             changeColorBottamText()
-                            fragment.cursorChanged.value=false
+                            fragment.cursorChanged.value = false
                         }
 
 
@@ -981,43 +922,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 }
 
-                if(binding.tabLayout.tabCount==0)
-                {
-                    val dir = File(applicationContext.filesDir,"note")
-                    if(!dir.exists())
+                if (binding.tabLayout.tabCount == 0 && adapter.fragmentList.size==0) {
+
+                    val dir = File(applicationContext.filesDir, "note")
+                    if (!dir.exists())
                         dir.mkdir()
-
-
                     var count = 1
-                    var file = File(dir,"untitled.html")
-
-                    while(file.exists()){
-
-                        file=File(dir,"untitled"+count+".html")
+                    var file = File(dir, "untitled+" + count + ".html")
+                    while (file.exists()) {
+                        file = File(dir, "untitled" + count + ".html")
                         count++
                     }
-
-                    // file.createNewFile()
-                    makeBlankFragment("untitled"+count+".html")
-
+                    makeBlankFragment("untitled" + count + ".html")
                 }
+
+                Log.e(TAG, "onResume: called")
+
+                binding.tabLayout.apply {
+                    if (model.currentTab >= 0 && model.currentTab < tabCount)
+                        selectTab(getTabAt(model.currentTab))
+                }
+
+
             }
 
-
-
-        Log.e(TAG, "onResume: called")
-
-
-
-            binding.tabLayout.apply {
-                if (model.currentTab >= 0 && model.currentTab < tabCount)
-                    selectTab(getTabAt(model.currentTab))
-            }
-
-
-
-        //progressBar.visibility=View.VISIBLE
-      //  }
 
     }
     private fun changeColorBottamText() {
@@ -1065,8 +993,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
-
-
     override fun onStop() {
         super.onStop()
         Log.e(TAG, "onStop: called")
@@ -1081,7 +1007,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         model.addHistories(applicationContext)
     }
-
     override fun onDestroy() {
 
         // saving all files to databse
@@ -1094,8 +1019,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         super.onDestroy()
     }
-
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
         this.menu = menu
@@ -1103,7 +1026,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return super.onCreateOptionsMenu(menu)
 
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
@@ -1114,8 +1036,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         return super.onOptionsItemSelected(item)
     }
-
-
     private fun showPopupMenu(menuItem: MenuItem, menuResourceId: Int) {
         val view = findViewById<View>(menuItem.itemId)
         val contextThemeWrapper = ContextThemeWrapper(this,R.style.ToolbarPopUpTheme)
@@ -1157,7 +1077,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.save_as_note -> {
                     if(currentFragment!=null)
                     {
-                        model.saveAsNote(applicationContext,binding.tabLayout.selectedTabPosition)
+                        try {
+                            model.saveAsNote(
+                                applicationContext,
+                                binding.tabLayout.selectedTabPosition
+                            )
+                            Toast.makeText(applicationContext, "Saved as Note", Toast.LENGTH_SHORT).show()
+                        }
+                        catch (e:java.lang.Exception)
+                        {
+                            Log.e(TAG, "showPopupMenu: ${e.message}", )
+                        }
                     }
 
                 }
@@ -1166,21 +1096,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.save -> {
                     if (currentFragment != null) {
                         if (currentFragment.hasUnsavedChanges.value != false) {
-
-                            if(currentFragment.getFileExtension()==".html") {
-
                                 saveFile(
                                     currentFragment,
                                     currentFragment.getUri(),
                                     isHtml = (currentFragment.getFileExtension() == ".html")
                                 )
                             }
-                            else  saveAsDialog(currentFragment.getFileExtension())
+
                         }
                         else
                             Toast.makeText(this, "No Changes Found", Toast.LENGTH_SHORT).show()
                     }
-                }
+
                 R.id.close -> {
                     if (currentFragment != null) {
                         if (currentFragment.hasUnsavedChanges.value ?: false) {
@@ -1306,16 +1233,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         popup.show()
     }
-
     private fun reloadFile(currentFragment: EditorFragment) {
             val uri = currentFragment.getUri()
             if(uri!=null)
                 readFileUsingUri(uri,false,true)
 
     }
-
-
-
     private fun doWebViewPrint(currentFragment: EditorFragment) {
         // Create a WebView object specifically for printing
         val webView = WebView(this)
@@ -1340,8 +1263,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // to the PrintManager
         mWebView = webView
     }
-
-
     private fun createWebPrintJob(webView: WebView,currentFragment: EditorFragment) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -1369,10 +1290,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         }
     }
-
-
-
-
     val resLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -1394,11 +1311,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         }
-
-
-
-
-
     private fun readFileUsingUri(uri: Uri,isOuterFile : Boolean = false,isReload : Boolean = false) {
         Log.e(TAG, "readFileUsingUri: $uri" )
         try {
@@ -1450,15 +1362,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
 
-                model.addRecentFile(
-                    RecentFile(
-                        0,
-                        uri.toString(),
-                        fileName,
-                        Calendar.getInstance().time.toString(),
-                        fileSize
-                    )
-                )
+
             }
             fragment.hasUnsavedChanges.observe(this) {
                 if (it)
@@ -1493,8 +1397,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-
-
     private fun chooseFile() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val intent: Intent = Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/text")
@@ -1506,7 +1408,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             resLauncher.launch(intent)
         }
     }
-
     private fun createTabsInTabLayout(list: MutableList<Fragment>) {
 //        Log.e(TAG, "createTabsInTabLayout: called "+list.size)
         binding.tabLayout.removeAllTabs()
@@ -1517,10 +1418,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             binding.tabLayout.apply {
                 list.forEach {
                     //                  Log.e(TAG, "createTabsInTabLayout: tab count inside apply $tabCount")
-
-
                     val frag = it as EditorFragment
-
                     addTab(newTab())
                     setCustomTabLayout(tabCount - 1, frag.getFileName())
                 }
@@ -1534,7 +1432,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         adapter.notifyDataSetChanged()
     }
-
     private fun setCustomTabLayout(position: Int, fileName: String) {
         binding.tabLayout.apply {
             if (position >= 0 && position < tabCount) {
@@ -1548,7 +1445,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
-
     val saveAsSystemPickerLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -1564,7 +1460,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         }
-
     val newFileLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -1573,7 +1468,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (uri != null) readFileUsingUri(uri)
             }
         }
-
     private fun saveFile(
         fragment: EditorFragment,
         uri: Uri?,
@@ -1582,8 +1476,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         isHtml:Boolean = true
     ) {
 
-//        val uri = fragment.getUri()
-        if (uri !== null && isSaveAs==false) {
+
+        if (uri !== null) {
             try {
                 val takeFlags: Int =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -1601,14 +1495,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             it.write(
                                 fragment.getEditTextData().toString().toByteArray()
                             )
-
+                            Toast.makeText(applicationContext, "Please SaveAs to keep Formatting", Toast.LENGTH_SHORT).show()
                         }
-                        if (!isSaveAs)
-                            fragment.hasUnsavedChanges.value = false
-                        if (isValidTab()) setCustomTabLayout(
-                            binding.tabLayout.selectedTabPosition,
-                            fragment.getFileName()
-                        )
+
+
 //                        Toast.makeText(applicationContext, "File Saved", Toast.LENGTH_SHORT).show()
 
                             showProgressBarDialog("Saved Successfully", isCloseFlag)
@@ -1618,57 +1508,74 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             } catch (e: FileNotFoundException) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "saveFile: ${e.message}")
+                Log.e(TAG, " file not found saveFile: ${e.message}")
                 e.printStackTrace()
 
             } catch (e: IOException) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
-                Log.e(TAG, "saveFile: ${e.message}")
+                Log.e(TAG, " io exception saveFile: ${e.message}")
 
             } catch (e: SecurityException) {
                 showSecureSaveAsDialog(fragment)
             } catch (e: Exception) {
                 Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
-                Log.e(TAG, "saveFile: ${e.message}")
+                Log.e(TAG, "saveFile unknown exception: ${e.message}")
 
             }
         }
-        else if(uri==null && isSaveAs==false)
-        {
-
-            val uniqueFileName = fragment.getFileName()
-            val dir = File(applicationContext.filesDir, "note")
-            if (!dir.exists())
-                dir.mkdir()
-            var file = File(dir, uniqueFileName)
-            if (!file.exists()) {
-
-                createNewNoteFile(uniqueFileName,fragment)
-                //file.createNewFile()
-            }
-            else
-            {
-                file.bufferedWriter().use {
-                    it.write("${Utils.spannableToHtml(fragment.getEditable()?: SpannableStringBuilder(""))}")
+        else if(fragment.isNote()) {
+            try {
+                val uniqueFileName = fragment.getFileName()
+                val dir = File(applicationContext.filesDir, "note")
+                if (!dir.exists())
+                    dir.mkdir()
+                var file = File(dir, uniqueFileName)
+                if (!file.exists()) {
+                    createNewNoteFile(uniqueFileName, fragment)
+                    //file.createNewFile()
+                } else {
+                    file.bufferedWriter().use {
+                        it.write(
+                            "${
+                                Utils.spannableToHtml(
+                                    fragment.getEditable() ?: SpannableStringBuilder(
+                                        ""
+                                    )
+                                )
+                            }"
+                        )
+                    }
                 }
+                Toast.makeText(
+                    applicationContext,
+                    "Saved Successfully in Notes",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            catch(e:Exception)
+            {
+                Log.e(TAG, "saveFile: ${e.message}", )
             }
         }
         else
         {
             saveAsDialog(".txt")
         }
-    }
+        fragment.hasUnsavedChanges.value = false
+        if (isValidTab()) setCustomTabLayout(
+            binding.tabLayout.selectedTabPosition,
+            fragment.getFileName()
+        )
 
+    }
     private fun createNewNoteFile(uniqueFileName: String, fragment: EditorFragment) {
         val dir = File(applicationContext.filesDir, "note")
-
         val builder = AlertDialog.Builder(this)
 
         builder.setTitle("Enter File Name")
         builder.setIcon(R.drawable.ic_search)
-
         val view = LayoutInflater.from(this).inflate(R.layout.file_name_input_dialog, null, false)
         val editText = view.findViewById<EditText>(R.id.file_name)
         editText.setText(uniqueFileName)
@@ -1694,6 +1601,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     it.write("${Utils.spannableToHtml(fragment.getEditable()?: SpannableStringBuilder(""))}")
                 }
 
+                Toast.makeText(applicationContext, "File Saved as Note", Toast.LENGTH_SHORT).show()
                 dialogInterface.dismiss()
             }
         }
@@ -1726,18 +1634,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
     private fun showSecureSaveAsDialog(fragment: EditorFragment) {
         val builder = AlertDialog.Builder(this)
-
         builder.setTitle("Security Alert")
         builder.setIcon(android.R.drawable.ic_dialog_alert)
-
         val view = LayoutInflater.from(this).inflate(R.layout.security_alert_dialog, null, false)
-
-
         builder.setView(view)
-
         builder.setPositiveButton(this.getString(R.string.save_as)) { dialogInterface, which ->
             run {
                 saveAsIntent(fragment.getFileExtension())
@@ -1757,7 +1659,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
     private fun saveAsIntent(fileExtension : String) {
         try {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -1784,8 +1685,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-
-
     private fun saveAsDialog(ext:String) {
 
         var extension = ext
@@ -1794,17 +1693,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Save As")
         builder.setIcon(R.drawable.ic_save_as)
-
         val view = LayoutInflater.from(this).inflate(R.layout.save_as_dialog, null, false)
         val radioGroupExtension = view.findViewById<RadioGroup>(R.id.radio_group_extension)
         val radioButton = view.findViewById<RadioButton>(R.id.radio_txt)
         builder.setView(view)
-
         builder.setPositiveButton(this.getString(R.string.save_as)) { dialogInterface, which ->
             run {
-                //TODO : according to radio btn
+
                 if(radioGroupExtension.checkedRadioButtonId==R.id.radio_html)
-                    saveAsIntent(".html") //TODO : .txt.html
+                    saveAsIntent(".html")
                 else
                     saveAsIntent(".txt")
                 dialogInterface.dismiss()
@@ -1814,7 +1711,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         builder.setNeutralButton(this.getString(R.string.cancel)) { dialogInterface, which ->
             dialogInterface.dismiss()
         }
-
         // Create the AlertDialog
         val alertDialog: AlertDialog = builder.create()
         // Set other dialog properties
@@ -1823,24 +1719,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
-
     private fun showProgressBarDialog(title: String, isCloseFlag: Boolean = false) {
         val builder = AlertDialog.Builder(this)
-
         val view = LayoutInflater.from(this).inflate(R.layout.save_successfull, null, false)
         val titleText = view.findViewById<TextView>(R.id.dialog_title)
         titleText.setText(title)
         builder.setView(view)
-
 //        builder.setPositiveButton("Done"){ dialogInterface, which -> dialogInterface.dismiss() }
-
         // Create the AlertDialog
         alertDialogGlobal = builder.create()
         // Set other dialog properties
         alertDialogGlobal.setCancelable(true)
         alertDialogGlobal.show()
-
         lifecycleScope.launch(Dispatchers.Main) {
             delay(400)
             alertDialogGlobal.dismiss()
@@ -1850,14 +1740,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-
-
     private fun search(currentFragment: EditorFragment, hasReplace: Boolean) {
         val builder = AlertDialog.Builder(this)
-
         builder.setTitle("Search")
         builder.setIcon(R.drawable.ic_search)
-
         val view = LayoutInflater.from(this).inflate(R.layout.search_dialog, null, false)
         val findEditText = view.findViewById<EditText>(R.id.search_text)
         val replaceEditText = view.findViewById<EditText>(R.id.replace_text)
@@ -1871,7 +1757,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         builder.setView(view)
-
         builder.setPositiveButton("Find") { dialogInterface, which ->
             run {
                 findText = findEditText.text.toString()
@@ -1927,7 +1812,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
     }
-
     private val actionModeCallback = object : ActionMode.Callback {
         // Called when the action mode is created; startActionMode() was called
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -1959,7 +1843,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 ////                    mode.finish() // Action picked, so close the CAB
 //                    true
 //                }
-
                 else -> false
             }
         }
@@ -1970,7 +1853,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             actionMode = null
         }
     }
-
     private val actionModeCallbackUndoRedo = object : ActionMode.Callback {
 
 
@@ -1997,12 +1879,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
             var currentFragment: EditorFragment? = null
-
             if (isValidTab()) {
                 currentFragment =
                     adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
             }
-
             return when (item.itemId) {
 
                 // actioMode
@@ -2034,8 +1914,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             actionMode = null
         }
     }
-
-
     private val actionModeCallbackCopyPaste = object : ActionMode.Callback {
 
 
@@ -2111,14 +1989,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             actionMode = null
         }
     }
-
-
     fun copy(textToCopy: String) {
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", textToCopy)
         clipboardManager.setPrimaryClip(clipData)
     }
-
     fun feedback()
     {
         try {
@@ -2135,8 +2010,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
-
     fun askForRating() {
 
         val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);

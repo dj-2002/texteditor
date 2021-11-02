@@ -7,10 +7,9 @@ import androidx.room.RoomDatabase
 
 
 
-@Database(entities = arrayOf(History::class, RecentFile::class), version = 1 )
+@Database(entities = arrayOf(History::class), version = 1 )
 abstract class MyDatabase : RoomDatabase() {
     abstract fun HistoryDao(): HistoryDao
-    abstract fun RecentFileDao(): RecentFileDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the

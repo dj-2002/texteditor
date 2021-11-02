@@ -64,9 +64,8 @@ class NoteActivity : AppCompatActivity() {
     }
 
     private fun clearAllFiles() {
-        model.deleteAllRecentFile()
-        mExampleList.clear()
-        mAdapter.notifyDataSetChanged()
+
+
     }
 
     private fun getFileSize(fileSize: Long): String {

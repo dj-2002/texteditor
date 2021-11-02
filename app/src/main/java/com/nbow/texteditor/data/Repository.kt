@@ -15,12 +15,10 @@ class Repository(application: Application) {
 
     val database: MyDatabase
     val historyDao:HistoryDao
-    val recentFileDao:RecentFileDao
 
     init {
         database=  MyDatabase.getDatabase(application)
         historyDao =database.HistoryDao()
-        recentFileDao=database.RecentFileDao()
     }
 
     suspend fun getHistory():MutableList<History>{
@@ -51,34 +49,6 @@ class Repository(application: Application) {
         Log.e(TAG,"Deleting all files from database")
     }
 
-    suspend fun getRecentFileList():MutableList<RecentFile>{
-        var listOfRecentFile = recentFileDao.getAll()
-        val mutableListOfRecentFile = mutableListOf<RecentFile>()
-        for(recentFile in listOfRecentFile.reversed()){
-            mutableListOfRecentFile.add(recentFile)
-        }
 
-        Log.e(TAG,"size recentFilelist ${listOfRecentFile.size}")
-//        if(!listOfRecentFile.isEmpty())
-//            return  listOfRecentFile.reversed() as MutableList<RecentFile>
-//        else{
-//            return arrayListOf()
-//        }
-        return mutableListOfRecentFile
-
-    }
-    suspend fun saveToRecentFile(vararg  recentFile: RecentFile)
-    {
-        recentFileDao.insertAll(*recentFile)
-        Log.e(TAG,"saving recent file")
-    }
-    suspend fun deleteRecentFile(recentFile: RecentFile)
-    {
-        recentFileDao.delete(recentFile)
-    }
-
-    fun deleteAllRecentFile() {
-        recentFileDao.deleteAll()
-    }
 
 }

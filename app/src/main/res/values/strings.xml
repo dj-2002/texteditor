@@ -68,7 +68,7 @@
     <string name="find">Find</string>
     <string name="enter_linenumber_btwn">Enter line number between</string>
     <string name="clear_history">Clear History</string>
-    <string name="feedback">FeedBack</string>
+    <string name="feedback">Report a Bug</string>
     <string name="reload_file">"Reload "</string>
     <string name="title_activity_web_view">WebView</string>
     <!-- Strings used for fragments for navigation -->

@@ -581,7 +581,6 @@ class EditorFragment : Fragment {
 
     fun boldClicked()
     {
-
         isBoldEnabled=!isBoldEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
@@ -589,22 +588,20 @@ class EditorFragment : Fragment {
             else{
                 var ss=selectionStart
                 var se=selectionEnd
-                
-                var text:CharSequence=editText!!.text
-
+                var text=editText!!.text.toString()
+                val charArray = charArrayOf(' ','\n')
                 if(se < (text.length-2)) {
-
-                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                    se = text.indexOfAny(charArray,ss)
+                    ss=se -1
+                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
+                    {
                         ss--;
                     }
-                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
-                        se++;
-                    }
-                    if (ss != se) {
+                    if (ss>0 && ss != se) {
                         setSelection(ss, se)
                         changeSelectedTextStyle(bold = true)
-
                     }
+                    Log.e(TAG, "boldClicked: $ss $se", )
                 }
                         
             }
@@ -620,24 +617,20 @@ class EditorFragment : Fragment {
             else{
                 var ss=selectionStart
                 var se=selectionEnd
-
                 var text:CharSequence=editText!!.text
-
+                val charArray = charArrayOf(' ','\n')
                 if(se < (text.length-2)) {
-
-                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                    se = text.indexOfAny(charArray,ss)
+                    ss=se -1
+                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
+                    {
                         ss--;
-                    }
-                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
-                        se++;
                     }
                     if (ss != se) {
                         setSelection(ss, se)
                         changeSelectedTextStyle(italic = true)
-
                     }
                 }
-
             }
         }
     }
@@ -652,20 +645,18 @@ class EditorFragment : Fragment {
                 var ss=selectionStart
                 var se=selectionEnd
 
-                var text:CharSequence=editText!!.text
-
+                var text=editText!!.text.toString()
+                val charArray = charArrayOf(' ','\n')
                 if(se < (text.length-2)) {
-
-                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                    se = text.indexOfAny(charArray,ss)
+                    ss=se -1
+                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
+                    {
                         ss--;
-                    }
-                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
-                        se++;
                     }
                     if (ss != se) {
                         setSelection(ss, se)
                         changeSelectedTextStyle(underline = true)
-
                     }
                 }
 
@@ -683,15 +674,14 @@ class EditorFragment : Fragment {
                 var ss=selectionStart
                 var se=selectionEnd
 
-                var text:CharSequence=editText!!.text
-
+                var text=editText!!.text.toString()
+                val charArray = charArrayOf(' ','\n')
                 if(se < (text.length-2)) {
-
-                    while (text[ss] != ' ' && text[ss] != '\n' && ss > 0 && text[ss - 1] != ' '  ) {
+                    se = text.indexOfAny(charArray,ss)
+                    ss=se -1
+                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
+                    {
                         ss--;
-                    }
-                    while (text[se] != ' ' && text[se] != '\n' && se < text.length) {
-                        se++;
                     }
                     if (ss != se) {
                         setSelection(ss, se)
@@ -727,14 +717,45 @@ class EditorFragment : Fragment {
 
     fun alignLeft()
     {
-        changeAlignmentValue(left = true)
-                changeParagraphStyle(alignLeft = true)
+        val text = editText!!.text
+        var ss= editText!!.selectionStart
+        var isEmptyLine = false;
+
+        if(ss==text.length)
+            ss--;
+        if(text[ss] == '\n' && text[ss-1] == '\n'){
+            isEmptyLine = true
+        }
+
+        if(isEmptyLine==false) {
+            changeAlignmentValue(left = true)
+            changeParagraphStyle(alignLeft = true)
+        }
+        else
+        {
+            Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun alignRight()
     {
-        changeAlignmentValue(right = true)
-                changeParagraphStyle(alignRight = true)
+        val text = editText!!.text
+        var ss= editText!!.selectionStart
+        var isEmptyLine = false;
+
+        if(ss==text.length)
+            ss--;
+        if(text[ss] == '\n' && text[ss-1] == '\n'){
+            isEmptyLine = true
+        }
+        if(isEmptyLine==false) {
+            changeAlignmentValue(right = true)
+            changeParagraphStyle(alignRight = true)
+        }
+        else
+        {
+            Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun setColor(color :Int){
@@ -844,6 +865,13 @@ class EditorFragment : Fragment {
         if(dataFile!=null)
             dataFile!!.fileName=findText
 
+    }
+
+    fun isNote():Boolean{
+        if(dataFile!!.isNote==true)
+            return  true
+        else
+            return  false
     }
 
 }

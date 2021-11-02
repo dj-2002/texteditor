@@ -22,7 +22,6 @@ import java.util.*
 class MyViewModel(application: Application) : AndroidViewModel(application) {
     private val fragmentList = MutableLiveData<MutableList<Fragment>>(arrayListOf())
     private val repository : Repository = Repository(application)
-    private  var recentFileList = MutableLiveData(mutableListOf<RecentFile>())
 
     var currentTab : Int = -1
     var isWrap = false
@@ -33,23 +32,11 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
     init {
 
         loadHistory(application.applicationContext)
-        loadRecentFile()
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
         isWrap = preferences.getBoolean("word_wrap",true)
 
     }
 
-    fun getRecentFileList(): LiveData<MutableList<RecentFile>> {
-        return recentFileList
-    }
-
-    private fun loadRecentFile() {
-        viewModelScope.launch(Dispatchers.IO) {
-            recentFileList.postValue(repository.getRecentFileList())
-            Log.e(TAG,"recent file list size ${recentFileList.value!!.size}")
-
-        }
-    }
 
 
     fun addHistories(context: Context){
@@ -144,26 +131,6 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setFragmentList(fragmentList : MutableList<Fragment>){
         this.fragmentList.value = fragmentList
-    }
-
-    fun addRecentFile(recentFile: RecentFile)
-    {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.saveToRecentFile(recentFile)
-        }
-    }
-
-    fun deleteRecentFile(recentFile: RecentFile)
-    {
-        viewModelScope.launch(IO){
-            repository.deleteRecentFile(recentFile)
-        }
-    }
-
-    fun deleteAllRecentFile() {
-        viewModelScope.launch(IO) {
-            repository.deleteAllRecentFile()
-        }
     }
 
 

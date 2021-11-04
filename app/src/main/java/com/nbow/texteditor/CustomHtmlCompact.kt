@@ -12,6 +12,7 @@ import android.text.style.*
 import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import java.io.IOException
 import java.io.StringReader
 import java.lang.RuntimeException
@@ -315,11 +316,7 @@ class CustomHtmlCompact {
                         if (s == "monospace") {
                             out.append("</tt>")
                         }
-//                        val s1=(style[j] as CustomTypefaceSpan).name
-//                        if(s1=="arial")
-//                        {
 //
-//                        }
 
                     }
                     if(style[j] is  CustomTypefaceSpan){
@@ -380,6 +377,7 @@ class CustomHtmlCompact {
         }
 
         // Html to spannable
+        // html to spannable starts from here
 
         fun fromHtml(
             context: Context,
@@ -420,10 +418,8 @@ internal class HtmlToSpannedConverter(
 
     @ColorInt
     val BLACK = -0x1000000
-
     @ColorInt
     val DKGRAY = -0xbbbbbc
-
     @ColorInt
     val GRAY = -0x777778
 
@@ -492,6 +488,7 @@ internal class HtmlToSpannedConverter(
         private var sForegroundColorPattern: Pattern? = null
         private var sBackgroundColorPattern: Pattern? = null
         private var sTextDecorationPattern: Pattern? = null
+        private var sFontFamilyPattern: Pattern? = null
 
         /**
          * Name-value mapping of HTML/CSS colors which have different values in [Color].
@@ -530,6 +527,15 @@ internal class HtmlToSpannedConverter(
                     )
                 }
                 return sTextDecorationPattern
+            }
+        private val fontFamilyPattern: Pattern?
+            private get() {
+                if (sFontFamilyPattern == null) {
+                    sFontFamilyPattern = Pattern.compile(
+                        "(?:\\s+|\\A)font-family\\s*:\\s*(\\S*)\\b"
+                    )
+                }
+                return sFontFamilyPattern
             }
 
         private fun appendNewlines(text: Editable, minNewline: Int) {
@@ -646,7 +652,7 @@ internal class HtmlToSpannedConverter(
             val len = text.length
             if (where != len) {
                 for (span in spans) {
-                    text.setSpan(span, where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            text.setSpan(span, where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
@@ -685,6 +691,13 @@ internal class HtmlToSpannedConverter(
             )
             if (f != null) {
                 setSpanFromMark(text, f, ForegroundColorSpan(f.mForegroundColor))
+            }
+            val ff = getLast(
+                text,
+                CustomTypefaceSpan::class.java
+            )
+            if(ff!=null){
+                setSpanFromMark(text, ff, CustomTypefaceSpan(ff.typeface,ff.name))
             }
         }
 
@@ -1023,6 +1036,26 @@ internal class HtmlToSpannedConverter(
                 val textDecoration = m.group(1)
                 if (textDecoration.equals("line-through", ignoreCase = true)) {
                     start(text, Strikethrough())
+                }
+            }
+            m = fontFamilyPattern!!.matcher(style)
+            if (m.find()) {
+                Log.e("fontfamily-pattern", "startCssStyle: fontfamilypatter matcher inside find and text = $text", )
+                val textDecoration = m.group(1)
+                Log.e("fontfamily-pattern", "startCssStyle: text decoration ${textDecoration}", )
+                if (textDecoration.equals("arial", ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.arial),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,"arial") )
+                }
+                else if (textDecoration.equals("georgia", ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.georgia),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,"georgia") )
                 }
             }
         }

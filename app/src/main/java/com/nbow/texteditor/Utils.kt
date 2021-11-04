@@ -3,6 +3,7 @@ package com.nbow.texteditor
 import android.Manifest
 import android.app.Activity
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -32,7 +33,7 @@ class Utils {
 //        val heading = arrayListOf(2f,1.5f,1.17f,1f,0.83f,0.67f)
         val heading = arrayListOf(1.5f,1.4f,1.3f,1.2f,1.1f,1f)
 
-        fun htmlToSpannable(data : String): Spanned {
+        fun htmlToSpannable(context:Context,data : String): Spanned {
 
 //            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N) {
 //                val s =   Html.fromHtml(data, Html.FROM_HTML_SEPARATOR_LINE_BREAK_DIV)
@@ -41,8 +42,9 @@ class Utils {
 //            }
 //            else
 //                return HtmlCompat.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY)
-            return CustomHtmlCompact.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY,null,null)
-
+            val data = CustomHtmlCompact.fromHtml(context,data, HtmlCompat.FROM_HTML_MODE_LEGACY,null,null)
+            Log.e(TAG, "htmlToSpannable: data : ${data}", )
+            return data
         }
 
         fun spannableToHtml(data : Spanned): String {

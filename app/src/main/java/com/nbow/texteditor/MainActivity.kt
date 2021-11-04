@@ -46,12 +46,10 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.HtmlCompat
 import top.defaults.colorpicker.ColorPickerPopup
 
 import android.view.LayoutInflater
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import kotlinx.coroutines.*
 
 
@@ -490,7 +488,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fileName = fileName,
             filePath = "note",
             uri = null,
-            data = Utils.htmlToSpannable(""),
+            data = Utils.htmlToSpannable(applicationContext,""),
             isNote = true
         )
         val fragment = EditorFragment(dataFile,applicationContext)
@@ -632,7 +630,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fileName = fileName,
             filePath = "note",
             uri = null,
-            data = Utils.htmlToSpannable(content.toString()),
+            data = Utils.htmlToSpannable(applicationContext,content.toString()),
             isNote = true
         )
         val fragment = EditorFragment(dataFile,applicationContext)
@@ -1375,7 +1373,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fileName = fileName,
                 filePath = uri.path!!,
                 uri = uri,
-                data = Utils.htmlToSpannable(data.toString()),
+                data = Utils.htmlToSpannable(applicationContext,data.toString()),
                 isNote = false
 
             )
@@ -1530,7 +1528,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         if(isHtml)
                         {
                             it.write(
-                                fragment.getEditable()?.let { it1 -> HtmlCompat.toHtml(it1, HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE).toByteArray() }
+                                fragment.getEditable()?.let { it1 -> Utils.spannableToHtml(it1).toByteArray() }
                             )
                         }
                         else {

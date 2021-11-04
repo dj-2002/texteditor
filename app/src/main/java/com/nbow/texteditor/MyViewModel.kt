@@ -95,7 +95,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                         history.realFileName,
                         uri.path!!,
                         uri,
-                        Utils.htmlToSpannable(data.toString())
+                        Utils.htmlToSpannable(context,data.toString())
                     )
                     val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
                     (fragmentList.value ?: arrayListOf()).add(frag)
@@ -112,7 +112,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                         history.realFileName,
                         "note/untitled.html",
                         null,
-                        Utils.htmlToSpannable(data.toString())
+                        Utils.htmlToSpannable(context,data.toString())
                     )
                     val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
                     (fragmentList.value ?: arrayListOf()).add(frag)

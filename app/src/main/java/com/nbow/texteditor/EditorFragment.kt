@@ -113,6 +113,8 @@ class EditorFragment : Fragment {
             false
         })
 
+
+
         editText?.setAccessibilityDelegate(object : View.AccessibilityDelegate() {
             override fun sendAccessibilityEvent(host: View?, eventType: Int) {
                 super.sendAccessibilityEvent(host, eventType)
@@ -253,6 +255,7 @@ class EditorFragment : Fragment {
         isAlignLeftEnabled = left
         isAlignRightEnabled = right
         isAlignCenterEnabled = center
+
     }
 
     fun getCurrentCursorLine(selectionPosition : Int):Int
@@ -297,7 +300,7 @@ class EditorFragment : Fragment {
                                     val spn = span as StyleSpan
                                     if ((spn.style == Typeface.BOLD && bold) || (spn.style == Typeface.ITALIC && italic))
                                         text!!.removeSpan(spn)
-                                } else if ((span is CustomUnderlineSpan && underline) || (span is StrikethroughSpan && strikethrough)) {
+                                } else if ((((span is CustomUnderlineSpan) ||( span is UnderlineSpan)) && underline) || (span is StrikethroughSpan && strikethrough)) {
                                     text!!.removeSpan(span)
                                 }
                             }
@@ -382,6 +385,7 @@ class EditorFragment : Fragment {
                             flag
                         )
 
+                        postInvalidate()
                     }
                 }
             }
@@ -389,7 +393,7 @@ class EditorFragment : Fragment {
     }
 
 
-    fun applyFontEdittext(fontRes: Int?) {
+    fun applyFontEdittext(fontRes: Int?,fontName:String) {
 
         editText?.apply {
 
@@ -400,7 +404,7 @@ class EditorFragment : Fragment {
                         Typeface.NORMAL
                     )
                     (text as Spannable).setSpan(
-                        CustomTypefaceSpan(myTypeface),
+                        CustomTypefaceSpan(myTypeface,fontName),
                         selectionStart,
                         selectionEnd,
                         flag
@@ -570,10 +574,11 @@ class EditorFragment : Fragment {
 
     }
 
-    fun getSelectedData(): String? {
+    fun getSelectedData(): CharSequence? {
         if(editText!=null && editText!!.isFocused){
             editText?.apply {
-                return text!!.substring(selectionStart,selectionEnd)
+
+                return  this.text.subSequence(selectionStart,selectionEnd)
             }
         }
         return null
@@ -654,7 +659,7 @@ class EditorFragment : Fragment {
                     {
                         ss--;
                     }
-                    if (ss != se) {
+                    if (ss != se && ss>=0) {
                         setSelection(ss, se)
                         changeSelectedTextStyle(underline = true)
                     }
@@ -683,7 +688,7 @@ class EditorFragment : Fragment {
                     {
                         ss--;
                     }
-                    if (ss != se) {
+                    if (ss != se && ss>=0) {
                         setSelection(ss, se)
                         changeSelectedTextStyle(strikethrough = true)
 
@@ -695,66 +700,69 @@ class EditorFragment : Fragment {
 
     }
     fun alignCenter() {
-        val text = editText!!.text
-        var ss= editText!!.selectionStart
-        var isEmptyLine = false;
 
-        if(ss==text.length)
-            ss--;
-        if(text[ss] == '\n' && text[ss-1] == '\n'){
-            isEmptyLine = true
-        }
+        if(editText!=null) {
+            val text = editText!!.text
+            var ss = editText!!.selectionStart
+            var isEmptyLine = false;
 
-        if(isEmptyLine==false) {
-            changeAlignmentValue(center = true)
-            changeParagraphStyle(alignCenter = true)
-        }
-        else
-        {
-            Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+            if (ss == text.length)
+                ss--;
+            if (ss > 0 && text[ss] == '\n' && text[ss - 1] == '\n') {
+                isEmptyLine = true
+            }
+
+            if (isEmptyLine == false) {
+                changeAlignmentValue(center = true)
+                changeParagraphStyle(alignCenter = true)
+            } else {
+                Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     fun alignLeft()
     {
-        val text = editText!!.text
-        var ss= editText!!.selectionStart
-        var isEmptyLine = false;
+        if(editText!=null) {
 
-        if(ss==text.length)
-            ss--;
-        if(text[ss] == '\n' && text[ss-1] == '\n'){
-            isEmptyLine = true
-        }
+            val text = editText!!.text
+            var ss = editText!!.selectionStart
+            var isEmptyLine = false;
 
-        if(isEmptyLine==false) {
-            changeAlignmentValue(left = true)
-            changeParagraphStyle(alignLeft = true)
-        }
-        else
-        {
-            Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+            if (ss == text.length)
+                ss--;
+            if (ss > 0 && text[ss] == '\n' && text[ss - 1] == '\n') {
+                isEmptyLine = true
+            }
+
+            if (isEmptyLine == false) {
+                changeAlignmentValue(left = true)
+                changeParagraphStyle(alignLeft = true)
+            } else {
+                Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     fun alignRight()
     {
-        val text = editText!!.text
-        var ss= editText!!.selectionStart
-        var isEmptyLine = false;
+        if(editText!=null) {
 
-        if(ss==text.length)
-            ss--;
-        if(text[ss] == '\n' && text[ss-1] == '\n'){
-            isEmptyLine = true
-        }
-        if(isEmptyLine==false) {
-            changeAlignmentValue(right = true)
-            changeParagraphStyle(alignRight = true)
-        }
-        else
-        {
-            Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+            val text = editText!!.text
+            var ss = editText!!.selectionStart
+            var isEmptyLine = false;
+
+            if (ss == text.length)
+                ss--;
+            if (ss > 0 && text[ss] == '\n' && text[ss - 1] == '\n') {
+                isEmptyLine = true
+            }
+            if (isEmptyLine == false) {
+                changeAlignmentValue(right = true)
+                changeParagraphStyle(alignRight = true)
+            } else {
+                Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -840,7 +848,7 @@ class EditorFragment : Fragment {
                 while ( se < text.length && text[se] != '\n' ) {
                     se++;
                 }
-                if (ss != se) {
+                if (ss != se && ss>=0 ) {
                     if(ss==0)
                         setSelection(ss,se)
                     else
@@ -872,6 +880,19 @@ class EditorFragment : Fragment {
             return  true
         else
             return  false
+    }
+
+    fun pasteData(dataToPaste: CharSequence?) {
+        if(editText!=null)
+        {
+            editText!!.apply {
+                text.replace(selectionStart,selectionEnd,dataToPaste)
+            }
+        }
+    }
+
+    fun getCharSequence():CharSequence{
+            return editText!!.text
     }
 
 }

@@ -8,7 +8,7 @@ data class DataFile (
     val filePath : String,
     val uri : Uri?,
     var data : Spanned,
-    var isNote:Boolean =false
+    var isNote: Boolean = true
     ){
     val fileExtension = when(val index = fileName.lastIndexOf(".")){
         -1 -> String()

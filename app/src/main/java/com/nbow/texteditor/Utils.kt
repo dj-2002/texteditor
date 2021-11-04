@@ -34,13 +34,15 @@ class Utils {
 
         fun htmlToSpannable(data : String): Spanned {
 
-            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N) {
-                val s =   Html.fromHtml(data, Html.FROM_HTML_SEPARATOR_LINE_BREAK_DIV)
-                Log.e(TAG, "htmlToSpannable: ${s}", )
-                return  s;
-            }
-            else
-                return HtmlCompat.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY)
+//            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N) {
+//                val s =   Html.fromHtml(data, Html.FROM_HTML_SEPARATOR_LINE_BREAK_DIV)
+//                Log.e(TAG, "htmlToSpannable: ${s}", )
+//                return  s
+//            }
+//            else
+//                return HtmlCompat.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            return CustomHtmlCompact.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY,null,null)
+
         }
 
         fun spannableToHtml(data : Spanned): String {
@@ -48,6 +50,39 @@ class Utils {
             Log.e(TAG, "spannableToHtml: $s", )
             return s;
         }
+
+        fun convertValueToInt(charSeq: CharSequence?, defaultValue: Int): Int {
+            if (null == charSeq) return defaultValue
+            val nm = charSeq.toString()
+            // XXX This code is copied from Integer.decode() so we don't
+            // have to instantiate an Integer!
+            var value: Int
+            var sign = 1
+            var index = 0
+            val len = nm.length
+            var base = 10
+            if ('-' == nm[0]) {
+                sign = -1
+                index++
+            }
+            if ('0' == nm[index]) {
+                //  Quick check for a zero by itself
+                if (index == len - 1) return 0
+                val c = nm[index + 1]
+                if ('x' == c || 'X' == c) {
+                    index += 2
+                    base = 16
+                } else {
+                    index++
+                    base = 8
+                }
+            } else if ('#' == nm[index]) {
+                index++
+                base = 16
+            }
+            return nm.substring(index).toInt(base) * sign
+        }
+
     }
 
     constructor(activity: AppCompatActivity) {

@@ -20,7 +20,7 @@ class NoteActivity : AppCompatActivity() {
     lateinit var mAdapter: ExampleAdapter
     lateinit var mLayoutManager: RecyclerView.LayoutManager
     lateinit var model: MyViewModel
-
+    private  val TAG = "NoteActivity"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,22 +32,24 @@ class NoteActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         buildRecyclerView()
 
-        model = ViewModelProvider(this,MyViewModelFactory(this.application)).get(MyViewModel::class.java)
+        model = ViewModelProvider(
+            this,
+            MyViewModelFactory(this.application)
+        ).get(MyViewModel::class.java)
 
 
+        var listOfNotes = File(applicationContext.filesDir, "note").listFiles()
 
-
-            var listOfNotes = File(applicationContext.filesDir,"note").listFiles()
-
-            for( f in listOfNotes )
-            {
-                val fileSize:String=getFileSize(f.length())
-               mExampleList.add(ExampleItem(f.name,f.lastModified().toString(),fileSize))
+        if (listOfNotes != null) {
+            for (f in listOfNotes) {
+                val fileSize: String = getFileSize(f.length())
+                mExampleList.add(ExampleItem(f.name, f.lastModified().toString(), fileSize))
             }
 
 
             mAdapter.notifyDataSetChanged()
         }
+    }
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -65,7 +67,23 @@ class NoteActivity : AppCompatActivity() {
 
     private fun clearAllFiles() {
 
+        try {
+            val dir= File(applicationContext.filesDir,"note")
 
+            if(dir.exists())
+            {
+
+                dir.listFiles().forEach {
+                    it.delete()
+                }
+            }
+        }
+        catch (e:Exception)
+        {
+            Log.e(TAG, "clearAllFiles: ", )
+        }
+        mExampleList.clear()
+        mAdapter.notifyDataSetChanged()
     }
 
     private fun getFileSize(fileSize: Long): String {

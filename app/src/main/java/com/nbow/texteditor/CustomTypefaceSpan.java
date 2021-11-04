@@ -7,10 +7,12 @@ import android.text.style.MetricAffectingSpan;
 
 public class CustomTypefaceSpan extends MetricAffectingSpan {
 
-    private final Typeface typeface;
+    public final Typeface typeface;
+    public final String name;
 
-    public CustomTypefaceSpan(Typeface typeface) {
+    public CustomTypefaceSpan(Typeface typeface,String name) {
         this.typeface = typeface;
+        this.name=name;
     }
 
     @Override
@@ -26,4 +28,6 @@ public class CustomTypefaceSpan extends MetricAffectingSpan {
     private static void applyCustomTypeFace(Paint paint, Typeface tf) {
         paint.setTypeface(tf);
     }
+
+
 }

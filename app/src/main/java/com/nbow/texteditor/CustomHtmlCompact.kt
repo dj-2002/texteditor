@@ -1,17 +1,35 @@
 package com.nbow.texteditor
 
 import android.app.Application
+import android.content.Context
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.text.*
+import android.text.Html.ImageGetter
+import android.text.Html.TagHandler
 import android.text.style.*
 import android.util.Log
-import androidx.core.text.HtmlCompat
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import java.io.IOException
+import java.io.StringReader
+import java.lang.RuntimeException
+import java.util.*
+import java.util.regex.Pattern
+import org.ccil.cowan.tagsoup.HTMLSchema
+import org.ccil.cowan.tagsoup.Parser
+import org.xml.sax.*
+import java.lang.NumberFormatException
+import kotlin.collections.HashMap
+
 
 class CustomHtmlCompact {
 
     constructor() {
 
     }
+
 
     companion object {
 
@@ -68,7 +86,7 @@ class CustomHtmlCompact {
             out: StringBuilder, text: Spanned, start: Int, end: Int,
 
             ) {
-            Log.e(TAG, "withinDiv: $start $end", )
+            Log.e(TAG, "withinDiv: $start $end")
             var next: Int
             var i = start
             while (i < end) {
@@ -91,7 +109,7 @@ class CustomHtmlCompact {
             end: Int
         ) {
             Log.e("", "withinBlockquoteConsecutive: $start $end ")
-                    out.append("<p>")
+            out.append("<p>")
 //
             var next: Int
             var i = start
@@ -150,7 +168,7 @@ class CustomHtmlCompact {
                         out.append("<br>")
                     }
                     if (next != end) {
-                    /* Paragraph should be closed and reopened */
+                        /* Paragraph should be closed and reopened */
                         out.append("</p>\n");
                         out.append("<p>")
                     }
@@ -158,13 +176,13 @@ class CustomHtmlCompact {
                 i = next
             }
 //
-        out.append("</p>\n");
+            out.append("</p>\n");
         }
 
 
         private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int) {
 
-            Log.e(TAG, "withinParagraph: $start $end", )
+            Log.e(TAG, "withinParagraph: $start $end")
             var hCount = -1;
 
             var next: Int
@@ -190,6 +208,12 @@ class CustomHtmlCompact {
                         if ("monospace" == s) {
                             out.append("<tt>")
                         }
+
+
+                    }
+                    if(style[j] is  CustomTypefaceSpan){
+                        val s1=(style[j] as CustomTypefaceSpan).name
+                         out.append("<span style=\"font-family:${s1}\">")
                     }
                     if (style[j] is SuperscriptSpan) {
                         out.append("<sup>")
@@ -291,6 +315,15 @@ class CustomHtmlCompact {
                         if (s == "monospace") {
                             out.append("</tt>")
                         }
+//                        val s1=(style[j] as CustomTypefaceSpan).name
+//                        if(s1=="arial")
+//                        {
+//
+//                        }
+
+                    }
+                    if(style[j] is  CustomTypefaceSpan){
+                        out.append("</span>")
                     }
                     if (style[j] is StyleSpan) {
                         val s = (style[j] as StyleSpan).style
@@ -311,7 +344,7 @@ class CustomHtmlCompact {
             out: StringBuilder, text: CharSequence,
             start: Int, end: Int
         ) {
-            Log.e(TAG, "withinStyle: $start $end", )
+            Log.e(TAG, "withinStyle: $start $end")
             var i = start
             while (i < end) {
                 val c = text[i]
@@ -346,6 +379,788 @@ class CustomHtmlCompact {
             }
         }
 
+        // Html to spannable
 
+        fun fromHtml(
+            context: Context,
+            source: String, flags: Int, imageGetter: ImageGetter?,
+            tagHandler: TagHandler?
+        ): Spanned {
+            val parser = Parser()
+            try {
+                parser.setProperty(Parser.schemaProperty, HTMLSchema())
+            } catch (e: SAXNotRecognizedException) {
+                // Should not happen.
+                throw RuntimeException(e)
+            } catch (e: SAXNotSupportedException) {
+                // Should not happen.
+                throw RuntimeException(e)
+            }
+            val converter: HtmlToSpannedConverter =
+                HtmlToSpannedConverter(context,source, imageGetter, tagHandler, parser, flags)
+            return converter.convert()
+        }
+
+    }
+
+}
+
+internal class HtmlToSpannedConverter(
+
+    private val context: Context, private val mSource: String,
+    imageGetter: ImageGetter?, tagHandler: TagHandler?, parser: Parser, flags: Int
+) :
+    ContentHandler {
+    private val mReader: XMLReader
+    private val mSpannableStringBuilder: SpannableStringBuilder
+    private val mImageGetter: ImageGetter?
+    private val mTagHandler: TagHandler?
+    private val mFlags: Int
+    private var sColorNameMap: HashMap<String, Int> = HashMap()
+
+    @ColorInt
+    val BLACK = -0x1000000
+
+    @ColorInt
+    val DKGRAY = -0xbbbbbc
+
+    @ColorInt
+    val GRAY = -0x777778
+
+    @ColorInt
+    val LTGRAY = -0x333334
+
+    @ColorInt
+    val WHITE = -0x1
+
+    @ColorInt
+    val RED = -0x10000
+
+    @ColorInt
+    val GREEN = -0xff0100
+
+    @ColorInt
+    val BLUE = -0xffff01
+
+    @ColorInt
+    val YELLOW = -0x100
+
+    @ColorInt
+    val CYAN = -0xff0001
+
+    @ColorInt
+    val MAGENTA = -0xff01
+
+//    val AQUA =
+
+    @ColorInt
+    val TRANSPARENT = 0
+    init
+    {
+//        sColorNameMap = new HashMap < > ()
+        sColorNameMap["black"] = BLACK
+        sColorNameMap["darkgray"] = DKGRAY
+        sColorNameMap["gray"] = GRAY
+        sColorNameMap["lightgray"] = LTGRAY
+        sColorNameMap["white"] = WHITE
+        sColorNameMap["red"] = RED
+        sColorNameMap["green"] = GREEN
+        sColorNameMap["blue"] = BLUE
+        sColorNameMap["yellow"] = YELLOW
+        sColorNameMap["cyan"] = CYAN
+        sColorNameMap["magenta"] = MAGENTA
+        sColorNameMap.put("aqua", 0xFF00FFFF.toInt())
+        sColorNameMap["fuchsia"] = 0xFFFF00FF.toInt()
+        sColorNameMap["darkgrey"] = DKGRAY
+        sColorNameMap["grey"] = GRAY
+        sColorNameMap["lightgrey"] = LTGRAY
+        sColorNameMap["lime"] = 0xFF00FF00.toInt()
+        sColorNameMap["maroon"] = 0xFF800000.toInt()
+        sColorNameMap["navy"] = 0xFF000080.toInt()
+        sColorNameMap["olive"] = 0xFF808000.toInt()
+        sColorNameMap["purple"] = 0xFF800080.toInt()
+        sColorNameMap["silver"] = 0xFFC0C0C0.toInt()
+        sColorNameMap["teal"] = 0xFF008080.toInt()
+
+    }
+
+    companion object {
+        private val HEADING_SIZES = floatArrayOf(
+            1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1f
+        )
+        private var sTextAlignPattern: Pattern? = null
+        private var sForegroundColorPattern: Pattern? = null
+        private var sBackgroundColorPattern: Pattern? = null
+        private var sTextDecorationPattern: Pattern? = null
+
+        /**
+         * Name-value mapping of HTML/CSS colors which have different values in [Color].
+         */
+        private val sColorMap: MutableMap<String, Int> = HashMap()
+        private val textAlignPattern: Pattern?
+            private get() {
+                if (sTextAlignPattern == null) {
+                    sTextAlignPattern = Pattern.compile("(?:\\s+|\\A)text-align\\s*:\\s*(\\S*)\\b")
+                }
+                return sTextAlignPattern
+            }
+        private val foregroundColorPattern: Pattern?
+            private get() {
+                if (sForegroundColorPattern == null) {
+                    sForegroundColorPattern = Pattern.compile(
+                        "(?:\\s+|\\A)color\\s*:\\s*(\\S*)\\b"
+                    )
+                }
+                return sForegroundColorPattern
+            }
+        private val backgroundColorPattern: Pattern?
+            private get() {
+                if (sBackgroundColorPattern == null) {
+                    sBackgroundColorPattern = Pattern.compile(
+                        "(?:\\s+|\\A)background(?:-color)?\\s*:\\s*(\\S*)\\b"
+                    )
+                }
+                return sBackgroundColorPattern
+            }
+        private val textDecorationPattern: Pattern?
+            private get() {
+                if (sTextDecorationPattern == null) {
+                    sTextDecorationPattern = Pattern.compile(
+                        "(?:\\s+|\\A)text-decoration\\s*:\\s*(\\S*)\\b"
+                    )
+                }
+                return sTextDecorationPattern
+            }
+
+        private fun appendNewlines(text: Editable, minNewline: Int) {
+            val len = text.length
+            if (len == 0) {
+                return
+            }
+            var existingNewlines = 0
+            var i = len - 1
+            while (i >= 0 && text[i] == '\n') {
+                existingNewlines++
+                i--
+            }
+            for (j in existingNewlines until minNewline) {
+                text.append("\n")
+            }
+        }
+
+        private fun startBlockElement(text: Editable, attributes: Attributes, margin: Int) {
+            val len = text.length
+            if (margin > 0) {
+                appendNewlines(text, margin)
+                start(text, Newline(margin))
+            }
+            val style = attributes.getValue("", "style")
+            if (style != null) {
+                val m = textAlignPattern!!.matcher(style)
+                if (m.find()) {
+                    val alignment = m.group(1)
+                    if (alignment.equals("start", ignoreCase = true)) {
+                        start(text, Alignment(Layout.Alignment.ALIGN_NORMAL))
+                    } else if (alignment.equals("center", ignoreCase = true)) {
+                        start(text, Alignment(Layout.Alignment.ALIGN_CENTER))
+                    } else if (alignment.equals("end", ignoreCase = true)) {
+                        start(text, Alignment(Layout.Alignment.ALIGN_OPPOSITE))
+                    }
+                }
+            }
+        }
+
+        private fun endBlockElement(text: Editable) {
+            val n = getLast(
+                text,
+                Newline::class.java
+            )
+            if (n != null) {
+                appendNewlines(text, n.mNumNewlines)
+                text.removeSpan(n)
+            }
+            val a = getLast(
+                text,
+                Alignment::class.java
+            )
+            if (a != null) {
+                setSpanFromMark(text, a, AlignmentSpan.Standard(a.mAlignment))
+            }
+        }
+
+        private fun handleBr(text: Editable) {
+            text.append('\n')
+        }
+
+        private fun endLi(text: Editable) {
+            endCssStyle(text)
+            endBlockElement(text)
+            end(
+                text,
+                Bullet::class.java, BulletSpan()
+            )
+        }
+
+        private fun endBlockquote(text: Editable) {
+            endBlockElement(text)
+            end(
+                text,
+                Blockquote::class.java, QuoteSpan()
+            )
+        }
+
+        private fun endHeading(text: Editable) {
+            // RelativeSizeSpan and StyleSpan are CharacterStyles
+            // Their ranges should not include the newlines at the end
+            val h = getLast(
+                text,
+                Heading::class.java
+            )
+            if (h != null) {
+                setSpanFromMark(
+                    text, h, RelativeSizeSpan(
+                        HEADING_SIZES[h.mLevel]
+                    ),
+                    StyleSpan(Typeface.BOLD)
+                )
+            }
+            endBlockElement(text)
+        }
+
+        private fun <T> getLast(text: Spanned, kind: Class<T>): T? {
+            /*
+         * This knows that the last returned object from getSpans()
+         * will be the most recently added.
+         */
+            val objs = text.getSpans(0, text.length, kind)
+            return if (objs.size == 0) {
+                null
+            } else {
+                objs[objs.size - 1]
+            }
+        }
+
+        private fun setSpanFromMark(text: Spannable, mark: Any, vararg spans: Any) {
+            val where = text.getSpanStart(mark)
+            text.removeSpan(mark)
+            val len = text.length
+            if (where != len) {
+                for (span in spans) {
+                    text.setSpan(span, where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+
+        private fun start(text: Editable, mark: Any) {
+            val len = text.length
+            text.setSpan(mark, len, len, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+        }
+
+        private fun end(text: Editable, kind: Class<*>, repl: Any) {
+            val len = text.length
+            val obj = getLast(text, kind)
+            if (obj != null) {
+                setSpanFromMark(text, obj, repl)
+            }
+        }
+
+        private fun endCssStyle(text: Editable) {
+            val s = getLast(
+                text,
+                Strikethrough::class.java
+            )
+            if (s != null) {
+                setSpanFromMark(text, s, StrikethroughSpan())
+            }
+            val b = getLast(
+                text,
+                Background::class.java
+            )
+            if (b != null) {
+                setSpanFromMark(text, b, BackgroundColorSpan(b.mBackgroundColor))
+            }
+            val f = getLast(
+                text,
+                Foreground::class.java
+            )
+            if (f != null) {
+                setSpanFromMark(text, f, ForegroundColorSpan(f.mForegroundColor))
+            }
+        }
+
+        private fun startImg(context: Context,text: Editable, attributes: Attributes, img: ImageGetter?) {
+            val src = attributes.getValue("", "src")
+            var d: Drawable? = null
+            if (img != null) {
+                d = img.getDrawable(src)
+            }
+            if (d == null) {
+                d = ContextCompat.getDrawable(context,R.drawable.ic_color_text)
+                d!!.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+            }
+            val len = text.length
+            text.append("\uFFFC")
+            text.setSpan(
+                ImageSpan(d, src), len, text.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        private fun endFont(text: Editable) {
+            val font = getLast(
+                text,
+                Font::class.java
+            )
+            if (font != null) {
+                setSpanFromMark(text, font, TypefaceSpan(font.mFace))
+            }
+            val foreground = getLast(
+                text,
+                Foreground::class.java
+            )
+            if (foreground != null) {
+                setSpanFromMark(
+                    text, foreground,
+                    ForegroundColorSpan(foreground.mForegroundColor)
+                )
+            }
+        }
+
+        private fun startA(text: Editable, attributes: Attributes) {
+            val href = attributes.getValue("", "href")
+            start(text, Href(href))
+        }
+
+        private fun endA(text: Editable) {
+            val h = getLast(
+                text,
+                Href::class.java
+            )
+            if (h != null) {
+                if (h.mHref != null) {
+                    setSpanFromMark(text, h, URLSpan(h.mHref))
+                }
+            }
+        }
+
+        init {
+//            sColorMap = HashMap()
+            sColorMap["darkgray"] = -0x565657
+            sColorMap["gray"] = -0x7f7f80
+            sColorMap["lightgray"] = -0x2c2c2d
+            sColorMap["darkgrey"] = -0x565657
+            sColorMap["grey"] = -0x7f7f80
+            sColorMap["lightgrey"] = -0x2c2c2d
+            sColorMap["green"] = -0xff8000
+        }
+    }
+
+    fun convert(): Spanned {
+        mReader.contentHandler = this
+        try {
+            mReader.parse(InputSource(StringReader(mSource)))
+        } catch (e: IOException) {
+            // We are reading from a string. There should not be IO problems.
+            throw RuntimeException(e)
+        } catch (e: SAXException) {
+            // TagSoup doesn't throw parse exceptions.
+            throw RuntimeException(e)
+        }
+
+        // Fix flags and range for paragraph-type markup.
+        val obj = mSpannableStringBuilder.getSpans(
+            0, mSpannableStringBuilder.length,
+            ParagraphStyle::class.java
+        )
+        for (i in obj.indices) {
+            val start = mSpannableStringBuilder.getSpanStart(obj[i])
+            var end = mSpannableStringBuilder.getSpanEnd(obj[i])
+
+            // If the last line of the range is blank, back off by one.
+            if (end - 2 >= 0) {
+                if (mSpannableStringBuilder[end - 1] == '\n' &&
+                    mSpannableStringBuilder[end - 2] == '\n'
+                ) {
+                    end--
+                }
+            }
+            if (end == start) {
+                mSpannableStringBuilder.removeSpan(obj[i])
+            } else {
+                mSpannableStringBuilder.setSpan(obj[i], start, end, Spannable.SPAN_PARAGRAPH)
+            }
+        }
+        return mSpannableStringBuilder
+    }
+
+    private fun handleStartTag(tag: String, attributes: Attributes) {
+        if (tag.equals("br", ignoreCase = true)) {
+            // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
+            // so we can safely emit the linebreaks when we handle the close tag.
+        } else if (tag.equals("p", ignoreCase = true)) {
+            startBlockElement(
+                mSpannableStringBuilder, attributes,
+                marginParagraph
+            )
+            startCssStyle(mSpannableStringBuilder, attributes)
+        } else if (tag.equals("ul", ignoreCase = true)) {
+            startBlockElement(
+                mSpannableStringBuilder, attributes,
+                marginList
+            )
+        } else if (tag.equals("li", ignoreCase = true)) {
+            startLi(mSpannableStringBuilder, attributes)
+        } else if (tag.equals("div", ignoreCase = true)) {
+            startBlockElement(
+                mSpannableStringBuilder, attributes,
+                marginDiv
+            )
+        } else if (tag.equals("span", ignoreCase = true)) {
+            startCssStyle(mSpannableStringBuilder, attributes)
+        } else if (tag.equals("strong", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Bold())
+        } else if (tag.equals("b", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Bold())
+        } else if (tag.equals("em", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Italic())
+        } else if (tag.equals("cite", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Italic())
+        } else if (tag.equals("dfn", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Italic())
+        } else if (tag.equals("i", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Italic())
+        } else if (tag.equals("big", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Big())
+        } else if (tag.equals("small", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Small())
+        } else if (tag.equals("font", ignoreCase = true)) {
+            startFont(mSpannableStringBuilder, attributes)
+        } else if (tag.equals("blockquote", ignoreCase = true)) {
+            startBlockquote(mSpannableStringBuilder, attributes)
+        } else if (tag.equals("tt", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Monospace())
+        } else if (tag.equals("a", ignoreCase = true)) {
+            startA(mSpannableStringBuilder, attributes)
+        } else if (tag.equals("u", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Underline())
+        } else if (tag.equals("del", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Strikethrough())
+        } else if (tag.equals("s", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Strikethrough())
+        } else if (tag.equals("strike", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Strikethrough())
+        } else if (tag.equals("sup", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Super())
+        } else if (tag.equals("sub", ignoreCase = true)) {
+            start(mSpannableStringBuilder, Sub())
+        } else if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
+            startHeading(mSpannableStringBuilder, attributes, tag[1] - '1')
+        } else if (tag.equals("img", ignoreCase = true)) {
+            startImg(context,mSpannableStringBuilder, attributes, mImageGetter)
+        } else mTagHandler?.handleTag(true, tag, mSpannableStringBuilder, mReader)
+    }
+
+    private fun handleEndTag(tag: String) {
+        if (tag.equals("br", ignoreCase = true)) {
+            handleBr(mSpannableStringBuilder)
+        } else if (tag.equals("p", ignoreCase = true)) {
+            endCssStyle(mSpannableStringBuilder)
+            endBlockElement(mSpannableStringBuilder)
+        } else if (tag.equals("ul", ignoreCase = true)) {
+            endBlockElement(mSpannableStringBuilder)
+        } else if (tag.equals("li", ignoreCase = true)) {
+            endLi(mSpannableStringBuilder)
+        } else if (tag.equals("div", ignoreCase = true)) {
+            endBlockElement(mSpannableStringBuilder)
+        } else if (tag.equals("span", ignoreCase = true)) {
+            endCssStyle(mSpannableStringBuilder)
+        } else if (tag.equals("strong", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Bold::class.java, StyleSpan(Typeface.BOLD)
+            )
+        } else if (tag.equals("b", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Bold::class.java, StyleSpan(Typeface.BOLD)
+            )
+        } else if (tag.equals("em", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Italic::class.java, StyleSpan(Typeface.ITALIC)
+            )
+        } else if (tag.equals("cite", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Italic::class.java, StyleSpan(Typeface.ITALIC)
+            )
+        } else if (tag.equals("dfn", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Italic::class.java, StyleSpan(Typeface.ITALIC)
+            )
+        } else if (tag.equals("i", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Italic::class.java, StyleSpan(Typeface.ITALIC)
+            )
+        } else if (tag.equals("big", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Big::class.java, RelativeSizeSpan(1.25f)
+            )
+        } else if (tag.equals("small", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Small::class.java, RelativeSizeSpan(0.8f)
+            )
+        } else if (tag.equals("font", ignoreCase = true)) {
+            endFont(mSpannableStringBuilder)
+        } else if (tag.equals("blockquote", ignoreCase = true)) {
+            endBlockquote(mSpannableStringBuilder)
+        } else if (tag.equals("tt", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Monospace::class.java, TypefaceSpan("monospace")
+            )
+        } else if (tag.equals("a", ignoreCase = true)) {
+            endA(mSpannableStringBuilder)
+        } else if (tag.equals("u", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Underline::class.java, UnderlineSpan()
+            )
+        } else if (tag.equals("del", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Strikethrough::class.java, StrikethroughSpan()
+            )
+        } else if (tag.equals("s", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Strikethrough::class.java, StrikethroughSpan()
+            )
+        } else if (tag.equals("strike", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Strikethrough::class.java, StrikethroughSpan()
+            )
+        } else if (tag.equals("sup", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Super::class.java, SuperscriptSpan()
+            )
+        } else if (tag.equals("sub", ignoreCase = true)) {
+            end(
+                mSpannableStringBuilder,
+                Sub::class.java, SubscriptSpan()
+            )
+        } else if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
+            endHeading(mSpannableStringBuilder)
+        } else mTagHandler?.handleTag(false, tag, mSpannableStringBuilder, mReader)
+    }
+
+    private val marginParagraph: Int
+        private get() = getMargin(Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH)
+    private val marginHeading: Int
+        private get() = getMargin(Html.FROM_HTML_SEPARATOR_LINE_BREAK_HEADING)
+    private val marginListItem: Int
+        private get() = getMargin(Html.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM)
+    private val marginList: Int
+        private get() = getMargin(Html.FROM_HTML_SEPARATOR_LINE_BREAK_LIST)
+    private val marginDiv: Int
+        private get() = getMargin(Html.FROM_HTML_SEPARATOR_LINE_BREAK_DIV)
+    private val marginBlockquote: Int
+        private get() = getMargin(Html.FROM_HTML_SEPARATOR_LINE_BREAK_BLOCKQUOTE)
+
+    /**
+     * Returns the minimum number of newline characters needed before and after a given block-level
+     * element.
+     *
+     * @param flag the corresponding option flag defined in [Html] of a block-level element
+     */
+    private fun getMargin(flag: Int): Int {
+        return if (flag and mFlags != 0) {
+            1
+        } else 2
+    }
+
+    private fun startLi(text: Editable, attributes: Attributes) {
+        startBlockElement(text, attributes, marginListItem)
+        start(text, Bullet())
+        startCssStyle(text, attributes)
+    }
+
+    private fun startBlockquote(text: Editable, attributes: Attributes) {
+        startBlockElement(text, attributes, marginBlockquote)
+        start(text, Blockquote())
+    }
+
+    private fun startHeading(text: Editable, attributes: Attributes, level: Int) {
+        startBlockElement(text, attributes, marginHeading)
+        start(text, Heading(level))
+    }
+
+    private fun startCssStyle(text: Editable, attributes: Attributes) {
+        val style = attributes.getValue("", "style")
+        if (style != null) {
+            var m = foregroundColorPattern!!.matcher(style)
+            if (m.find()) {
+                val c = getHtmlColor(m.group(1))
+                if (c != -1) {
+                    start(text, Foreground(c or -0x1000000))
+                }
+            }
+            m = backgroundColorPattern!!.matcher(style)
+            if (m.find()) {
+                val c = getHtmlColor(m.group(1))
+                if (c != -1) {
+                    start(text, Background(c or -0x1000000))
+                }
+            }
+            m = textDecorationPattern!!.matcher(style)
+            if (m.find()) {
+                val textDecoration = m.group(1)
+                if (textDecoration.equals("line-through", ignoreCase = true)) {
+                    start(text, Strikethrough())
+                }
+            }
+        }
+    }
+
+    private fun startFont(text: Editable, attributes: Attributes) {
+        val color = attributes.getValue("", "color")
+        val face = attributes.getValue("", "face")
+        if (!TextUtils.isEmpty(color)) {
+            val c = getHtmlColor(color)
+            if (c != -1) {
+                start(text, Foreground(c or -0x1000000))
+            }
+        }
+        if (!TextUtils.isEmpty(face)) {
+            start(text, Font(face))
+        }
+    }
+
+    private fun getHtmlColor(color: String): Int {
+        if (mFlags and Html.FROM_HTML_OPTION_USE_CSS_COLORS
+            == Html.FROM_HTML_OPTION_USE_CSS_COLORS
+        ) {
+            val i = sColorMap!![color.toLowerCase(Locale.US)]
+            if (i != null) {
+                return i
+            }
+        }
+        val i: Int?= sColorNameMap.get(color.toLowerCase(Locale.ROOT))
+        return i
+            ?: try {
+                Utils.convertValueToInt(color, -1)
+            } catch (nfe: NumberFormatException) {
+                -1
+            }
+    }
+
+    override fun setDocumentLocator(locator: Locator) {}
+
+    @Throws(SAXException::class)
+    override fun startDocument() {
+    }
+
+    @Throws(SAXException::class)
+    override fun endDocument() {
+    }
+
+    @Throws(SAXException::class)
+    override fun startPrefixMapping(prefix: String, uri: String) {
+    }
+
+    @Throws(SAXException::class)
+    override fun endPrefixMapping(prefix: String) {
+    }
+
+    @Throws(SAXException::class)
+    override fun startElement(
+        uri: String,
+        localName: String,
+        qName: String,
+        attributes: Attributes
+    ) {
+        handleStartTag(localName, attributes)
+    }
+
+    @Throws(SAXException::class)
+    override fun endElement(uri: String, localName: String, qName: String) {
+        handleEndTag(localName)
+    }
+
+    @Throws(SAXException::class)
+    override fun characters(ch: CharArray, start: Int, length: Int) {
+        val sb = java.lang.StringBuilder()
+
+        /*
+         * Ignore whitespace that immediately follows other whitespace;
+         * newlines count as spaces.
+         */for (i in 0 until length) {
+            val c = ch[i + start]
+            if (c == ' ' || c == '\n') {
+                var pred: Char
+                var len = sb.length
+                if (len == 0) {
+                    len = mSpannableStringBuilder.length
+                    pred = if (len == 0) {
+                        '\n'
+                    } else {
+                        mSpannableStringBuilder[len - 1]
+                    }
+                } else {
+                    pred = sb[len - 1]
+                }
+                if (pred != ' ' && pred != '\n') {
+                    sb.append(' ')
+                }
+            } else {
+                sb.append(c)
+            }
+        }
+        mSpannableStringBuilder.append(sb)
+    }
+
+    @Throws(SAXException::class)
+    override fun ignorableWhitespace(ch: CharArray, start: Int, length: Int) {
+    }
+
+    @Throws(SAXException::class)
+    override fun processingInstruction(target: String, data: String) {
+    }
+
+    @Throws(SAXException::class)
+    override fun skippedEntity(name: String) {
+    }
+
+    private class Bold
+    private class Italic
+    private class Underline
+    private class Strikethrough
+    private class Big
+    private class Small
+    private class Monospace
+    private class Blockquote
+    private class Super
+    private class Sub
+    private class Bullet
+    private class Font(var mFace: String)
+    private class Href(var mHref: String?)
+    private class Foreground(val mForegroundColor: Int)
+    private class Background(val mBackgroundColor: Int)
+    private class Heading(val mLevel: Int)
+    private class Newline(val mNumNewlines: Int)
+    private class Alignment(val mAlignment: Layout.Alignment)
+
+    init {
+        mSpannableStringBuilder = SpannableStringBuilder()
+        mImageGetter = imageGetter
+        mTagHandler = tagHandler
+        mReader = parser
+        mFlags = flags
     }
 }

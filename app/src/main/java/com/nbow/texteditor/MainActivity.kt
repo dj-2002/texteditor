@@ -50,6 +50,8 @@ import androidx.core.text.HtmlCompat
 import top.defaults.colorpicker.ColorPickerPopup
 
 import android.view.LayoutInflater
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import kotlinx.coroutines.*
 
 
@@ -111,122 +113,124 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         binding.textEditorBottam.apply {
 
-
-            textSize.setOnClickListener({
+                textSize.setOnClickListener({
                     seekbarDialog()
-            })
+                })
 
-            heading.setOnClickListener({
-                showHeadingSelectionPopUp()
-            })
+                heading.setOnClickListener({
+                    showHeadingSelectionPopUp()
+                })
 
-            close.setOnClickListener({
-                if (isValidTab()) {
-                    val cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                close.setOnClickListener({
+                    if (isValidTab()) {
+                        val cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
 
-                    if (cf.hasUnsavedChanges.value ?: false) {
-                        showUnsavedDialog(cf)
-                    } else {
-                        closeTab()
+                        if (cf.hasUnsavedChanges.value ?: false) {
+                            showUnsavedDialog(cf)
+                        } else {
+                            closeTab()
+                        }
+
+                    }
+                })
+
+                bold.setOnClickListener({
+                    if (isValidTab()) {
+                        var cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                        cf.boldClicked()
+
+                        binding.textEditorBottam.bold.apply {
+
+                            if (cf.isBoldEnabled)
+                                this.setBackgroundResource(R.drawable.round_btn)
+                            else this.background = null
+                        }
                     }
 
-                }
-            })
+                })
+                italic.setOnClickListener({
 
-            bold.setOnClickListener({
-                if (isValidTab()) {
-                    var cf= adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.boldClicked()
+                    if (isValidTab()) {
+                        var cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                        cf.italicClicked()
 
-                    binding.textEditorBottam.bold.apply {
 
-                        if (cf.isBoldEnabled)
-                            this.setBackgroundResource(R.drawable.round_btn)
-                        else this.background = null
+                        binding.textEditorBottam.italic.apply {
+
+                            if (cf.isItalicEnabled) this.setBackgroundResource(R.drawable.round_btn)
+                            else this.background = null
+                        }
                     }
-                }
-
-            })
-            italic.setOnClickListener({
-
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.italicClicked()
-
-
-                    binding.textEditorBottam.italic.apply {
-
-                        if (cf.isItalicEnabled)  this.setBackgroundResource(R.drawable.round_btn)
-                        else this.background = null
-                    }
-                }
 
 //                binding.editText.apply {
 //                    text.setSpan(StyleSpan(Typeface.ITALIC), selectionStart,selectionEnd , flag)
 //                }
-            })
-            underline.setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.underlineClicked()
+                })
+                underline.setOnClickListener({
+                    if (isValidTab()) {
+                        var cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                        cf.underlineClicked()
 
-                    binding.textEditorBottam.underline.apply {
-                        if (cf.isUnderlineEnabled) this.setBackgroundResource(R.drawable.round_btn)
-                        else this.background = null
+                        binding.textEditorBottam.underline.apply {
+                            if (cf.isUnderlineEnabled) this.setBackgroundResource(R.drawable.round_btn)
+                            else this.background = null
+                        }
                     }
-                }
 
-            })
-            strikethrough.setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.strikeThroughClicked()
+                })
+                strikethrough.setOnClickListener({
+                    if (isValidTab()) {
+                        var cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                        cf.strikeThroughClicked()
 //
-                    binding.textEditorBottam.strikethrough.apply {
-                        if (cf.isStrikethroughEnabled) this.setBackgroundResource(R.drawable.round_btn)
-                        else this.background = null
+                        binding.textEditorBottam.strikethrough.apply {
+                            if (cf.isStrikethroughEnabled) this.setBackgroundResource(R.drawable.round_btn)
+                            else this.background = null
+                        }
                     }
-                }
 //
-            })
-            alignCenter.setOnClickListener({
+                })
+                alignCenter.setOnClickListener({
 
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                    if (isValidTab()) {
+                        var cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
 
-                    cf.alignCenter()
-                }
+                        cf.alignCenter()
+                    }
 //
-            })
+                })
 
-            alignLeft.setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.alignLeft()
-                }
+                alignLeft.setOnClickListener({
+                    if (isValidTab()) {
+                        var cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                        cf.alignLeft()
+                    }
 //
-            })
-            alignRight.setOnClickListener({
-                if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.alignRight()
-                }
+                })
+                alignRight.setOnClickListener({
+                    if (isValidTab()) {
+                        var cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                        cf.alignRight()
+                    }
 //
-            })
-            colorText.setOnClickListener({
-                pickColor()
-            })
+                })
+                colorText.setOnClickListener({
+                    pickColor()
+                })
             textFont.setOnClickListener({
 //
                 showFontSelectionPopUp()
 //
             })
+
 
 
         }
@@ -236,11 +240,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     fun pickColor() {
+
+        val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        val editor = sharedPreferences.edit()
+
         val v:View = binding.textEditorBottam.root as View
         ColorPickerPopup.Builder(this)
-            .initialColor(Color.RED) // Set initial color
+            .initialColor(sharedPreferences.getInt("color",Color.BLACK)) // Set initial color
             .enableBrightness(true) // Enable brightness slider or not
-            .enableAlpha(false) // Enable alpha slider or not
+            .enableAlpha(true) // Enable alpha slider or not
             .okTitle("Choose")
             .cancelTitle("Cancel")
             .showIndicator(true)
@@ -248,10 +256,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .build()
             .show(v, object : ColorPickerPopup.ColorPickerObserver() {
                 override fun onColorPicked(color: Int) {
+
+                    editor.putInt("color",color)
+                    editor.commit()
+
                     if (isValidTab()) {
                         var cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
                             if (!cf.isSelected()) {
-                                cf.settingColor(color)
+                                Toast.makeText(applicationContext, "Select Text to Apply Color", Toast.LENGTH_SHORT).show()
                             }
                             else {
                                 cf.setColor(color)
@@ -646,11 +658,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
 
-            R.id.nav_setting -> {
-                Log.e(TAG, "onNavigationItemSelected: clicked")
-                val intent = Intent(this@MainActivity, SettingActivity::class.java)
-                startActivity(intent)
-            }
+//            R.id.nav_setting -> {
+//                Log.e(TAG, "onNavigationItemSelected: clicked")
+//                val intent = Intent(this@MainActivity, SettingActivity::class.java)
+//                startActivity(intent)
+//            }
             R.id.nav_storage_manager -> {
                 if (!helper.isStoragePermissionGranted()) helper.takePermission()
 
@@ -675,7 +687,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var menuItem  = popup.menu.findItem(res)
         val ss = SpannableStringBuilder(title)
         val typeface = Typeface.create(ResourcesCompat.getFont(applicationContext,fontId), Typeface.NORMAL)
-        ss.setSpan(CustomTypefaceSpan(typeface),0,ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ss.setSpan(CustomTypefaceSpan(typeface,title),0,ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         menuItem.title= SpannableString(ss)
     }
 
@@ -717,7 +729,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                        if ( !currentFragment.isSelected())
                            currentFragment.settingFont(null)
                        else
-                           currentFragment.applyFontEdittext(null)
+                           currentFragment.applyFontEdittext(null,"")
 
                    }
 
@@ -725,49 +737,50 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                        if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.georgia)
                        else
-                           currentFragment.applyFontEdittext(R.font.georgia)
+                           currentFragment.applyFontEdittext(R.font.georgia,"georgia")
                    }
                    R.id.arial -> {
                        if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.arial)
                        else
-                           currentFragment.applyFontEdittext(R.font.arial)
+                           currentFragment.applyFontEdittext(R.font.arial,"arial")
                    }
                    R.id.helvetica_bold -> {
                        if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.helvetica_bold)
                        else
-                           currentFragment.applyFontEdittext(R.font.helvetica_bold)
+                           currentFragment.applyFontEdittext(R.font.helvetica_bold,"helvetica-bold")
                    }
                    R.id.helvetica -> {
                        if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.helvetica)
                        else
-                           currentFragment.applyFontEdittext(R.font.helvetica)
+                           currentFragment.applyFontEdittext(R.font.helvetica,"helvetica")
                    }
                    R.id.opensans -> {
                        if (!currentFragment.isSelected())
                            currentFragment.settingFont(R.font.opensans)
                        else
-                           currentFragment.applyFontEdittext(R.font.opensans)
+                           currentFragment.applyFontEdittext(R.font.opensans,"opensans")
+
                    }
                    R.id.raleway -> {
                        if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.raleway)
                        else
-                           currentFragment.applyFontEdittext(R.font.raleway)
+                           currentFragment.applyFontEdittext(R.font.raleway,"raleway")
                    }
                    R.id.verdana -> {
                        if (!currentFragment.isSelected())
                            currentFragment.settingFont(R.font.verdana)
                        else
-                           currentFragment.applyFontEdittext(R.font.verdana)
+                           currentFragment.applyFontEdittext(R.font.verdana,"verdana")
                    }
                    R.id.calibri -> {
                        if ( !currentFragment.isSelected())
                            currentFragment.settingFont(R.font.calibri)
                        else
-                           currentFragment.applyFontEdittext(R.font.calibri)
+                           currentFragment.applyFontEdittext(R.font.calibri,"verdana")
                    }
                }
            }
@@ -781,16 +794,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //val view = findViewById<View>(item.itemId)
 
         var view = binding.textEditorBottam.heading as View
-
         val popup = android.widget.PopupMenu(applicationContext,view)
         popup.inflate(R.menu.heading_menu)
-
         initHeading(popup,R.id.h1,Utils.heading[0],"Heading 1")
         initHeading(popup,R.id.h2,Utils.heading[1],"Heading 2")
         initHeading(popup,R.id.h3,Utils.heading[2],"Heading 3")
         initHeading(popup,R.id.h4,Utils.heading[3],"Heading 4")
         initHeading(popup,R.id.h5,Utils.heading[4],"Heading 5")
-
         popup.setOnMenuItemClickListener { item ->
             if(isValidTab()) {
                 val currentFragment =
@@ -834,9 +844,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             false
         }
         popup.show()
-
     }
-
 
     private fun down(currentFragment: EditorFragment) {
         if (index != -1) {
@@ -903,9 +911,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     fragment.hasLongPress.observe(this@MainActivity) {
                         if (it) {
 
-
-                            startActionMode(actionModeCallbackCopyPaste)
-                            fragment.hasLongPress.value = false
+                                startActionMode(actionModeCallbackCopyPaste)
+                                fragment.hasLongPress.value = false
                         }
 
 
@@ -928,10 +935,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (!dir.exists())
                         dir.mkdir()
                     var count = 1
-                    var file = File(dir, "untitled+" + count + ".html")
+                    var file = File(dir, "untitled" + count + ".html")
                     while (file.exists()) {
-                        file = File(dir, "untitled" + count + ".html")
                         count++
+                        file = File(dir, "untitled" + count + ".html")
                     }
                     makeBlankFragment("untitled" + count + ".html")
                 }
@@ -1191,12 +1198,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                    startActivity(intent)
 //                }
                 R.id.share -> {
-                    if (currentFragment != null) {
+
+                    if (currentFragment != null ) {
+
+                        val prefix= currentFragment.getFileName().substringBeforeLast('.')
+                        val suffix=currentFragment.getFileExtension()
+                        val file = File.createTempFile(prefix,suffix,applicationContext.cacheDir)
+
+                        file.bufferedWriter().use {
+
+                            if(currentFragment.getFileExtension()==".html") {
+                                it.write(
+                                    Utils.spannableToHtml(
+                                        currentFragment.getEditable() ?: SpannableStringBuilder(
+                                            ""
+                                        )
+                                    )
+                                )
+                            }
+                            else
+                            {
+                                it.write(currentFragment.getEditable().toString())
+                            }
+                        }
+
+
                         ShareCompat.IntentBuilder(this)
-                            .setStream(currentFragment.getUri())
+                            .setStream(FileProvider.getUriForFile(applicationContext,BuildConfig.APPLICATION_ID+".provider",file))
                             .setType(URLConnection.guessContentTypeFromName(currentFragment.getFileName()))
                             .startChooser()
+
                     }
+
 
                 }
 //                R.id.undo_change -> {
@@ -1247,9 +1280,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest) = false
 
             override fun onPageFinished(view: WebView, url: String) {
-                Log.i(TAG, "page finished loading $url")
                 createWebPrintJob(view,currentFragment)
+
                 mWebView = null
+                Log.e(TAG, "page finished loading $url")
+
             }
         }
 
@@ -1269,7 +1304,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // Get a PrintManager instance
             (this?.getSystemService(Context.PRINT_SERVICE) as? PrintManager)?.let { printManager ->
 
-                val jobName = "${currentFragment.getFileName()}"
+                val jobName = currentFragment.getFileName().substringBeforeLast('.')
 
                 // Get a print adapter instance
                 val printAdapter = webView.createPrintDocumentAdapter(jobName)
@@ -1318,7 +1353,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 applicationContext.contentResolver.takePersistableUriPermission(uri, takeFlags)
+
         } catch (e: Exception) {
+
             e.printStackTrace()
         }
 
@@ -1338,7 +1375,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fileName = fileName,
                 filePath = uri.path!!,
                 uri = uri,
-                data = Utils.htmlToSpannable(data.toString())
+                data = Utils.htmlToSpannable(data.toString()),
+                isNote = false
+
             )
             val fragment = EditorFragment(dataFile,applicationContext)
 
@@ -1476,8 +1515,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         isHtml:Boolean = true
     ) {
 
+        Log.e(TAG, "saveFile: isNote ${fragment.isNote()}", )
 
         if (uri !== null) {
+
+            Log.e(TAG, "saveFile: saving external file" )
             try {
                 val takeFlags: Int =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -1526,6 +1568,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
         else if(fragment.isNote()) {
+
+            Log.e(TAG, "saveFile: in Note saving " )
             try {
                 val uniqueFileName = fragment.getFileName()
                 val dir = File(applicationContext.filesDir, "note")
@@ -1932,6 +1976,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // may be called multiple times if the mode is invalidated.
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
             mode.setTitle("Copy & Paste")
+            lifecycleScope.launch(Dispatchers.Main)
+            {
+                delay(2500)
+                mode.finish()
+            }
+
             return false // Return false if nothing is done
         }
 
@@ -1954,7 +2004,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     val dataToPaste = clipboardManager.primaryClip?.getItemAt(0)?.text
                     if (currentFragment !== null) {
-                        currentFragment.insertSpecialChar(dataToPaste.toString())
+                        currentFragment.pasteData(dataToPaste)
                     }
                     true
                 }
@@ -1989,10 +2039,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             actionMode = null
         }
     }
-    fun copy(textToCopy: String) {
+    fun copy(textToCopy:CharSequence) {
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", textToCopy)
         clipboardManager.setPrimaryClip(clipData)
+    }
+
+    suspend fun  cancelCopyPasteAction(){
+
+        delay(1000)
+        if(actionMode!=null)
+        actionMode!!.finish()
+
     }
     fun feedback()
     {

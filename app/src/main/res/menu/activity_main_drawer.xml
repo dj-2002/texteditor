@@ -8,10 +8,10 @@
             android:id="@+id/textColor"
             android:icon="@drawable/ic_color_brush"
             android:title="Text Color" />
-        <item
-            android:id="@+id/textFont"
-            android:icon="@drawable/ic_font"
-            android:title="Font" />
+<!--        <item-->
+<!--            android:id="@+id/textFont"-->
+<!--            android:icon="@drawable/ic_font"-->
+<!--            android:title="Font" />-->
 
     </group>
 

@@ -927,19 +927,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 }
 
-                if (binding.tabLayout.tabCount == 0 && adapter.fragmentList.size==0) {
-
-                    val dir = File(applicationContext.filesDir, "note")
-                    if (!dir.exists())
-                        dir.mkdir()
-                    var count = 1
-                    var file = File(dir, "untitled" + count + ".html")
-                    while (file.exists()) {
-                        count++
-                        file = File(dir, "untitled" + count + ".html")
-                    }
-                    makeBlankFragment("untitled" + count + ".html")
-                }
+//                if (binding.tabLayout.tabCount == 0 && adapter.fragmentList.size==0) {
+//
+//                    val dir = File(applicationContext.filesDir, "note")
+//                    if (!dir.exists())
+//                        dir.mkdir()
+//                    var count = 1
+//                    var file = File(dir, "untitled" + count + ".html")
+//                    while (file.exists()) {
+//                        count++
+//                        file = File(dir, "untitled" + count + ".html")
+//                    }
+//                    makeBlankFragment("untitled" + count + ".html")
+//                }
 
                 Log.e(TAG, "onResume: called")
 

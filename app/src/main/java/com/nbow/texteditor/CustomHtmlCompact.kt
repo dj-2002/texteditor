@@ -125,6 +125,7 @@ class CustomHtmlCompact {
                     next++
                 }
                 val spans = text.getSpans(i,next-nl,RelativeSizeSpan::class.java)
+
                 for(span in spans){
                     if(span is RelativeSizeSpan){
                         if(span.sizeChange == Utils.heading[0]){
@@ -195,15 +196,7 @@ class CustomHtmlCompact {
                     CharacterStyle::class.java
                 )
                 for (j in style.indices) {
-                    if (style[j] is StyleSpan) {
-                        val s = (style[j] as StyleSpan).style
-                        if (s and Typeface.BOLD != 0) {
-                            out.append("<b>")
-                        }
-                        if (s and Typeface.ITALIC != 0) {
-                            out.append("<i>")
-                        }
-                    }
+
                     if (style[j] is TypefaceSpan) {
                         val s = (style[j] as TypefaceSpan).family
                         if ("monospace" == s) {
@@ -212,9 +205,19 @@ class CustomHtmlCompact {
 
 
                     }
-                    if(style[j] is  CustomTypefaceSpan){
+                     if(style[j] is  CustomTypefaceSpan){
                         val s1=(style[j] as CustomTypefaceSpan).name
                          out.append("<span style=\"font-family:${s1}\">")
+                    }
+
+                    if (style[j] is StyleSpan) {
+                        val s = (style[j] as StyleSpan).style
+                        if (s and Typeface.BOLD != 0) {
+                            out.append("<b>")
+                        }
+                        if (s and Typeface.ITALIC != 0) {
+                            out.append("<i>")
+                        }
                     }
                     if (style[j] is SuperscriptSpan) {
                         out.append("<sup>")
@@ -321,6 +324,7 @@ class CustomHtmlCompact {
                     }
                     if(style[j] is  CustomTypefaceSpan){
                         out.append("</span>")
+                        //out.append("</p>")
                     }
                     if (style[j] is StyleSpan) {
                         val s = (style[j] as StyleSpan).style
@@ -652,7 +656,7 @@ internal class HtmlToSpannedConverter(
             val len = text.length
             if (where != len) {
                 for (span in spans) {
-                            text.setSpan(span, where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    text.setSpan(span, where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
@@ -671,6 +675,7 @@ internal class HtmlToSpannedConverter(
         }
 
         private fun endCssStyle(text: Editable) {
+            Log.e("end css style", "endCssStyle: $text", )
             val s = getLast(
                 text,
                 Strikethrough::class.java
@@ -698,6 +703,20 @@ internal class HtmlToSpannedConverter(
             )
             if(ff!=null){
                 setSpanFromMark(text, ff, CustomTypefaceSpan(ff.typeface,ff.name))
+
+//                val start =
+//                val end = text.length
+//                val spans = text.getSpans(start,end,StyleSpan::class.java)
+//                var isB = false
+//                for(span in spans){
+//                    val style = (span as StyleSpan).style
+//                    if(style == Typeface.BOLD){
+//                        text.removeSpan(span)
+//                        isB = true
+//                    }
+//                }
+//                if(isB) text.setSpan(StyleSpan(Typeface.BOLD),start,end,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
             }
         }
 
@@ -1040,24 +1059,87 @@ internal class HtmlToSpannedConverter(
             }
             m = fontFamilyPattern!!.matcher(style)
             if (m.find()) {
-                Log.e("fontfamily-pattern", "startCssStyle: fontfamilypatter matcher inside find and text = $text", )
+                //Log.e("fontfamily-pattern", "startCssStyle: fontfamilypatter matcher inside find and text = $text", )
                 val textDecoration = m.group(1)
-                Log.e("fontfamily-pattern", "startCssStyle: text decoration ${textDecoration}", )
-                if (textDecoration.equals("arial", ignoreCase = true)) {
+                Log.e("fontfamily-pattern", "startCssStyle:new font found ${textDecoration}", )
+                if (textDecoration.equals(Utils.arial, ignoreCase = true)) {
                     val myTypeface = Typeface.create(
                         ResourcesCompat.getFont(context, R.font.arial),
                         Typeface.NORMAL
                     )
-                    start(text,CustomTypefaceSpan(myTypeface,"arial") )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.arial) )
                 }
-                else if (textDecoration.equals("georgia", ignoreCase = true)) {
+                else if (textDecoration.equals(Utils.georgia, ignoreCase = true)) {
                     val myTypeface = Typeface.create(
                         ResourcesCompat.getFont(context, R.font.georgia),
                         Typeface.NORMAL
                     )
-                    start(text,CustomTypefaceSpan(myTypeface,"georgia") )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.georgia) )
                 }
+                else if (textDecoration.equals(Utils.verdana, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.verdana),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.verdana) )
+                }
+                else if (textDecoration.equals(Utils.helvetica, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.helvetica),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.helvetica) )
+                }
+                else if (Utils.courier.startsWith(textDecoration, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.cour),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.courier) )
+                }
+                else if (Utils.timesnew.startsWith(textDecoration, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.times_new_roman),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.timesnew) )
+                }
+                else if (Utils.trebuchet.startsWith(textDecoration, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.trebuc),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.trebuchet) )
+                }
+                else if (Utils.brushscript.startsWith(textDecoration, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.brush_script_mt_kursiv),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.brushscript) )
+                }
+                else if (textDecoration.equals(Utils.tahoma, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.tahoma),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.tahoma) )
+                }
+                else if (textDecoration.equals(Utils.garamond, ignoreCase = true)) {
+                    val myTypeface = Typeface.create(
+                        ResourcesCompat.getFont(context, R.font.garamond_regular),
+                        Typeface.NORMAL
+                    )
+                    start(text,CustomTypefaceSpan(myTypeface,Utils.garamond) )
+                }
+
+                else if (textDecoration.equals("default", ignoreCase = true)) {
+
+                    start(text,CustomTypefaceSpan(Typeface.DEFAULT,"default") )
+                }
+
             }
+
         }
     }
 

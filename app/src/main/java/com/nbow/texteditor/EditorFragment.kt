@@ -1,11 +1,8 @@
 package com.nbow.texteditor
 
-import android.app.Application
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.text.*
 import android.text.style.*
@@ -13,7 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -22,10 +18,7 @@ import androidx.preference.PreferenceManager
 import android.view.View.OnLongClickListener
 import android.view.accessibility.AccessibilityEvent
 import android.widget.EditText
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.HtmlCompat
-import androidx.core.view.doOnPreDraw
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -36,7 +29,7 @@ class EditorFragment : Fragment {
 
     private val TAG = "EditorFragment"
     lateinit var mcontext: Context
-    private var selectedFont: Int =R.font.arial
+    public var selectedFont: String = "default"
     var isBoldEnabled = false
     var isItalicEnabled = false
     var isStrikethroughEnabled = false
@@ -187,15 +180,7 @@ class EditorFragment : Fragment {
                             }
 
 
-//                            val typeface = Typeface.create(
-//                                context?.let {
-//                                    ResourcesCompat.getFont(
-//                                        it,
-//                                        selectedFont
-//                                    )
-//                                }, Typeface.NORMAL
-//                            )
-//                            this.setSpan(CustomTypefaceSpan(typeface), start, start + count, flag)
+
                         }
                     }
                 }
@@ -322,73 +307,64 @@ class EditorFragment : Fragment {
         }
     }
 
+    fun changeParagraphStyle(alignCenter:Boolean=false,alignLeft:Boolean=false,alignRight:Boolean = false,) {
 
-    fun changeParagraphStyle(alignCenter:Boolean=false,alignLeft:Boolean=false,alignRight:Boolean = false,){
+        editText?.apply {
+            if (editText != null && text != null) {
 
+                val currentLine = getCurrentCursorLine(selectionStart)
+                val endLine = getCurrentCursorLine(selectionEnd)
+                val start = this.layout.getLineStart(currentLine)
+                var end = this.layout.getLineEnd(endLine)
+                Log.e(TAG, "changeParagraphStyle: $start $end")
+                if (end == -1) end = editText!!.text!!.length
 
-        if(editText!=null) {
+                if ((alignCenter || alignLeft || alignRight)) {
+                    var next: Int
 
-            editText!!.apply {
-                if (selectionEnd != selectionStart) {
+                    var i = start
+                    while (i < end) {
 
-                    if ((alignCenter || alignLeft || alignRight)) {
-                        var next: Int
+                        // find the next span transition
+                        next =
+                            text!!.nextSpanTransition(i, end, ParagraphStyle::class.java)
 
-                        var i = selectionStart
-                        while (i < selectionEnd) {
+                        val spans: Array<ParagraphStyle> =
+                            text!!.getSpans(i, next, ParagraphStyle::class.java)
 
-                            // find the next span transition
-                            next =
-                                text!!.nextSpanTransition(i, selectionEnd, ParagraphStyle::class.java)
+                        for (span in spans) {
 
-                            val spans: Array<ParagraphStyle> =
-                                text!!.getSpans(i, next, ParagraphStyle::class.java)
-
-                            for (span in spans) {
-
-                                if (span is AlignmentSpan) {
-                                    text!!.removeSpan(span)
-                                }
+                            if (span is AlignmentSpan) {
+                                text!!.removeSpan(span)
                             }
-                            i = next
                         }
-                    }
-
-                }
-//            Log.e(TAG, "changeParagraphStyle: ${getCurrentCursorLine()}", )
-
-                editText!!.apply {
-
-                    if (this.text != null) {
-                        val currentLine = getCurrentCursorLine(selectionStart)
-                        val endLine = getCurrentCursorLine(selectionEnd)
-                        var start = this.layout.getLineStart(currentLine)
-                        var end = this.layout.getLineEnd(endLine)
-                        Log.e(TAG, "changeParagraphStyle: $start $end")
-                        if (end == -1) end = editText!!.text!!.length
-                        if (alignCenter) text!!.setSpan(
-                            AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER),
-                            start,
-                            end,
-                            flag
-                        )
-                        else if (alignLeft) text!!.setSpan(
-                            AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL),
-                            start,
-                            end,
-                            flag
-                        )
-                        else if (alignRight) text!!.setSpan(
-                            AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
-                            start,
-                            end,
-                            flag
-                        )
-
-                        postInvalidate()
+                        i = next
                     }
                 }
+
+                if (alignCenter) text!!.setSpan(
+                    AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER),
+                    start,
+                    end,
+                    flag
+                )
+                else if (alignLeft) text!!.setSpan(
+                    AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL),
+                    start,
+                    end,
+                    flag
+                )
+                else if (alignRight) text!!.setSpan(
+                    AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
+                    start,
+                    end,
+                    flag
+                )
+
+                postInvalidate()
+
             }
+
         }
     }
 
@@ -402,15 +378,40 @@ class EditorFragment : Fragment {
                     val myTypeface = Typeface.create(
                         ResourcesCompat.getFont(context, fontRes),
                         Typeface.NORMAL
-                    )
+                    )//TODO :
+                    val customeSapns = text.getSpans(selectionStart,selectionEnd,CustomTypefaceSpan::class.java)
+                    for(s in customeSapns) text.removeSpan(s)
+
                     (text as Spannable).setSpan(
                         CustomTypefaceSpan(myTypeface,fontName),
                         selectionStart,
                         selectionEnd,
                         flag
                     )
+                    val spans = text.getSpans(selectionStart,selectionEnd,StyleSpan::class.java)
+                    var isB = false
+                    for(span in spans){
+                        val style = (span as StyleSpan).style
+                        if(style == Typeface.BOLD){
+                            text.removeSpan(span)
+                            isB = true
+                        }
+                    }
+                    Log.e(TAG, "applyFontEdittext: length ${text.length} sstart:$selectionStart send:$selectionEnd ", )
+                    if(isB) text.setSpan(StyleSpan(Typeface.BOLD),selectionStart,selectionEnd,flag)
+
+                    text.insert(selectionEnd," ")
+                    (text as Spannable).setSpan(
+                        CustomTypefaceSpan(Typeface.DEFAULT,"default"),
+                        selectionEnd,
+                        selectionEnd+1,
+                        flag
+                    )
+
+
+
                 } else {
-                    selectedFont = fontRes
+                    //selectedFont = fontRes
                 }
             }
             else{
@@ -431,7 +432,7 @@ class EditorFragment : Fragment {
     fun settingColor(color: Int){
         editText!!.setTextColor(color)
     }
-    fun settingFont(font:Int?)
+    fun settingFont(font: Int?, s: String)
     {
         editText!!.apply {
             if(font!=null)
@@ -439,6 +440,9 @@ class EditorFragment : Fragment {
             else
                 this.typeface=Typeface.DEFAULT
         }
+        if(font!=null)
+            selectedFont = s
+        Toast.makeText(context, "no Text selected", Toast.LENGTH_SHORT).show()
     }
 
 
@@ -590,26 +594,6 @@ class EditorFragment : Fragment {
         editText?.apply {
             if(selectionStart!=selectionEnd)
             changeSelectedTextStyle(bold=true)
-            else{
-                var ss=selectionStart
-                var se=selectionEnd
-                var text=editText!!.text.toString()
-                val charArray = charArrayOf(' ','\n')
-                if(se < (text.length-2)) {
-                    se = text.indexOfAny(charArray,ss)
-                    ss=se -1
-                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
-                    {
-                        ss--;
-                    }
-                    if (ss>0 && ss != se) {
-                        setSelection(ss, se)
-                        changeSelectedTextStyle(bold = true)
-                    }
-                    Log.e(TAG, "boldClicked: $ss $se", )
-                }
-                        
-            }
         }
 
     }
@@ -619,24 +603,7 @@ class EditorFragment : Fragment {
         editText?.apply {
             if(selectionStart!=selectionEnd)
                 changeSelectedTextStyle(italic = true)
-            else{
-                var ss=selectionStart
-                var se=selectionEnd
-                var text:CharSequence=editText!!.text
-                val charArray = charArrayOf(' ','\n')
-                if(se < (text.length-2)) {
-                    se = text.indexOfAny(charArray,ss)
-                    ss=se -1
-                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
-                    {
-                        ss--;
-                    }
-                    if (ss != se) {
-                        setSelection(ss, se)
-                        changeSelectedTextStyle(italic = true)
-                    }
-                }
-            }
+
         }
     }
 
@@ -646,27 +613,7 @@ class EditorFragment : Fragment {
         editText?.apply {
             if(selectionStart!=selectionEnd)
                 changeSelectedTextStyle(underline = true)
-            else{
-                var ss=selectionStart
-                var se=selectionEnd
-
-                var text=editText!!.text.toString()
-                val charArray = charArrayOf(' ','\n')
-                if(se < (text.length-2)) {
-                    se = text.indexOfAny(charArray,ss)
-                    ss=se -1
-                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
-                    {
-                        ss--;
                     }
-                    if (ss != se && ss>=0) {
-                        setSelection(ss, se)
-                        changeSelectedTextStyle(underline = true)
-                    }
-                }
-
-            }
-        }
 
     }
     fun strikeThroughClicked() {
@@ -675,27 +622,6 @@ class EditorFragment : Fragment {
         editText?.apply {
             if(selectionStart!=selectionEnd)
                 changeSelectedTextStyle(strikethrough = true)
-            else{
-                var ss=selectionStart
-                var se=selectionEnd
-
-                var text=editText!!.text.toString()
-                val charArray = charArrayOf(' ','\n')
-                if(se < (text.length-2)) {
-                    se = text.indexOfAny(charArray,ss)
-                    ss=se -1
-                    while(ss>0 && text[ss-1]!=' ' && text[ss-1]!='\n' )
-                    {
-                        ss--;
-                    }
-                    if (ss != se && ss>=0) {
-                        setSelection(ss, se)
-                        changeSelectedTextStyle(strikethrough = true)
-
-                    }
-                }
-
-            }
         }
 
     }

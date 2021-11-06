@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Normal" android:id="@+id/normal"></item>
-    <item android:title="Georgia" android:id="@+id/georgia"></item>
-    <item android:title="Arial" android:id="@+id/arial"></item>
-    <item android:title="Helvetica" android:id="@+id/helvetica"></item>
-    <item android:title="HelveticaBold" android:id="@+id/helvetica_bold"></item>
-    <item android:title="OpenSans" android:id="@+id/opensans"></item>
-    <item android:title="Raleway" android:id="@+id/raleway"></item>
-    <item android:title="Verdana" android:id="@+id/verdana"></item>
-    <item android:title="Calibri" android:id="@+id/calibri"></item>
+    <item android:title="@string/fonr_normal" android:id="@+id/normal"/>
+    <item android:title="@string/fonr_georgia" android:id="@+id/georgia"></item>
+    <item android:title="@string/font_arial" android:id="@+id/arial"></item>
+    <item android:title="@string/font_helvetica" android:id="@+id/helvetica"></item>
+    <item android:title="@string/font_verdana" android:id="@+id/verdana"></item>
+    <item android:title="@string/font_tahoma" android:id="@+id/tahoma"></item>
+    <item android:title="@string/fonr_trebuchet_ms" android:id="@+id/trebuchet_ms"></item>
+    <item android:title="@string/font_times_new_roman" android:id="@+id/times_new_roman"></item>
+    <item android:title="@string/font_garamond" android:id="@+id/garamond"></item>
+    <item android:title="@string/font_courier_new" android:id="@+id/courier"></item>
+    <item android:title="@string/font_brush_script_mt" android:id="@+id/brush_script_mt"></item>
+
 </menu>

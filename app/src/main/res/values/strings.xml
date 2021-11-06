@@ -78,6 +78,17 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="font_brush_script_mt">Brush Script MT</string>
+    <string name="font_courier_new">Courier New</string>
+    <string name="font_garamond">Garamond</string>
+    <string name="font_times_new_roman">Times New Roman</string>
+    <string name="fonr_trebuchet_ms">Trebuchet MS</string>
+    <string name="font_tahoma">Tahoma</string>
+    <string name="font_verdana">Verdana</string>
+    <string name="font_helvetica">Helvetica</string>
+    <string name="font_arial">Arial</string>
+    <string name="fonr_georgia">Georgia</string>
+    <string name="fonr_normal">Normal</string>
 
     <!-- Preference Titles -->
 </resources>

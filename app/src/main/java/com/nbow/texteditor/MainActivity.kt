@@ -51,6 +51,10 @@ import top.defaults.colorpicker.ColorPickerPopup
 import android.view.LayoutInflater
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.*
+import android.webkit.WebSettings
+
+
+
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -295,12 +299,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val v:View  = binding.noTabLayout.cl1
         v.setOnClickListener({
             try {
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "*/*"
-                    putExtra(Intent.EXTRA_TITLE, "new.txt")
+                val dir = File(applicationContext.filesDir, "note")
+                if (!dir.exists())
+                    dir.mkdir()
+                var count = 1
+                var file = File(dir, "untitled" + count + ".html")
+                while (file.exists()) {
+                    count++
+                    file = File(dir, "untitled" + count + ".html")
                 }
-                newFileLauncher.launch(intent)
+                makeBlankFragment("untitled"+count+".html")
             }
             catch (e:Exception)
             {
@@ -609,7 +617,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent: Intent? = result.data
                 if(intent!=null) {
                     val fileName = intent.getStringExtra("file_name")
-                    Log.e(TAG, "$fileName: ", )
+                    Log.e(TAG, "$fileName: ")
                     if(fileName!=null)
                     createFragmentFromNote(fileName)
                 }
@@ -625,7 +633,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             content.append(it+'\n')
         }
 
-        Log.e(TAG, "createFragmentFromNote: $content", )
+        Log.e(TAG, "createFragmentFromNote: $content")
         val dataFile = DataFile(
             fileName = fileName,
             filePath = "note",
@@ -702,16 +710,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         var view = binding.textEditorBottam.textFont as View
 
+        val courier = "Courier New"
+        val helvetica = "Helvetica"
+        val georgia = "Georgia"
+        val timesnew = "Times New Roman"
+        val garamond = "Garamond"
+        val arial = "Arial"
+        val tahoma = "Tahoma"
+        val verdana = "Verdana"
+        val brushscript = "Brush Script MT"
+        val trebuchet = "Trebuchet MS"
+
+
+
         val popup = android.widget.PopupMenu(applicationContext,view)
         popup.inflate(R.menu.font_selection_menu)
-        initFontPopUpMenu(popup,R.id.helvetica_bold,R.font.helvetica_bold,"Helvetica bold")
+        initFontPopUpMenu(popup,R.id.courier,R.font.cour,"Courier New")
         initFontPopUpMenu(popup,R.id.helvetica,R.font.helvetica,"Helvetica")
         initFontPopUpMenu(popup,R.id.georgia,R.font.georgia,"Georgia")
-        initFontPopUpMenu(popup,R.id.opensans,R.font.opensans,"OpenSans")
-        initFontPopUpMenu(popup,R.id.raleway,R.font.raleway,"Raleway")
+        initFontPopUpMenu(popup,R.id.times_new_roman,R.font.times_new_roman,"Times New Roman")
+        initFontPopUpMenu(popup,R.id.garamond,R.font.garamond_regular,"Garamond")
         initFontPopUpMenu(popup,R.id.arial,R.font.arial,"Arial")
-        initFontPopUpMenu(popup,R.id.calibri,R.font.helvetica,"Calibri")
+        initFontPopUpMenu(popup,R.id.tahoma,R.font.tahoma,"Tahoma")
         initFontPopUpMenu(popup,R.id.verdana,R.font.verdana,"Verdana")
+        initFontPopUpMenu(popup,R.id.brush_script_mt,R.font.brush_script_mt_kursiv,"Brush Script MT")
+        initFontPopUpMenu(popup,R.id.trebuchet_ms,R.font.trebuc,"Trebuchet MS")
 
 
         popup.setOnMenuItemClickListener { item ->
@@ -725,7 +748,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                    R.id.normal -> {
 
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(null)
+                           currentFragment.settingFont(null,"default")
                        else
                            currentFragment.applyFontEdittext(null,"")
 
@@ -733,52 +756,64 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                    R.id.georgia -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.georgia)
+                           currentFragment.settingFont(R.font.georgia, georgia)
                        else
                            currentFragment.applyFontEdittext(R.font.georgia,"georgia")
                    }
                    R.id.arial -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.arial)
+                           currentFragment.settingFont(R.font.arial, arial)
                        else
                            currentFragment.applyFontEdittext(R.font.arial,"arial")
                    }
-                   R.id.helvetica_bold -> {
+                   R.id.courier -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.helvetica_bold)
+                           currentFragment.settingFont(R.font.cour, courier)
                        else
-                           currentFragment.applyFontEdittext(R.font.helvetica_bold,"helvetica-bold")
+                           currentFragment.applyFontEdittext(R.font.cour,courier)
                    }
                    R.id.helvetica -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.helvetica)
+                           currentFragment.settingFont(R.font.helvetica, helvetica)
                        else
                            currentFragment.applyFontEdittext(R.font.helvetica,"helvetica")
                    }
-                   R.id.opensans -> {
+                   R.id.times_new_roman -> {
                        if (!currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.opensans)
+                           currentFragment.settingFont(R.font.times_new_roman, timesnew)
                        else
-                           currentFragment.applyFontEdittext(R.font.opensans,"opensans")
+                           currentFragment.applyFontEdittext(R.font.times_new_roman,timesnew)
 
                    }
-                   R.id.raleway -> {
+                   R.id.brush_script_mt -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.raleway)
+                           currentFragment.settingFont(R.font.brush_script_mt_kursiv, brushscript)
                        else
-                           currentFragment.applyFontEdittext(R.font.raleway,"raleway")
+                           currentFragment.applyFontEdittext(R.font.brush_script_mt_kursiv,brushscript)
                    }
                    R.id.verdana -> {
                        if (!currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.verdana)
+                           currentFragment.settingFont(R.font.verdana, verdana)
                        else
                            currentFragment.applyFontEdittext(R.font.verdana,"verdana")
                    }
-                   R.id.calibri -> {
+                   R.id.garamond -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.calibri)
+                           currentFragment.settingFont(R.font.garamond_regular, garamond)
                        else
-                           currentFragment.applyFontEdittext(R.font.calibri,"verdana")
+                           currentFragment.applyFontEdittext(R.font.garamond_regular,garamond)
+                   }
+                   R.id.tahoma -> {
+                       if ( !currentFragment.isSelected())
+                           currentFragment.settingFont(R.font.tahoma, tahoma)
+                       else
+                           currentFragment.applyFontEdittext(R.font.tahoma,tahoma)
+                   }
+                   R.id.trebuchet_ms -> {
+                       if ( !currentFragment.isSelected())
+                           currentFragment.settingFont(R.font.trebuc, trebuchet)
+                       else
+                           currentFragment.applyFontEdittext(R.font.trebuc,trebuchet)
                    }
                }
            }
@@ -1091,7 +1126,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                         catch (e:java.lang.Exception)
                         {
-                            Log.e(TAG, "showPopupMenu: ${e.message}", )
+                            Log.e(TAG, "showPopupMenu: ${e.message}")
                         }
                     }
 
@@ -1124,21 +1159,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 R.id.new_file -> {
                     //TODO : remaining ....
-                    try {
 
-
-                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                            addCategory(Intent.CATEGORY_OPENABLE)
-                            type = "*/*"
-                            putExtra(Intent.EXTRA_TITLE, "new.txt")
-                        }
-                        newFileLauncher.launch(intent)
+                    val dir = File(applicationContext.filesDir, "note")
+                    if (!dir.exists())
+                        dir.mkdir()
+                    var count = 1
+                    var file = File(dir, "untitled" + count + ".html")
+                    while (file.exists()) {
+                        count++
+                        file = File(dir, "untitled" + count + ".html")
                     }
-                    catch (e:Exception)
-                    {
-                        Toast.makeText(applicationContext, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
-                        Log.e(TAG, "newFileLauncher: ${e.toString()}.")
-                    }
+                    makeBlankFragment("untitled"+count+".html")
+//                    try {
+//
+//
+//                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+//                            addCategory(Intent.CATEGORY_OPENABLE)
+//                            type = "*/*"
+//                            putExtra(Intent.EXTRA_TITLE, "new.txt")
+//                        }
+//                        newFileLauncher.launch(intent)
+//                    }
+//                    catch (e:Exception)
+//                    {
+//                        Toast.makeText(applicationContext, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
+//                        Log.e(TAG, "newFileLauncher: ${e.toString()}.")
+//                    }
                 }
                 R.id.paste -> {
                     val clipboardManager =
@@ -1273,6 +1319,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun doWebViewPrint(currentFragment: EditorFragment) {
         // Create a WebView object specifically for printing
         val webView = WebView(this)
+        val webSettings = webView.settings
+
+
         webView.webViewClient = object : WebViewClient() {
 
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest) = false
@@ -1281,16 +1330,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 createWebPrintJob(view,currentFragment)
 
                 mWebView = null
+
                 Log.e(TAG, "page finished loading $url")
 
             }
         }
 
         // Generate an HTML document on the fly:
+        val str1 = "<html><head><style type=\"text/css\">" +
+                "@font-face {font-family:courier new;src: url(\"file:///android_asset/cour.ttf\")}  " +
+                "@font-face {font-family:arial;src: url(\"file:///android_asset/arial.ttf\")}"+
+                "@font-face {font-family:${Utils.brushscript};src: url(\"file:///android_asset/brush_script_mt_kursiv.ttf\")}  " +
+                "@font-face {font-family:garamond;src: url(\"file:///android_asset/garamond_regular.ttf\")}"+
+                "@font-face {font-family:helvetica;src: url(\"file:///android_asset/helvetica.ttf\")}  " +
+                "@font-face {font-family:tahoma;src: url(\"file:///android_asset/tahoma.ttf\")}"+
+                "@font-face {font-family:${Utils.timesnew};src: url(\"file:///android_asset/times_new_roman.ttf\")}  " +
+                "@font-face {font-family:${Utils.trebuchet};src: url(\"file:///android_asset/trebuc.ttf\")}"+
+                "@font-face {font-family:verdana;src: url(\"file:///android_asset/verdana.ttf\")}  " +
+                "@font-face {font-family:georgia;src: url(\"file:///android_asset/georgia.ttf\")}  " +
+
+                "</style></head><body>";
+        val str2 = "</body></html>";
 
         val htmlDocument = Utils.spannableToHtml(currentFragment.getEditable()!!)
+        val myHtmlString = str1 + htmlDocument + str2;
 
-        webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null)
+
+        webView.loadDataWithBaseURL(null, myHtmlString, "text/HTML", "UTF-8", null)
 
         // Keep a reference to WebView object until you pass the PrintDocumentAdapter
         // to the PrintManager
@@ -1513,7 +1579,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         isHtml:Boolean = true
     ) {
 
-        Log.e(TAG, "saveFile: isNote ${fragment.isNote()}", )
+        Log.e(TAG, "saveFile: isNote ${fragment.isNote()}")
 
         if (uri !== null) {
 
@@ -1598,7 +1664,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             catch(e:Exception)
             {
-                Log.e(TAG, "saveFile: ${e.message}", )
+                Log.e(TAG, "saveFile: ${e.message}")
             }
         }
         else

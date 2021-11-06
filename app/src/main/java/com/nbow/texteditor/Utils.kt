@@ -33,6 +33,18 @@ class Utils {
 //        val heading = arrayListOf(2f,1.5f,1.17f,1f,0.83f,0.67f)
         val heading = arrayListOf(1.5f,1.4f,1.3f,1.2f,1.1f,1f)
 
+        val courier = "Courier New"
+        val helvetica = "Helvetica"
+        val georgia = "Georgia"
+        val timesnew = "Times New Roman"
+        val garamond = "Garamond"
+        val arial = "Arial"
+        val tahoma = "Tahoma"
+        val verdana = "Verdana"
+        val brushscript = "Brush Script MT"
+        val trebuchet = "Trebuchet MS"
+
+
         fun htmlToSpannable(context:Context,data : String): Spanned {
 
 //            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N) {

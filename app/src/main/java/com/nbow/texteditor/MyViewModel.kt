@@ -137,6 +137,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
     fun saveAsNote(context: Context,index:Int) {
         viewModelScope.launch(Dispatchers.IO) {
 
+            //todo check exits
             val editorFragment = fragmentList.value!!.get(index) as EditorFragment
             Log.e(TAG, "saveAsNote: ${editorFragment.getEditable().toString()}", )
             val uniqueFileName = editorFragment.getFileName()

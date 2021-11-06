@@ -19,12 +19,12 @@
         android:icon="@drawable/ic_select_all"
         app:showAsAction="never"
         />
-    <item
-        android:id="@+id/go_to_line"
-        android:title="@string/goto_line"
-        android:icon="@drawable/ic_goto_line"
-        app:showAsAction="never"
-        />
+<!--    <item-->
+<!--        android:id="@+id/go_to_line"-->
+<!--        android:title="@string/goto_line"-->
+<!--        android:icon="@drawable/ic_goto_line"-->
+<!--        app:showAsAction="never"-->
+<!--        />-->
 
     <item
         android:id="@+id/reload"

@@ -52,9 +52,7 @@ import android.view.LayoutInflater
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.*
 import android.webkit.WebSettings
-
-
-
+import com.google.firebase.analytics.FirebaseAnalytics
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -98,11 +96,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var progressBar: ProgressBar
     lateinit var constraintLayout: ConstraintLayout
     private var mWebView: WebView? = null
+    private lateinit var analytics :FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.e(TAG, "onCreate: callled")
+
+
         binding = ActivityMainBinding.inflate(layoutInflater)
+       // analytics = FirebaseAnalytics.getInstance(this)
+
+
+
         setContentView(binding.root)
         init()
         if(savedInstanceState==null)
@@ -496,7 +501,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fileName = fileName,
             filePath = "note",
             uri = null,
-            data = Utils.htmlToSpannable(applicationContext,""),
+            data = Utils.htmlToSpannable(applicationContext," "),
             isNote = true
         )
         val fragment = EditorFragment(dataFile,applicationContext)
@@ -523,6 +528,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         builder.setPositiveButton("Yes") { dialogInterface, which ->
             run {
                 saveFile(currentFragment, currentFragment.getUri(), false, true)
+                closeTab()
                 dialogInterface.dismiss()
             }
         }
@@ -623,31 +629,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         }
-    fun createFragmentFromNote(fileName: String){
+    fun createFragmentFromNote(fileName: String,isReload: Boolean = false){
 
         val dir = File(applicationContext.filesDir,"note")
+        if(dir.exists())
+        {
         val file= File(dir,fileName)
-        val bufferedReader = BufferedReader(FileReader(file))
-        val content = java.lang.StringBuilder()
-        bufferedReader.forEachLine {
-            content.append(it+'\n')
-        }
+            if(file.exists()) {
+                val bufferedReader = BufferedReader(FileReader(file))
+                val content = java.lang.StringBuilder()
+                bufferedReader.forEachLine {
+                    content.append(it + '\n')
+                }
 
-        Log.e(TAG, "createFragmentFromNote: $content")
-        val dataFile = DataFile(
-            fileName = fileName,
-            filePath = "note",
-            uri = null,
-            data = Utils.htmlToSpannable(applicationContext,content.toString()),
-            isNote = true
-        )
-        val fragment = EditorFragment(dataFile,applicationContext)
-        adapter.addFragment(fragment)
-        binding.tabLayout.apply {
-            this.addTab(newTab())
-            setCustomTabLayout(tabCount - 1, fileName)
-            adapter.notifyItemInserted(tabCount - 1)
-            selectTab(getTabAt(tabCount - 1))
+                Log.e(TAG, "createFragmentFromNote: $content")
+                val dataFile = DataFile(
+                    fileName = fileName,
+                    filePath = "note",
+                    uri = null,
+                    data = Utils.htmlToSpannable(applicationContext, content.toString()),
+                    isNote = true
+                )
+                val fragment = EditorFragment(dataFile, applicationContext)
+                if (isReload && isValidTab()) {
+                    val position = binding.tabLayout.selectedTabPosition
+                    adapter.fragmentList.removeAt(position)
+                    adapter.fragmentList.add(position, fragment)
+                    setCustomTabLayout(position, "$fileName")
+                    adapter.notifyDataSetChanged()
+                } else {
+                    adapter.addFragment(fragment)
+                    binding.tabLayout.apply {
+                        addTab(newTab())
+                        setCustomTabLayout(tabCount - 1, fileName)
+                        adapter.notifyItemInserted(tabCount - 1)
+                        selectTab(getTabAt(tabCount - 1))
+
+                    }
+                }
+            }
         }
 
     }
@@ -939,7 +959,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     fragment.hasUnsavedChanges.observe(this@MainActivity) {
                         if (it) {
                             setCustomTabLayout(count, "*${fragment.getFileName()}")
-                        }
+                        }else setCustomTabLayout(count, fragment.getFileName())
                     }
                     fragment.hasLongPress.observe(this@MainActivity) {
                         if (it) {
@@ -1083,13 +1103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         popup.inflate(menuResourceId)
 
-        val preference = PreferenceManager.getDefaultSharedPreferences(this)
-        val isWrap = preference.getBoolean("word_wrap", false)
 
-        val itemGoToLine = popup.menu.findItem(R.id.go_to_line)
-        if (itemGoToLine != null) {
-            itemGoToLine.setVisible(!isWrap)
-        }
         popup.setOnMenuItemClickListener { item -> //TODO : list all action for menu popup
 //            Log.e(TAG, "onMenuItemClick: " + item.title)
             var currentFragment: EditorFragment? = null
@@ -1128,6 +1142,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         {
                             Log.e(TAG, "showPopupMenu: ${e.message}")
                         }
+                        currentFragment.hasUnsavedChanges.value = false
+                        if (isValidTab()) setCustomTabLayout(
+                            binding.tabLayout.selectedTabPosition,
+                            currentFragment.getFileName()
+                        )
                     }
 
                 }
@@ -1165,10 +1184,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         dir.mkdir()
                     var count = 1
                     var file = File(dir, "untitled" + count + ".html")
-                    while (file.exists()) {
-                        count++
-                        file = File(dir, "untitled" + count + ".html")
-                    }
+
+                        while (file.exists()) {
+                            count++
+                            file = File(dir, "untitled" + count + ".html")
+                        }
+                        var i=0
+                        while(i < adapter.fragmentList.size)
+                        {
+                            if("untitled" + count + ".html" == (adapter.fragmentList.get(i) as EditorFragment).getFileName() ){
+                                count++;
+                                i=0;
+                            }
+                            else {
+                                i++
+                            }
+                        }
+
                     makeBlankFragment("untitled"+count+".html")
 //                    try {
 //
@@ -1314,6 +1346,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val uri = currentFragment.getUri()
             if(uri!=null)
                 readFileUsingUri(uri,false,true)
+            else if(currentFragment.isNote())
+            {
+                createFragmentFromNote(fileName = currentFragment.getFileName(),isReload=true)
+            }
 
     }
     private fun doWebViewPrint(currentFragment: EditorFragment) {
@@ -1349,7 +1385,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 "@font-face {font-family:verdana;src: url(\"file:///android_asset/verdana.ttf\")}  " +
                 "@font-face {font-family:georgia;src: url(\"file:///android_asset/georgia.ttf\")}  " +
 
-                "</style></head><body>";
+                "body {font-family:${currentFragment.fontFamily};font-size:${currentFragment.getFontSize()}px}"+
+                "</style></head><body>"
+        Log.e(TAG, "doWebViewPrint: fontsize : ${currentFragment.getFontSize()} fontfamily : ${currentFragment.fontFamily}")
+
         val str2 = "</body></html>";
 
         val htmlDocument = Utils.spannableToHtml(currentFragment.getEditable()!!)
@@ -1671,7 +1710,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         {
             saveAsDialog(".txt")
         }
-        fragment.hasUnsavedChanges.value = false
+        if(isSaveAs)
+            fragment.hasUnsavedChanges.value = false
         if (isValidTab()) setCustomTabLayout(
             binding.tabLayout.selectedTabPosition,
             fragment.getFileName()

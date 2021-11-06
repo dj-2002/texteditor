@@ -110,7 +110,7 @@ class CustomHtmlCompact {
             end: Int
         ) {
             Log.e("", "withinBlockquoteConsecutive: $start $end ")
-            out.append("<p>")
+//            out.append("<p>")
 //
             var next: Int
             var i = start
@@ -169,16 +169,16 @@ class CustomHtmlCompact {
                     for (j in 2 until nl) {
                         out.append("<br>")
                     }
-                    if (next != end) {
-                        /* Paragraph should be closed and reopened */
-                        out.append("</p>\n");
-                        out.append("<p>")
-                    }
+//                    if (next != end) {
+//                        /* Paragraph should be closed and reopened */
+////                        out.append("</p>\n");
+////                        out.append("<p>")
+//                    }
                 }
                 i = next
             }
 //
-            out.append("</p>\n");
+//            out.append("</p>\n");
         }
 
 
@@ -205,9 +205,9 @@ class CustomHtmlCompact {
 
 
                     }
-                     if(style[j] is  CustomTypefaceSpan){
+                    if(style[j] is  CustomTypefaceSpan){
                         val s1=(style[j] as CustomTypefaceSpan).name
-                         out.append("<span style=\"font-family:${s1}\">")
+                        out.append("<span style=\"font-family:${s1}\">")
                     }
 
                     if (style[j] is StyleSpan) {
@@ -225,7 +225,7 @@ class CustomHtmlCompact {
                     if (style[j] is SubscriptSpan) {
                         out.append("<sub>")
                     }
-                    if (style[j] is UnderlineSpan) {
+                    if (style[j] is CustomUnderlineSpan) {
                         out.append("<u>")
                     }
                     if (style[j] is StrikethroughSpan) {
@@ -305,7 +305,7 @@ class CustomHtmlCompact {
                     if (style[j] is StrikethroughSpan) {
                         out.append("</span>")
                     }
-                    if (style[j] is UnderlineSpan) {
+                    if (style[j] is CustomUnderlineSpan) {
                         out.append("</u>")
                     }
                     if (style[j] is SubscriptSpan) {
@@ -654,11 +654,37 @@ internal class HtmlToSpannedConverter(
             val where = text.getSpanStart(mark)
             text.removeSpan(mark)
             val len = text.length
+            Log.e("set span from mark TAG", "setSpanFromMark: where : $where len : $len text : $text" )
             if (where != len) {
+                var isCustomTypeface = false
                 for (span in spans) {
                     text.setSpan(span, where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    if(span is CustomTypefaceSpan){
+                        isCustomTypeface = true
+                    }
+                }
+                if(isCustomTypeface){
+                    val styleSpans = text.getSpans(where, len, StyleSpan::class.java)
+                    var isB = false
+                    var isI = false
+                    for (ss in styleSpans) {
+                        val style = (ss as StyleSpan).style
+                        if (style == Typeface.BOLD) {
+                            text.removeSpan(ss)
+                            isB = true
+                            Log.e("TAG", "setSpanFromMark: custome span bold", )
+                        }
+                        if(style == Typeface.ITALIC){
+                            text.removeSpan(ss)
+                            isI = true
+                        }
+                    }
+                    if (isB) text.setSpan(StyleSpan(Typeface.BOLD), where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    if(isI) text.setSpan(StyleSpan(Typeface.ITALIC), where, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
                 }
             }
+
         }
 
         private fun start(text: Editable, mark: Any) {
@@ -675,7 +701,22 @@ internal class HtmlToSpannedConverter(
         }
 
         private fun endCssStyle(text: Editable) {
-            Log.e("end css style", "endCssStyle: $text", )
+            Log.e("end css style", "endCssStyle:", )
+            val ff = getLast(
+                text,
+                CustomTypefaceSpan::class.java
+            )
+            if(ff!=null){
+                setSpanFromMark(text, ff, CustomTypefaceSpan(ff.typeface,ff.name))
+
+//                val start = (text as Spannable).getSpanStart(ff as Any)
+//                val end = text.length
+//                Log.e("endCssStyle", "endCssStyle: start : $start end : $end")
+//                if(start!=end && start != -1) {
+//
+//                }
+            }
+
             val s = getLast(
                 text,
                 Strikethrough::class.java
@@ -697,27 +738,7 @@ internal class HtmlToSpannedConverter(
             if (f != null) {
                 setSpanFromMark(text, f, ForegroundColorSpan(f.mForegroundColor))
             }
-            val ff = getLast(
-                text,
-                CustomTypefaceSpan::class.java
-            )
-            if(ff!=null){
-                setSpanFromMark(text, ff, CustomTypefaceSpan(ff.typeface,ff.name))
 
-//                val start =
-//                val end = text.length
-//                val spans = text.getSpans(start,end,StyleSpan::class.java)
-//                var isB = false
-//                for(span in spans){
-//                    val style = (span as StyleSpan).style
-//                    if(style == Typeface.BOLD){
-//                        text.removeSpan(span)
-//                        isB = true
-//                    }
-//                }
-//                if(isB) text.setSpan(StyleSpan(Typeface.BOLD),start,end,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-            }
         }
 
         private fun startImg(context: Context,text: Editable, attributes: Attributes, img: ImageGetter?) {
@@ -896,6 +917,7 @@ internal class HtmlToSpannedConverter(
         if (tag.equals("br", ignoreCase = true)) {
             handleBr(mSpannableStringBuilder)
         } else if (tag.equals("p", ignoreCase = true)) {
+            Log.e("handleEndTag TAG", "handleEndTag: from p end css style", )
             endCssStyle(mSpannableStringBuilder)
             endBlockElement(mSpannableStringBuilder)
         } else if (tag.equals("ul", ignoreCase = true)) {
@@ -905,6 +927,7 @@ internal class HtmlToSpannedConverter(
         } else if (tag.equals("div", ignoreCase = true)) {
             endBlockElement(mSpannableStringBuilder)
         } else if (tag.equals("span", ignoreCase = true)) {
+            Log.e("handleEndTag TAG", "handleEndTag: from span endCssStyle", )
             endCssStyle(mSpannableStringBuilder)
         } else if (tag.equals("strong", ignoreCase = true)) {
             end(
@@ -960,7 +983,7 @@ internal class HtmlToSpannedConverter(
         } else if (tag.equals("u", ignoreCase = true)) {
             end(
                 mSpannableStringBuilder,
-                Underline::class.java, UnderlineSpan()
+                Underline::class.java, CustomUnderlineSpan()
             )
         } else if (tag.equals("del", ignoreCase = true)) {
             end(

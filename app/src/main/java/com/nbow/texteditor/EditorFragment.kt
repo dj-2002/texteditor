@@ -40,7 +40,7 @@ class EditorFragment : Fragment {
     var isAlignRightEnabled = false
     val flag = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
     var isTextChanged = false
-
+    var fontFamily = "default"
 
     private var editText : EditText? = null
     var hasUnsavedChanges = MutableLiveData(false)
@@ -260,7 +260,7 @@ class EditorFragment : Fragment {
 
     fun changeSelectedTextStyle(bold : Boolean = false,italic: Boolean = false,underline : Boolean = false,strikethrough : Boolean = false){
 
-
+        this.hasUnsavedChanges.value = true
 
         if (editText != null ){
             editText!!.apply {
@@ -308,7 +308,7 @@ class EditorFragment : Fragment {
     }
 
     fun changeParagraphStyle(alignCenter:Boolean=false,alignLeft:Boolean=false,alignRight:Boolean = false,) {
-
+        this.hasUnsavedChanges.value = true
         editText?.apply {
             if (editText != null && text != null) {
 
@@ -361,7 +361,7 @@ class EditorFragment : Fragment {
                     flag
                 )
 
-                postInvalidate()
+//                postInvalidate()
 
             }
 
@@ -370,7 +370,7 @@ class EditorFragment : Fragment {
 
 
     fun applyFontEdittext(fontRes: Int?,fontName:String) {
-
+        this.hasUnsavedChanges.value = true
         editText?.apply {
 
             if(fontRes!=null) {
@@ -390,28 +390,24 @@ class EditorFragment : Fragment {
                     )
                     val spans = text.getSpans(selectionStart,selectionEnd,StyleSpan::class.java)
                     var isB = false
+                    var isI = false
                     for(span in spans){
                         val style = (span as StyleSpan).style
                         if(style == Typeface.BOLD){
                             text.removeSpan(span)
                             isB = true
                         }
+                        if(style == Typeface.ITALIC){
+                            text.removeSpan(span)
+                            isI =true
+                        }
                     }
                     Log.e(TAG, "applyFontEdittext: length ${text.length} sstart:$selectionStart send:$selectionEnd ", )
                     if(isB) text.setSpan(StyleSpan(Typeface.BOLD),selectionStart,selectionEnd,flag)
-
-                    text.insert(selectionEnd," ")
-                    (text as Spannable).setSpan(
-                        CustomTypefaceSpan(Typeface.DEFAULT,"default"),
-                        selectionEnd,
-                        selectionEnd+1,
-                        flag
-                    )
-
-
+                    if(isI) text.setSpan(StyleSpan(Typeface.ITALIC),selectionStart,selectionEnd,flag)
 
                 } else {
-                    //selectedFont = fontRes
+                    //selectedFont = fontResf
                 }
             }
             else{
@@ -434,9 +430,13 @@ class EditorFragment : Fragment {
     }
     fun settingFont(font: Int?, s: String)
     {
+        this.hasUnsavedChanges
         editText!!.apply {
-            if(font!=null)
-                this.typeface = Typeface.create(ResourcesCompat.getFont(context, font), Typeface.NORMAL)
+            if(font!=null) {
+                this.typeface =
+                    Typeface.create(ResourcesCompat.getFont(context, font), Typeface.NORMAL)
+                fontFamily = s
+            }
             else
                 this.typeface=Typeface.DEFAULT
         }
@@ -444,7 +444,6 @@ class EditorFragment : Fragment {
             selectedFont = s
         Toast.makeText(context, "no Text selected", Toast.LENGTH_SHORT).show()
     }
-
 
     fun undoChanges()
     {
@@ -819,6 +818,10 @@ class EditorFragment : Fragment {
 
     fun getCharSequence():CharSequence{
             return editText!!.text
+    }
+
+    fun getFontSize(): Float {
+        return (editText?.textSize)?:16f
     }
 
 }

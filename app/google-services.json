@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "492453782040",
+    "project_id": "text-editor-e37f4",
+    "storage_bucket": "text-editor-e37f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492453782040:android:9d72081afabc554c23596d",
+        "android_client_info": {
+          "package_name": "com.nbow.texteditor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "492453782040-2hb40odk610ntjbnip9f126gcghh77rl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7WVEc96ggDOCFopD_9GrM-TyRjSYhWLI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "492453782040-2hb40odk610ntjbnip9f126gcghh77rl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

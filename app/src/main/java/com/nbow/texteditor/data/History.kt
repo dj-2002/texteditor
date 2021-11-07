@@ -1,6 +1,7 @@
 
 
 package com.nbow.texteditor.data
+import androidx.annotation.FontRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -16,6 +17,8 @@ data class History(
         val fileName:String,
         val realFileName:String,
         val hasUnsavedData : Boolean,
+        val font:String = "default",
+        val textSize:Float = 16f
 
 )
 

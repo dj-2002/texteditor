@@ -13,6 +13,9 @@ import com.nbow.texteditor.RecyclerView.ExampleAdapter
 import com.nbow.texteditor.RecyclerView.ExampleItem
 import java.io.File
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class NoteActivity : AppCompatActivity() {
     private var mExampleList: ArrayList<ExampleItem> = arrayListOf()
@@ -43,7 +46,9 @@ class NoteActivity : AppCompatActivity() {
         if (listOfNotes != null) {
             for (f in listOfNotes) {
                 val fileSize: String = getFileSize(f.length())
-                mExampleList.add(ExampleItem(f.name, f.lastModified().toString(), fileSize))
+                mExampleList.add(ExampleItem(f.name, SimpleDateFormat("MMM d yyyy HH:mm").format(
+                    Date(f.lastModified())
+                ).toString(), fileSize))
             }
 
 

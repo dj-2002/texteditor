@@ -28,7 +28,7 @@
             android:singleLine="false"
             android:layout_marginStart="7dp"
             android:background="@android:color/transparent"
-            android:textSize="17dp"
+            android:textSize="16dp"
 
         />
         </HorizontalScrollView>

@@ -21,6 +21,7 @@ import java.util.*
 
 class MyViewModel(application: Application) : AndroidViewModel(application) {
     private val fragmentList = MutableLiveData<MutableList<Fragment>>(arrayListOf())
+    public var noteList:MutableList<Note>  = arrayListOf()
     private val repository : Repository = Repository(application)
 
     var currentTab : Int = -1
@@ -65,7 +66,9 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                         uriString,
                         uniqueFileName,
                         editorFragment.getFileName(),
-                        editorFragment.hasUnsavedChanges.value ?: true
+                        editorFragment.hasUnsavedChanges.value ?: true,
+                            font = editorFragment.fontFamily,
+                            textSize = editorFragment.getTextSize(context)
                     )
 
                     Log.e(TAG, "saving new file to databse: file id ${history.historyId}")
@@ -95,7 +98,9 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                         history.realFileName,
                         uri.path!!,
                         uri,
-                        Utils.htmlToSpannable(context,data.toString())
+                        Utils.htmlToSpannable(context,data.toString()),
+                        font = history.font,
+                        textSize =  history.textSize
                     )
                     val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
                     (fragmentList.value ?: arrayListOf()).add(frag)
@@ -112,17 +117,28 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                         history.realFileName,
                         "note/untitled.html",
                         null,
-                        Utils.htmlToSpannable(context,data.toString())
+                        Utils.htmlToSpannable(context,data.toString()),
+                        font = history.font,
+                        textSize =  history.textSize
                     )
                     val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
                     (fragmentList.value ?: arrayListOf()).add(frag)
                 }
             }
             isHistoryLoaded.postValue(true)
+
+            noteList = repository.getAllNotes()
+
         }
 
     }
 
+    fun updateNoteList()
+    {
+        viewModelScope.launch(IO) {
+            noteList = repository.getAllNotes()
+        }
+    }
 
 
     fun getFragmentList(): LiveData<MutableList<Fragment>> {
@@ -134,18 +150,22 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun saveAsNote(context: Context,index:Int) {
+    fun saveAsNote(context: Context,index:Int,name:String) {
         viewModelScope.launch(Dispatchers.IO) {
 
             //todo check exits
             val editorFragment = fragmentList.value!!.get(index) as EditorFragment
             Log.e(TAG, "saveAsNote: ${editorFragment.getEditable().toString()}", )
-            val uniqueFileName = editorFragment.getFileName()
+           // val uniqueFileName = editorFragment.getFileName()
             val dir = File(context.filesDir, "note")
             if (!dir.exists())
                 dir.mkdir()
-            val file = File(dir, uniqueFileName)
+            val file = File(dir, name)
             if (!file.exists()) file.createNewFile()
+
+            val note= Note(name,editorFragment.fontFamily,editorFragment.getTextSize(context))
+            repository.saveNote(note)
+            updateNoteList()
 
             file.bufferedWriter().use {
                 it.write("${Utils.spannableToHtml(editorFragment.getEditable()?: SpannableStringBuilder(""))}")
@@ -153,5 +173,23 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
 
         }
     }
+
+    fun getNoteByName(name:String): Note? {
+
+        for (note in noteList)
+        {
+            if(note.fileName==name)
+                return  note
+        }
+        return null
+    }
+
+    fun addNote(note: Note) {
+        viewModelScope.launch(IO) {
+            repository.saveNote(note)
+            updateNoteList()
+        }
+    }
+
 
 }

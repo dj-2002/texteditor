@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.*
 import android.text.style.*
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -95,11 +96,17 @@ class EditorFragment : Fragment {
         if (savedInstanceState != null) {
             savedInstanceState.clear()
         }
+
         super.onViewStateRestored(savedInstanceState)
         // data initializing to edit text first time when attach to view
-        if(dataFile!=null){
-           editText?.setText(dataFile!!.data)            //undoRedo.mIsUndoOrRedo = false
+        if(dataFile!=null && editText!=null){
+            editText!!.setText(dataFile!!.data)
+            editText!!.requestFocus()
+        //undoRedo.mIsUndoOrRedo = false
         }
+
+        if(dataFile!=null)
+            settingFont(dataFile!!.font)
 
         editText?.setOnLongClickListener(OnLongClickListener {
             hasLongPress.value = true
@@ -193,24 +200,21 @@ class EditorFragment : Fragment {
 
 
     override fun onResume() {
-//        val PREFERENCE_NAME="myPreference"
-        val KEY_TEXT_SIZE = "TEXT_SIZE_PREFERENCE"
-        val preference= PreferenceManager.getDefaultSharedPreferences(context)
-        var myTextSize:Int = preference.getInt(KEY_TEXT_SIZE,16)
-        editText?.setTextSize(myTextSize.toFloat())
 
-        val  f=(preference.getString("font_family","DEFAULT"))
-        if(f!="DEFAULT"){
-            if(f=="DEFAULT_BOLD")
-                editText?.typeface= Typeface.DEFAULT_BOLD
-            else if(f=="MONOSPACE")
-                editText?.typeface= Typeface.MONOSPACE
-            else if(f=="SANS_SARIF")
-                editText?.typeface= Typeface.SANS_SERIF
-            else if(f=="SERIF")
-                editText?.typeface= Typeface.SERIF
+
+        changeTextSize(dataFile?.textSize?:16f)
+        if(dataFile!!.font=="default")
+        {
+
         }
-        super.onResume()
+        else if(dataFile!!.font==Utils.garamond)
+        {
+            settingFont(Utils.garamond)
+        }
+
+
+
+            super.onResume()
     }
 
 
@@ -228,7 +232,7 @@ class EditorFragment : Fragment {
 
 //        editText.setHorizontallyScrolling(false)
         if(editText!=null) {
-           // undoRedo = TextViewUndoRedo(editText,viewLifecycleOwner)
+            // undoRedo = TextViewUndoRedo(editText,viewLifecycleOwner)
         }
 
         return view
@@ -369,21 +373,18 @@ class EditorFragment : Fragment {
     }
 
 
-    fun applyFontEdittext(fontRes: Int?,fontName:String) {
+    fun applyFontEdittext(mFontName:String) {
         this.hasUnsavedChanges.value = true
         editText?.apply {
 
-            if(fontRes!=null) {
                 if (selectionStart != selectionEnd) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, fontRes),
-                        Typeface.NORMAL
-                    )//TODO :
+                    val myTypeface = getTypefaceFromName(mFontName)
+
                     val customeSapns = text.getSpans(selectionStart,selectionEnd,CustomTypefaceSpan::class.java)
                     for(s in customeSapns) text.removeSpan(s)
 
                     (text as Spannable).setSpan(
-                        CustomTypefaceSpan(myTypeface,fontName),
+                        CustomTypefaceSpan(myTypeface,mFontName),
                         selectionStart,
                         selectionEnd,
                         flag
@@ -406,43 +407,52 @@ class EditorFragment : Fragment {
                     if(isB) text.setSpan(StyleSpan(Typeface.BOLD),selectionStart,selectionEnd,flag)
                     if(isI) text.setSpan(StyleSpan(Typeface.ITALIC),selectionStart,selectionEnd,flag)
 
-                } else {
-                    //selectedFont = fontResf
                 }
-            }
-            else{
 
-                if(selectionStart != selectionEnd) {
-                    val myTypeface = Typeface.NORMAL
-                    (text as Spannable).setSpan(
-                        myTypeface,
-                        selectionStart,
-                        selectionEnd,
-                        flag
-                    )
-                }
-            }
+
         }
     }
 
     fun settingColor(color: Int){
         editText!!.setTextColor(color)
     }
-    fun settingFont(font: Int?, s: String)
+    fun settingFont(s: String)
     {
         this.hasUnsavedChanges
         editText!!.apply {
-            if(font!=null) {
-                this.typeface =
-                    Typeface.create(ResourcesCompat.getFont(context, font), Typeface.NORMAL)
+
                 fontFamily = s
+                 var mfont = getTypefaceFromName(s)
+                 this.typeface = mfont
+                dataFile!!.font = s
             }
-            else
-                this.typeface=Typeface.DEFAULT
-        }
-        if(font!=null)
-            selectedFont = s
-        Toast.makeText(context, "no Text selected", Toast.LENGTH_SHORT).show()
+    }
+
+    fun getTypefaceFromName(s:String): Typeface {
+        if(s==Utils.garamond)
+            return Typeface.createFromAsset(mcontext.assets,"garamond_regular.ttf")
+        else if(s==Utils.tahoma)
+            return Typeface.createFromAsset(mcontext.assets,"tahoma.ttf")
+        else if(s==Utils.brushscript)
+            return Typeface.createFromAsset(mcontext.assets,"brush_script_mt_kursiv.ttf")
+        else if(s==Utils.trebuchet)
+            return Typeface.createFromAsset(mcontext.assets,"trebuc.ttf")
+        else if(s==Utils.timesnew)
+            return Typeface.createFromAsset(mcontext.assets,"times_new_roman.ttf")
+        else if(s==Utils.courier)
+            return Typeface.createFromAsset(mcontext.assets,"cour.ttf")
+        else if(s==Utils.helvetica)
+            return Typeface.createFromAsset(mcontext.assets,"helvetica.ttf")
+        else if(s==Utils.georgia)
+            return Typeface.createFromAsset(mcontext.assets,"georgia.ttf")
+        else if(s==Utils.arial)
+            return Typeface.createFromAsset(mcontext.assets,"arial.ttf")
+        else if(s==Utils.verdana)
+            return Typeface.createFromAsset(mcontext.assets,"verdana.ttf")
+
+
+        return  Typeface.DEFAULT
+
     }
 
     fun undoChanges()
@@ -473,6 +483,7 @@ class EditorFragment : Fragment {
         if(editText!=null && dataFile!=null) {
             dataFile!!.data= editText!!.text
         }
+
     }
 
     fun getFileName() : String{
@@ -564,7 +575,7 @@ class EditorFragment : Fragment {
     fun insertSpecialChar(specialChar : String){
         if(editText!=null && editText!!.isFocused){
             editText!!.apply {
-                    text?.replace(selectionStart,selectionEnd,specialChar)
+                text?.replace(selectionStart,selectionEnd,specialChar)
             }
         }
     }
@@ -592,7 +603,7 @@ class EditorFragment : Fragment {
         isBoldEnabled=!isBoldEnabled
         editText?.apply {
             if(selectionStart!=selectionEnd)
-            changeSelectedTextStyle(bold=true)
+                changeSelectedTextStyle(bold=true)
         }
 
     }
@@ -612,7 +623,7 @@ class EditorFragment : Fragment {
         editText?.apply {
             if(selectionStart!=selectionEnd)
                 changeSelectedTextStyle(underline = true)
-                    }
+        }
 
     }
     fun strikeThroughClicked() {
@@ -733,21 +744,16 @@ class EditorFragment : Fragment {
 
     fun changeTextSize(x:Float) {
         Log.e(TAG, "changeTextSize: $x", )
-        if(editText!=null)
-        {
-            editText!!.apply {
-                textSize=x;
+
+            editText?.apply {
+                textSize = x
             }
-        }
+            dataFile?.textSize = x
+
     }
 
     fun getTextSize(context: Context): Float {
-        if(editText!=null)
-        {
-            var size = (editText!!.textSize) / (context.resources.displayMetrics.density)
-            return size
-        }
-        return 16f;
+        return dataFile?.textSize?:16f
     }
 
     fun makeH1(value : Float) {
@@ -817,11 +823,19 @@ class EditorFragment : Fragment {
     }
 
     fun getCharSequence():CharSequence{
-            return editText!!.text
+        return editText!!.text
     }
 
-    fun getFontSize(): Float {
-        return (editText?.textSize)?:16f
+    fun getTextSizeForPrint(context: Context): Float {
+
+        if(editText!=null)
+        {
+            var size = (editText!!.textSize) / (context.resources.displayMetrics.density)
+            return size
+        }
+        return 16f;
+
     }
+
 
 }

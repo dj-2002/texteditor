@@ -15,10 +15,12 @@ class Repository(application: Application) {
 
     val database: MyDatabase
     val historyDao:HistoryDao
+    val noteDao : NoteDao
 
     init {
         database=  MyDatabase.getDatabase(application)
         historyDao =database.HistoryDao()
+        noteDao =database.NoteDao()
     }
 
     suspend fun getHistory():MutableList<History>{
@@ -49,6 +51,28 @@ class Repository(application: Application) {
         Log.e(TAG,"Deleting all files from database")
     }
 
+    fun saveNote(note: Note) {
+        noteDao.insertNote(note)
+    }
 
+    fun deleteNote(name: String)
+    {
+        val note = noteDao.getNoteByName(name)
+        noteDao.delete(note)
+    }
+    fun deleteAllNotes()
+    {
+        noteDao.deleteAllNotes()
+    }
+    fun getNoteByName(name:String): Note {
+        return noteDao.getNoteByName(name)
+    }
+    suspend fun getAllNotes():MutableList<Note>{
+
+
+        var list:MutableList<Note> = arrayListOf()
+        list = noteDao.getAllNotes()
+        return  list
+    }
 
 }

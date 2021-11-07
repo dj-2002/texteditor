@@ -42,6 +42,7 @@ import android.text.*
 import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
+import android.util.DisplayMetrics
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -53,6 +54,7 @@ import androidx.core.content.FileProvider
 import kotlinx.coroutines.*
 import android.webkit.WebSettings
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.nbow.texteditor.data.Note
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -528,7 +530,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         builder.setPositiveButton("Yes") { dialogInterface, which ->
             run {
                 saveFile(currentFragment, currentFragment.getUri(), false, true)
-                closeTab()
+                //closeTab()
                 dialogInterface.dismiss()
             }
         }
@@ -642,13 +644,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     content.append(it + '\n')
                 }
 
+                var note  = model.getNoteByName(fileName)
+                if(note==null)
+                    note= Note(fileName)
+
                 Log.e(TAG, "createFragmentFromNote: $content")
                 val dataFile = DataFile(
                     fileName = fileName,
                     filePath = "note",
                     uri = null,
                     data = Utils.htmlToSpannable(applicationContext, content.toString()),
-                    isNote = true
+                    isNote = true,
+                    font = note.font,
+                    textSize = note.textSize
+
                 )
                 val fragment = EditorFragment(dataFile, applicationContext)
                 if (isReload && isValidTab()) {
@@ -768,72 +777,72 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                    R.id.normal -> {
 
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(null,"default")
+                           currentFragment.settingFont("default")
                        else
-                           currentFragment.applyFontEdittext(null,"")
+                           currentFragment.applyFontEdittext("")
 
                    }
 
                    R.id.georgia -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.georgia, georgia)
+                           currentFragment.settingFont(Utils.georgia)
                        else
-                           currentFragment.applyFontEdittext(R.font.georgia,"georgia")
+                           currentFragment.applyFontEdittext("georgia")
                    }
                    R.id.arial -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.arial, arial)
+                           currentFragment.settingFont(Utils.arial)
                        else
-                           currentFragment.applyFontEdittext(R.font.arial,"arial")
+                           currentFragment.applyFontEdittext("arial")
                    }
                    R.id.courier -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.cour, courier)
+                           currentFragment.settingFont(Utils.courier)
                        else
-                           currentFragment.applyFontEdittext(R.font.cour,courier)
+                           currentFragment.applyFontEdittext(courier)
                    }
                    R.id.helvetica -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.helvetica, helvetica)
+                           currentFragment.settingFont(Utils.helvetica)
                        else
-                           currentFragment.applyFontEdittext(R.font.helvetica,"helvetica")
+                           currentFragment.applyFontEdittext("helvetica")
                    }
                    R.id.times_new_roman -> {
                        if (!currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.times_new_roman, timesnew)
+                           currentFragment.settingFont(Utils.timesnew)
                        else
-                           currentFragment.applyFontEdittext(R.font.times_new_roman,timesnew)
+                           currentFragment.applyFontEdittext(timesnew)
 
                    }
                    R.id.brush_script_mt -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.brush_script_mt_kursiv, brushscript)
+                           currentFragment.settingFont(Utils.brushscript)
                        else
-                           currentFragment.applyFontEdittext(R.font.brush_script_mt_kursiv,brushscript)
+                           currentFragment.applyFontEdittext(brushscript)
                    }
                    R.id.verdana -> {
                        if (!currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.verdana, verdana)
+                           currentFragment.settingFont(Utils.verdana)
                        else
-                           currentFragment.applyFontEdittext(R.font.verdana,"verdana")
+                           currentFragment.applyFontEdittext("verdana")
                    }
                    R.id.garamond -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.garamond_regular, garamond)
+                           currentFragment.settingFont(Utils.garamond)
                        else
-                           currentFragment.applyFontEdittext(R.font.garamond_regular,garamond)
+                           currentFragment.applyFontEdittext(garamond)
                    }
                    R.id.tahoma -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.tahoma, tahoma)
+                           currentFragment.settingFont(Utils.tahoma)
                        else
-                           currentFragment.applyFontEdittext(R.font.tahoma,tahoma)
+                           currentFragment.applyFontEdittext(tahoma)
                    }
                    R.id.trebuchet_ms -> {
                        if ( !currentFragment.isSelected())
-                           currentFragment.settingFont(R.font.trebuc, trebuchet)
+                           currentFragment.settingFont(Utils.trebuchet)
                        else
-                           currentFragment.applyFontEdittext(R.font.trebuc,trebuchet)
+                           currentFragment.applyFontEdittext(trebuchet)
                    }
                }
            }
@@ -1132,11 +1141,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if(currentFragment!=null)
                     {
                         try {
-                            model.saveAsNote(
-                                applicationContext,
-                                binding.tabLayout.selectedTabPosition
-                            )
-                            Toast.makeText(applicationContext, "Saved as Note", Toast.LENGTH_SHORT).show()
+
+                           saveAsNoteFile(currentFragment.getFileName(),currentFragment)
                         }
                         catch (e:java.lang.Exception)
                         {
@@ -1342,6 +1348,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         popup.show()
     }
+
+
+
+
+
     private fun reloadFile(currentFragment: EditorFragment) {
             val uri = currentFragment.getUri()
             if(uri!=null)
@@ -1372,6 +1383,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+        val textSize = currentFragment.getTextSizeForPrint(applicationContext)
+
         // Generate an HTML document on the fly:
         val str1 = "<html><head><style type=\"text/css\">" +
                 "@font-face {font-family:courier new;src: url(\"file:///android_asset/cour.ttf\")}  " +
@@ -1385,9 +1398,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 "@font-face {font-family:verdana;src: url(\"file:///android_asset/verdana.ttf\")}  " +
                 "@font-face {font-family:georgia;src: url(\"file:///android_asset/georgia.ttf\")}  " +
 
-                "body {font-family:${currentFragment.fontFamily};font-size:${currentFragment.getFontSize()}px}"+
+                "body {font-family:${currentFragment.fontFamily};font-size:${textSize}px}"+
                 "</style></head><body>"
-        Log.e(TAG, "doWebViewPrint: fontsize : ${currentFragment.getFontSize()} fontfamily : ${currentFragment.fontFamily}")
+        Log.e(TAG, "doWebViewPrint: fontsize : ${currentFragment.getTextSize(this)} fontfamily : ${currentFragment.fontFamily}")
 
         val str2 = "</body></html>";
 
@@ -1469,18 +1482,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val data:StringBuilder = java.lang.StringBuilder()
 
             bufferedReader.forEachLine {
-                data.append(it).append("\n")
+                data.append(it)
+                data.append("\n")
             }
 
 
             val fileName: String = helper.queryName(contentResolver, uri)
+            var content : Spanned = SpannableStringBuilder()
+            val fileExtension = when(val index = fileName.lastIndexOf(".")){
+                -1 -> String()
+                else -> fileName.substring(index)
+            }
+
+            if(fileExtension == ".html" || fileExtension == ".htm"){
+                content = Utils.htmlToSpannable(applicationContext,data.toString())
+            }else{
+                content = SpannableStringBuilder(data)
+            }
+
             val dataFile = DataFile(
                 fileName = fileName,
                 filePath = uri.path!!,
                 uri = uri,
-                data = Utils.htmlToSpannable(applicationContext,data.toString()),
+                data = content,
                 isNote = false
-
             )
             val fragment = EditorFragment(dataFile,applicationContext)
 
@@ -1694,12 +1719,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             }"
                         )
                     }
+                    model.addNote(Note(fragment.getFileName(),fragment.fontFamily,fragment.getTextSize(applicationContext)))
+                    model.updateNoteList()
                 }
-                Toast.makeText(
-                    applicationContext,
-                    "Saved Successfully in Notes",
-                    Toast.LENGTH_SHORT
-                ).show()
+
             }
             catch(e:Exception)
             {
@@ -1736,8 +1759,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if(!file.exists())
                 {
                     file.createNewFile()
+
                     fragment.setFileName(findText)
                     setCustomTabLayout(binding.tabLayout.selectedTabPosition,findText)
+                    model.addNote(Note(fileName = findText,font = fragment.fontFamily,textSize = fragment.getTextSize(applicationContext)))
+                    model.updateNoteList()
                 }
                 else
                 {
@@ -1782,6 +1808,68 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
+    private fun saveAsNoteFile(uniqueFileName: String, fragment: EditorFragment) {
+        val dir = File(applicationContext.filesDir, "note")
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Enter File Name")
+        builder.setIcon(R.drawable.ic_search)
+        val view = LayoutInflater.from(this).inflate(R.layout.file_name_input_dialog, null, false)
+        val editText = view.findViewById<EditText>(R.id.file_name)
+        editText.setText(uniqueFileName)
+        builder.setView(view)
+        builder.setPositiveButton("OK") { dialogInterface, which ->
+            run {
+                findText = editText.text.toString()
+
+                var file = File(dir,findText)
+                if(!file.exists())
+                {
+                   model.saveAsNote(applicationContext,binding.tabLayout.selectedTabPosition,findText)
+                    model.updateNoteList()
+                }
+                else
+                {
+                    Toast.makeText(applicationContext, "File already exist", Toast.LENGTH_SHORT).show()
+                    createNewNoteFile(uniqueFileName,fragment)
+                }
+
+
+
+                Toast.makeText(applicationContext, "File Saved as Note", Toast.LENGTH_SHORT).show()
+                dialogInterface.dismiss()
+            }
+        }
+        //performing cancel action
+        builder.setNeutralButton("Cancel") { dialogInterface, which ->
+            //Toast.makeText(applicationContext, "operation cancel", Toast.LENGTH_LONG).show()
+            dialogInterface.dismiss()
+        }
+
+        // Create the AlertDialog
+        val alertDialog: AlertDialog = builder.create()
+        // Set other dialog properties
+        alertDialog.setCancelable(true)
+        alertDialog.show()
+        if (TextUtils.isEmpty(editText.text)) {
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+        }
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !TextUtils.isEmpty(s)
+            }
+        })
+
+
+
+    }
+
     private fun showSecureSaveAsDialog(fragment: EditorFragment) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Security Alert")

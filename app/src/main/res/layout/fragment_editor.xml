@@ -28,6 +28,7 @@
             android:singleLine="false"
             android:layout_marginStart="7dp"
             android:background="@android:color/transparent"
+            android:lastBaselineToBottomHeight="500dp"
             android:textSize="16dp"
 
         />

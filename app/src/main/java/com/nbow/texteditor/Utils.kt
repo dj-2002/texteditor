@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -58,6 +59,34 @@ class Utils {
             Log.e(TAG, "htmlToSpannable: data : ${data}", )
             return data
         }
+
+        fun getTypefaceFromName(mcontext:Context,s:String): Typeface {
+            if(s==garamond)
+                return Typeface.createFromAsset(mcontext.assets,"garamond_regular.ttf")
+            else if(s==tahoma)
+                return Typeface.createFromAsset(mcontext.assets,"tahoma.ttf")
+            else if(s==brushscript)
+                return Typeface.createFromAsset(mcontext.assets,"brush_script_mt_kursiv.ttf")
+            else if(s==trebuchet)
+                return Typeface.createFromAsset(mcontext.assets,"trebuc.ttf")
+            else if(s==timesnew)
+                return Typeface.createFromAsset(mcontext.assets,"times_new_roman.ttf")
+            else if(s==courier)
+                return Typeface.createFromAsset(mcontext.assets,"cour.ttf")
+            else if(s==helvetica)
+                return Typeface.createFromAsset(mcontext.assets,"helvetica.ttf")
+            else if(s==georgia)
+                return Typeface.createFromAsset(mcontext.assets,"georgia.ttf")
+            else if(s==arial)
+                return Typeface.createFromAsset(mcontext.assets,"arial.ttf")
+            else if(s==verdana)
+                return Typeface.createFromAsset(mcontext.assets,"verdana.ttf")
+
+
+            return  Typeface.DEFAULT
+
+        }
+
 
         fun spannableToHtml(data : Spanned): String {
                 val s= CustomHtmlCompact.spannedtoHtml(data)

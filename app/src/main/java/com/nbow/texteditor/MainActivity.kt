@@ -685,19 +685,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Log.e(TAG, "onNavigationItemSelected: outside ")
         when (item.itemId) {
 
-            R.id.textFont->{
-                showFontSelectionPopUp()
-            }
-            R.id.textColor->{
-                pickColor()
-            }
 
 
-//            R.id.nav_setting -> {
-//                Log.e(TAG, "onNavigationItemSelected: clicked")
-//                val intent = Intent(this@MainActivity, SettingActivity::class.java)
-//                startActivity(intent)
-//            }
             R.id.nav_storage_manager -> {
                 if (!helper.isStoragePermissionGranted()) helper.takePermission()
 
@@ -717,11 +706,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
-    private fun initFontPopUpMenu(popup: android.widget.PopupMenu, res:Int, fontId: Int, title: String)
+    private fun initFontPopUpMenu(popup: android.widget.PopupMenu, res:Int, title: String)
     {
         var menuItem  = popup.menu.findItem(res)
         val ss = SpannableStringBuilder(title)
-        val typeface = Typeface.create(ResourcesCompat.getFont(applicationContext,fontId), Typeface.NORMAL)
+        val typeface = getTypefaceFromName(title)
         ss.setSpan(CustomTypefaceSpan(typeface,title),0,ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         menuItem.title= SpannableString(ss)
     }
@@ -732,6 +721,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val ss = SpannableStringBuilder(text)
         ss.setSpan(RelativeSizeSpan(size),0,ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         menuItem.title= SpannableString(ss)
+    }
+    fun getTypefaceFromName(s:String): Typeface {
+        if(s==Utils.garamond)
+            return Typeface.createFromAsset(applicationContext.assets,"garamond_regular.ttf")
+        else if(s==Utils.tahoma)
+            return Typeface.createFromAsset(application.assets,"tahoma.ttf")
+        else if(s==Utils.brushscript)
+            return Typeface.createFromAsset(applicationContext.assets,"brush_script_mt_kursiv.ttf")
+        else if(s==Utils.trebuchet)
+            return Typeface.createFromAsset(applicationContext.assets,"trebuc.ttf")
+        else if(s==Utils.timesnew)
+            return Typeface.createFromAsset(applicationContext.assets,"times_new_roman.ttf")
+        else if(s==Utils.courier)
+            return Typeface.createFromAsset(applicationContext.assets,"cour.ttf")
+        else if(s==Utils.helvetica)
+            return Typeface.createFromAsset(applicationContext.assets,"helvetica.ttf")
+        else if(s==Utils.georgia)
+            return Typeface.createFromAsset(applicationContext.assets,"georgia.ttf")
+        else if(s==Utils.arial)
+            return Typeface.createFromAsset(applicationContext.assets,"arial.ttf")
+        else if(s==Utils.verdana)
+            return Typeface.createFromAsset(applicationContext.assets,"verdana.ttf")
+
+
+        return  Typeface.DEFAULT
+
     }
 
     private fun showFontSelectionPopUp() {
@@ -752,18 +767,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
+
         val popup = android.widget.PopupMenu(applicationContext,view)
         popup.inflate(R.menu.font_selection_menu)
-        initFontPopUpMenu(popup,R.id.courier,R.font.cour,"Courier New")
-        initFontPopUpMenu(popup,R.id.helvetica,R.font.helvetica,"Helvetica")
-        initFontPopUpMenu(popup,R.id.georgia,R.font.georgia,"Georgia")
-        initFontPopUpMenu(popup,R.id.times_new_roman,R.font.times_new_roman,"Times New Roman")
-        initFontPopUpMenu(popup,R.id.garamond,R.font.garamond_regular,"Garamond")
-        initFontPopUpMenu(popup,R.id.arial,R.font.arial,"Arial")
-        initFontPopUpMenu(popup,R.id.tahoma,R.font.tahoma,"Tahoma")
-        initFontPopUpMenu(popup,R.id.verdana,R.font.verdana,"Verdana")
-        initFontPopUpMenu(popup,R.id.brush_script_mt,R.font.brush_script_mt_kursiv,"Brush Script MT")
-        initFontPopUpMenu(popup,R.id.trebuchet_ms,R.font.trebuc,"Trebuchet MS")
+        initFontPopUpMenu(popup,R.id.courier,"Courier New")
+        initFontPopUpMenu(popup,R.id.helvetica,"Helvetica")
+        initFontPopUpMenu(popup,R.id.georgia,"Georgia")
+        initFontPopUpMenu(popup,R.id.times_new_roman,"Times New Roman")
+        initFontPopUpMenu(popup,R.id.garamond,"Garamond")
+        initFontPopUpMenu(popup,R.id.arial,"Arial")
+        initFontPopUpMenu(popup,R.id.tahoma,"Tahoma")
+        initFontPopUpMenu(popup,R.id.verdana,"Verdana")
+        initFontPopUpMenu(popup,R.id.brush_script_mt,"Brush Script MT")
+        initFontPopUpMenu(popup,R.id.trebuchet_ms,"Trebuchet MS")
 
 
         popup.setOnMenuItemClickListener { item ->
@@ -961,6 +977,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         model.currentTab = selectedTabPosition
                     }
                 }
+                if(adapter.fragmentList!=null)
                 createTabsInTabLayout(adapter.fragmentList)
 
                 for ((count, frag) in model.getFragmentList().value!!.withIndex()) {
@@ -1733,7 +1750,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         {
             saveAsDialog(".txt")
         }
-        if(isSaveAs)
+        if(!isSaveAs)
             fragment.hasUnsavedChanges.value = false
         if (isValidTab()) setCustomTabLayout(
             binding.tabLayout.selectedTabPosition,

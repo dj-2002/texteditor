@@ -32,11 +32,7 @@
     </style>
 
     <!--    navigation menu text style : navigation drawer -->
-    <style name="TextViewStyle" parent="android:Widget.TextView">
-        <item name="android:fontFamily">@font/verdana</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
+
 
     <style name="DrawerIcon" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="color">@color/colorAccent</item>
@@ -167,4 +163,11 @@
 
     <style name="AppMaterialTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+
+    <!--    navigation menu text style : navigation drawer -->
+    <style name="TextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily"></item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>

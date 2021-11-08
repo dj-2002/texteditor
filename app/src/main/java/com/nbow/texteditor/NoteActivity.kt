@@ -117,6 +117,8 @@ class NoteActivity : AppCompatActivity() {
         val file = File(dir,mExampleList[position].fileName)
         if(file.exists())
             file.delete()
+
+
         mExampleList.removeAt(position)
         mAdapter.notifyItemRemoved(position)
     }

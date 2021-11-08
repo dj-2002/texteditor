@@ -312,6 +312,7 @@ class EditorFragment : Fragment {
     }
 
     fun changeParagraphStyle(alignCenter:Boolean=false,alignLeft:Boolean=false,alignRight:Boolean = false,) {
+
         this.hasUnsavedChanges.value = true
         editText?.apply {
             if (editText != null && text != null) {
@@ -378,7 +379,7 @@ class EditorFragment : Fragment {
         editText?.apply {
 
                 if (selectionStart != selectionEnd) {
-                    val myTypeface = getTypefaceFromName(mFontName)
+                    val myTypeface = Utils.getTypefaceFromName(context,mFontName)
 
                     val customeSapns = text.getSpans(selectionStart,selectionEnd,CustomTypefaceSpan::class.java)
                     for(s in customeSapns) text.removeSpan(s)
@@ -418,42 +419,17 @@ class EditorFragment : Fragment {
     }
     fun settingFont(s: String)
     {
-        this.hasUnsavedChanges
+        this.hasUnsavedChanges .value =true
         editText!!.apply {
 
                 fontFamily = s
-                 var mfont = getTypefaceFromName(s)
+                 var mfont = Utils.getTypefaceFromName(context,s)
                  this.typeface = mfont
                 dataFile!!.font = s
             }
     }
 
-    fun getTypefaceFromName(s:String): Typeface {
-        if(s==Utils.garamond)
-            return Typeface.createFromAsset(mcontext.assets,"garamond_regular.ttf")
-        else if(s==Utils.tahoma)
-            return Typeface.createFromAsset(mcontext.assets,"tahoma.ttf")
-        else if(s==Utils.brushscript)
-            return Typeface.createFromAsset(mcontext.assets,"brush_script_mt_kursiv.ttf")
-        else if(s==Utils.trebuchet)
-            return Typeface.createFromAsset(mcontext.assets,"trebuc.ttf")
-        else if(s==Utils.timesnew)
-            return Typeface.createFromAsset(mcontext.assets,"times_new_roman.ttf")
-        else if(s==Utils.courier)
-            return Typeface.createFromAsset(mcontext.assets,"cour.ttf")
-        else if(s==Utils.helvetica)
-            return Typeface.createFromAsset(mcontext.assets,"helvetica.ttf")
-        else if(s==Utils.georgia)
-            return Typeface.createFromAsset(mcontext.assets,"georgia.ttf")
-        else if(s==Utils.arial)
-            return Typeface.createFromAsset(mcontext.assets,"arial.ttf")
-        else if(s==Utils.verdana)
-            return Typeface.createFromAsset(mcontext.assets,"verdana.ttf")
 
-
-        return  Typeface.DEFAULT
-
-    }
 
     fun undoChanges()
     {
@@ -743,6 +719,8 @@ class EditorFragment : Fragment {
     }
 
     fun changeTextSize(x:Float) {
+        this.hasUnsavedChanges .value =true
+
         Log.e(TAG, "changeTextSize: $x", )
 
             editText?.apply {
@@ -757,6 +735,8 @@ class EditorFragment : Fragment {
     }
 
     fun makeH1(value : Float) {
+        this.hasUnsavedChanges .value =true
+
         editText?.apply {
 
             val spans = text.getSpans(selectionStart,selectionEnd,RelativeSizeSpan::class.java)

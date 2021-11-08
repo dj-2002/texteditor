@@ -3,17 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:id="@+id/nav_up" android:checkableBehavior="single">
-        <item
-            android:id="@+id/textColor"
-            android:icon="@drawable/ic_color_brush"
-            android:title="Text Color" />
+<!--    <group android:id="@+id/nav_up" android:checkableBehavior="single">-->
 <!--        <item-->
-<!--            android:id="@+id/textFont"-->
-<!--            android:icon="@drawable/ic_font"-->
-<!--            android:title="Font" />-->
+<!--            android:id="@+id/textColor"-->
+<!--            android:icon="@drawable/ic_color_brush"-->
+<!--            android:title="Text Color" />-->
+<!--&lt;!&ndash;        <item&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/textFont"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:icon="@drawable/ic_font"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:title="Font" />&ndash;&gt;-->
 
-    </group>
+<!--    </group>-->
 
 
 
@@ -30,7 +30,8 @@
 
         <item
             android:id="@+id/note_list"
-            android:title="Notes" />
+            android:title="Notes"
+            android:icon="@drawable/ic_note"/>
 
     </group>
     <group android:id="@+id/nav_bottom">

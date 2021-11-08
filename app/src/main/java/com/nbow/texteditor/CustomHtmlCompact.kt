@@ -68,7 +68,7 @@ class CustomHtmlCompact {
                 }
 
 
-                withinDiv(result, text, i, next)
+                withinDiv(result, text, i, next,needDiv)
 
 
                 if (needDiv) {
@@ -84,9 +84,8 @@ class CustomHtmlCompact {
         }
 
         private fun withinDiv(
-            out: StringBuilder, text: Spanned, start: Int, end: Int,
-
-            ) {
+            out: StringBuilder, text: Spanned, start: Int, end: Int,needDiv:Boolean = false
+        ) {
             Log.e(TAG, "withinDiv: $start $end")
             var next: Int
             var i = start
@@ -96,7 +95,7 @@ class CustomHtmlCompact {
                 for (quote in quotes) {
                     out.append("<blockquote>")
                 }
-                withinBlockquoteConsecutive(out, text, i, next)
+                withinBlockquoteConsecutive(out, text, i, next,needDiv)
                 for (quote in quotes) {
                     out.append("</blockquote>\n")
                 }
@@ -107,7 +106,7 @@ class CustomHtmlCompact {
 
         private fun withinBlockquoteConsecutive(
             out: StringBuilder, text: Spanned, start: Int,
-            end: Int
+            end: Int,needDiv:Boolean = false
         ) {
             Log.e("", "withinBlockquoteConsecutive: $start $end ")
 //            out.append("<p>")
@@ -124,27 +123,34 @@ class CustomHtmlCompact {
                     nl++
                     next++
                 }
+                Log.e(TAG, "withinBlockquoteConsecutive: new lines : $nl")
                 val spans = text.getSpans(i,next-nl,RelativeSizeSpan::class.java)
-
+                var isHeading = false
                 for(span in spans){
                     if(span is RelativeSizeSpan){
                         if(span.sizeChange == Utils.heading[0]){
                             out.append("<h1>")
+                            isHeading = true
                         }else if(span.sizeChange == Utils.heading[1]){
                             out.append("<h2>")
+                            isHeading = true
                         }else if(span.sizeChange == Utils.heading[2]){
                             out.append("<h3>")
+                            isHeading = true
                         }else if(span.sizeChange == Utils.heading[3]){
                             out.append("<h4>")
+                            isHeading = true
                         }else if(span.sizeChange == Utils.heading[4]){
                             out.append("<h5>")
+                            isHeading = true
                         }else if(span.sizeChange == Utils.heading[5]){
                             out.append("<h6>")
+                            isHeading = true
                         }
                     }
                 }
 
-                withinParagraph(out, text, i, next - nl)
+                withinParagraph(out, text, i, next - nl,isHeading)
                 for(span in spans){
                     if(span is RelativeSizeSpan){
                         if(span.sizeChange == Utils.heading[0]){
@@ -162,11 +168,14 @@ class CustomHtmlCompact {
                         }
                     }
                 }
+                if(isHeading || needDiv){
+                    nl--
+                }
 
                 if (nl == 1) {
                     out.append("<br>\n")
                 } else {
-                    for (j in 2 until nl) {
+                    for (j in 1..nl) {
                         out.append("<br>")
                     }
 //                    if (next != end) {
@@ -182,7 +191,7 @@ class CustomHtmlCompact {
         }
 
 
-        private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int) {
+        private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int,isHeading : Boolean = false) {
 
             Log.e(TAG, "withinParagraph: $start $end")
             var hCount = -1;
@@ -213,7 +222,8 @@ class CustomHtmlCompact {
                     if (style[j] is StyleSpan) {
                         val s = (style[j] as StyleSpan).style
                         if (s and Typeface.BOLD != 0) {
-                            out.append("<b>")
+                            if(!isHeading)
+                                out.append("<b>")
                         }
                         if (s and Typeface.ITALIC != 0) {
                             out.append("<i>")
@@ -329,7 +339,8 @@ class CustomHtmlCompact {
                     if (style[j] is StyleSpan) {
                         val s = (style[j] as StyleSpan).style
                         if (s and Typeface.BOLD != 0) {
-                            out.append("</b>")
+                            if(!isHeading)
+                                out.append("</b>")
                         }
                         if (s and Typeface.ITALIC != 0) {
                             out.append("</i>")
@@ -1086,73 +1097,51 @@ internal class HtmlToSpannedConverter(
                 val textDecoration = m.group(1)
                 Log.e("fontfamily-pattern", "startCssStyle:new font found ${textDecoration}", )
                 if (textDecoration.equals(Utils.arial, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.arial),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.arial)
                     start(text,CustomTypefaceSpan(myTypeface,Utils.arial) )
                 }
                 else if (textDecoration.equals(Utils.georgia, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.georgia),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.georgia)
                     start(text,CustomTypefaceSpan(myTypeface,Utils.georgia) )
                 }
                 else if (textDecoration.equals(Utils.verdana, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.verdana),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.verdana)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.verdana) )
                 }
                 else if (textDecoration.equals(Utils.helvetica, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.helvetica),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.helvetica)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.helvetica) )
                 }
                 else if (Utils.courier.startsWith(textDecoration, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.cour),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.courier)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.courier) )
                 }
                 else if (Utils.timesnew.startsWith(textDecoration, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.times_new_roman),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.timesnew)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.timesnew) )
                 }
                 else if (Utils.trebuchet.startsWith(textDecoration, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.trebuc),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.trebuchet)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.trebuchet) )
                 }
                 else if (Utils.brushscript.startsWith(textDecoration, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.brush_script_mt_kursiv),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.brushscript)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.brushscript) )
                 }
                 else if (textDecoration.equals(Utils.tahoma, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.tahoma),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.tahoma)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.tahoma) )
                 }
                 else if (textDecoration.equals(Utils.garamond, ignoreCase = true)) {
-                    val myTypeface = Typeface.create(
-                        ResourcesCompat.getFont(context, R.font.garamond_regular),
-                        Typeface.NORMAL
-                    )
+                    val myTypeface = Utils.getTypefaceFromName(context,Utils.garamond)
+
                     start(text,CustomTypefaceSpan(myTypeface,Utils.garamond) )
                 }
 

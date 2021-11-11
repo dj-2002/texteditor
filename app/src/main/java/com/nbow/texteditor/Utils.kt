@@ -1,6 +1,7 @@
 package com.nbow.texteditor
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
@@ -90,8 +91,11 @@ class Utils {
 
         fun spannableToHtml(data : Spanned): String {
                 val s= CustomHtmlCompact.spannedtoHtml(data)
-            Log.e(TAG, "spannableToHtml: $s", )
-            return s;
+            //Log.e(TAG, "spannableToHtml: ${s.indexOf("<ul><li></li></ul>")}", )
+            val str =s.replace("<ul><li></li></ul>","",true)
+            Log.e(TAG, "spannableToHtml: $str", )
+            
+            return str;
         }
 
         fun convertValueToInt(charSeq: CharSequence?, defaultValue: Int): Int {
@@ -203,6 +207,7 @@ class Utils {
         return true
     }
 
+    @SuppressLint("Range")
     fun getFileName(uri: Uri): String? {
         var result: String? = null
         if (uri.scheme == "content") {

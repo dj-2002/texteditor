@@ -9,14 +9,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdkVersion 31
+    buildToolsVersion "31.0.0"
 
     defaultConfig {
         applicationId "com.nbow.texteditor"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 1
+        versionCode 3
         versionName "1.0.0"
         multiDexEnabled true
 
@@ -25,14 +25,15 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug{
 
             debuggable true
-            minifyEnabled true
-            shrinkResources true
+            //minifyEnabled true
+            //shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt') , 'proguard-rules.pro'
         }
     }

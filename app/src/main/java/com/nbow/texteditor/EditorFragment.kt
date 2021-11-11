@@ -1,4 +1,4 @@
-package com.nbow.texteditor
+package com.nbow .texteditor
 
 import android.content.Context
 import android.graphics.Typeface
@@ -8,6 +8,7 @@ import android.text.*
 import android.text.style.*
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import androidx.preference.PreferenceManager
 import android.view.View.OnLongClickListener
 import android.view.accessibility.AccessibilityEvent
 import android.widget.EditText
+import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +33,7 @@ class EditorFragment : Fragment {
     private val TAG = "EditorFragment"
     lateinit var mcontext: Context
     public var selectedFont: String = "default"
+    public var isBulletsOn:Boolean =false;
     var isBoldEnabled = false
     var isItalicEnabled = false
     var isStrikethroughEnabled = false
@@ -115,12 +118,14 @@ class EditorFragment : Fragment {
 
 
 
+
         editText?.setAccessibilityDelegate(object : View.AccessibilityDelegate() {
             override fun sendAccessibilityEvent(host: View?, eventType: Int) {
                 super.sendAccessibilityEvent(host, eventType)
                 if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED && !isTextChanged){
                     cursorChanged.value = true
                 }
+                
                 isTextChanged = false
             }
         })
@@ -144,7 +149,19 @@ class EditorFragment : Fragment {
 
                         if (before < count) { // adding new text
 
-
+//                            if(isBulletsOn) {
+//                                Log.e(TAG, "onViewStateRestored: onTextchanged ${text!![start]}", )
+//                                if (text!![start] == '\n' || text!![start+count] == '\n') {
+//                                    makeBullets()
+//                                }
+//                            }
+                            if(isBulletsOn) {
+                                val se = editText!!.selectionStart
+                                if (se > 0 && text!![se - 1] == '\n') {
+                                    makeBullets()
+                                }
+                            }
+                            
                             var underlineSpans = getSpans(start,start+count,UnderlineSpan::class.java)
                             if(underlineSpans!=null){
                                 for(span in underlineSpans){
@@ -313,6 +330,8 @@ class EditorFragment : Fragment {
 
     fun changeParagraphStyle(alignCenter:Boolean=false,alignLeft:Boolean=false,alignRight:Boolean = false,) {
 
+        val flag2 = Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+
         this.hasUnsavedChanges.value = true
         editText?.apply {
             if (editText != null && text != null) {
@@ -351,19 +370,19 @@ class EditorFragment : Fragment {
                     AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER),
                     start,
                     end,
-                    flag
+                    flag2
                 )
                 else if (alignLeft) text!!.setSpan(
                     AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL),
                     start,
                     end,
-                    flag
+                    flag2
                 )
                 else if (alignRight) text!!.setSpan(
                     AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
                     start,
                     end,
-                    flag
+                    flag2
                 )
 
 //                postInvalidate()
@@ -628,7 +647,7 @@ class EditorFragment : Fragment {
                 changeAlignmentValue(center = true)
                 changeParagraphStyle(alignCenter = true)
             } else {
-                Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+                Toast.makeText(mcontext, "Enter Text To align", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -651,7 +670,7 @@ class EditorFragment : Fragment {
                 changeAlignmentValue(left = true)
                 changeParagraphStyle(alignLeft = true)
             } else {
-                Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+                Toast.makeText(mcontext, "Enter Text To align", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -673,7 +692,7 @@ class EditorFragment : Fragment {
                 changeAlignmentValue(right = true)
                 changeParagraphStyle(alignRight = true)
             } else {
-                Toast.makeText(mcontext, "No Text to Align", Toast.LENGTH_SHORT).show()
+                Toast.makeText(mcontext, "Enter Text To align", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -734,50 +753,95 @@ class EditorFragment : Fragment {
         return dataFile?.textSize?:16f
     }
 
+    fun makeBullets()
+    {
+        Log.e(TAG, "makeBullets: ", )
+        this.hasUnsavedChanges .value =true
+
+        editText?.apply {
+
+
+            if(selectionStart==selectionEnd) {
+                if (isBulletsOn) {
+                    var index = selectionStart - 2
+                    while (index > 0 && text[index - 1] != '\n') {
+                        index--;
+                    }
+
+                    if (index < selectionStart) {
+
+                        val spans = text.getSpans(index, selectionStart - 1, BulletSpan::class.java)
+                        for (span in spans) {
+                            if (span is BulletSpan) {
+                                text.removeSpan(span)
+                            }
+                        }
+                        text.setSpan(BulletSpan(2), index, selectionStart - 1, flag)
+                        Log.e(TAG, "makeBullets removed and set span: $index ${selectionStart - 1}")
+
+                    }
+                }
+            }
+            else{
+               // text.setSpan(BulletSpan(2), selectionStart, selectionEnd, flag)
+
+            }
+
+
+
+        }
+
+
+
+    }
+
+
     fun makeH1(value : Float) {
         this.hasUnsavedChanges .value =true
 
         editText?.apply {
 
-            val spans = text.getSpans(selectionStart,selectionEnd,RelativeSizeSpan::class.java)
-            for(span in spans){
-                if(span is RelativeSizeSpan){
-                    text.removeSpan(span)
-                }
-            }
-
-            var ss=selectionStart
-            var se=selectionEnd
-
-            var text:CharSequence=editText!!.text
-
-            if(se < (text.length-2)) {
-
-                while (  ss > 0 && text[ss] != '\n'    ) {
-                    ss--
-                }
-                while ( se < text.length && text[se] != '\n' ) {
-                    se++;
-                }
-                if (ss != se && ss>=0 ) {
-                    if(ss==0)
+                    var ss=selectionStart
+                    var se=selectionEnd
+                     if(ss==se && (ss>0 && text[ss-1]!='\n'))
+                     {
+                         //means end at line or first char at line
+                         ss=ss-1;
+                     }
+                    var text:CharSequence=editText!!.text
+                    se=text.toString().indexOf('\n',se)
+                    if(se==-1 || se>text.length)
+                        se=text.length
+                    while(ss>0 && text[ss-1]!='\n') {
+                        ss--
+                    }
+                    if (ss != se && ss>=0 && se<=text.length ) {
                         setSelection(ss,se)
-                    else
-                        setSelection(ss+1, se)
+                        editText!!.apply {
+                        val spans = this.text.getSpans(selectionStart,selectionEnd,RelativeSizeSpan::class.java)
+                        for(span in spans){
+                            if(span is RelativeSizeSpan){
+                                this.text.removeSpan(span)
+                            }
+                        }
+                        this.text.setSpan(RelativeSizeSpan(value), selectionStart, selectionEnd, flag)
+                        this.text.setSpan(StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, flag)
                 }
             }
 
-            editText!!.apply {
-                this.text.setSpan(RelativeSizeSpan(value), selectionStart,selectionEnd, flag)
-                this.text.setSpan(StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, flag)
-//                      this.doOnPreDraw {
-//
-//                    }
-
-            }
         }
-//        Log.e("utils hello :", Utils.spannableToHtml(Utils.htmlToSpannable("<h1>Hello</h1>")))
+//
+    //        Log.e("utils hello :", Utils.spannableToHtml(Utils.htmlToSpannable("<h1>Hello</h1>")))
+        invalidateEditText()
 
+    }
+    fun invalidateEditText() {
+        if (editText != null) {
+            val se = editText!!.selectionStart
+            var data = editText!!.text
+            editText!!.setText(data)
+            editText!!.setSelection(se)
+        }
     }
 
     fun setFileName(findText: String) {

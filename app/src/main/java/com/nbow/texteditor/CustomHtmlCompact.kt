@@ -46,11 +46,15 @@ class CustomHtmlCompact {
             var i = 0
             while (i < len) {
                 next = text.nextSpanTransition(i, len, ParagraphStyle::class.java)
-                val style: Array<ParagraphStyle> =
-                    text.getSpans<ParagraphStyle>(i, next, ParagraphStyle::class.java)
+                val style: Array<ParagraphStyle> = text.getSpans<ParagraphStyle>(i, next, ParagraphStyle::class.java)
                 var elements = " "
                 var needDiv = false
+
+
                 for (j in style.indices) {
+
+
+
                     if (style[j] is AlignmentSpan) {
                         val align = (style[j] as AlignmentSpan).alignment
                         needDiv = true
@@ -62,18 +66,21 @@ class CustomHtmlCompact {
                             "style=\"text-align:start\" $elements"
                         }
                     }
+
                 }
                 if (needDiv) {
                     result.append("<div ").append(elements).append(">")
                 }
 
 
-                withinDiv(result, text, i, next,needDiv)
 
+                withinDiv(result, text, i, next,needDiv)
 
                 if (needDiv) {
                     result.append("</div>")
                 }
+
+
                 i = next
             }
 
@@ -82,6 +89,9 @@ class CustomHtmlCompact {
             return result.toString()
 
         }
+
+
+
 
         private fun withinDiv(
             out: StringBuilder, text: Spanned, start: Int, end: Int,needDiv:Boolean = false
@@ -150,7 +160,20 @@ class CustomHtmlCompact {
                     }
                 }
 
+                val spans2 = text.getSpans(i,next-nl,BulletSpan::class.java)
+                var isBullets =false;
+                for(span in spans2)
+                {
+                    if(span is BulletSpan)
+                    {
+                        out.append("<ul><li>")
+                        isBullets = true
+                    }
+                }
+
                 withinParagraph(out, text, i, next - nl,isHeading)
+
+
                 for(span in spans){
                     if(span is RelativeSizeSpan){
                         if(span.sizeChange == Utils.heading[0]){
@@ -168,7 +191,16 @@ class CustomHtmlCompact {
                         }
                     }
                 }
-                if(isHeading || needDiv){
+                for(span in spans2)
+                {
+                    if(span is BulletSpan)
+                    {
+                        out.append("</li></ul>")
+                    }
+                }
+
+
+                if(isHeading || needDiv || isBullets){
                     nl--
                 }
 
@@ -204,6 +236,9 @@ class CustomHtmlCompact {
                     i, next,
                     CharacterStyle::class.java
                 )
+
+
+
                 for (j in style.indices) {
 
                     if (style[j] is TypefaceSpan) {
@@ -218,6 +253,9 @@ class CustomHtmlCompact {
                         val s1=(style[j] as CustomTypefaceSpan).name
                         out.append("<span style=\"font-family:${s1}\">")
                     }
+
+
+
 
                     if (style[j] is StyleSpan) {
                         val s = (style[j] as StyleSpan).style
@@ -291,6 +329,7 @@ class CustomHtmlCompact {
                         )
                     }
                 }
+
                 withinStyle(out, text, i, next)
                 for (j in style.indices.reversed()) {
                     if (style[j] is BackgroundColorSpan) {
@@ -306,6 +345,8 @@ class CustomHtmlCompact {
                             hCount = -1
                         }
                     }
+
+
                     if (style[j] is AbsoluteSizeSpan) {
                         out.append("</span>")
                     }
@@ -877,7 +918,7 @@ internal class HtmlToSpannedConverter(
         } else if (tag.equals("div", ignoreCase = true)) {
             startBlockElement(
                 mSpannableStringBuilder, attributes,
-                marginDiv
+                1 // marginDiv
             )
         } else if (tag.equals("span", ignoreCase = true)) {
             startCssStyle(mSpannableStringBuilder, attributes)
@@ -1063,7 +1104,7 @@ internal class HtmlToSpannedConverter(
     }
 
     private fun startHeading(text: Editable, attributes: Attributes, level: Int) {
-        startBlockElement(text, attributes, marginHeading)
+        startBlockElement(text, attributes, 1) // marginHeading)
         start(text, Heading(level))
     }
 

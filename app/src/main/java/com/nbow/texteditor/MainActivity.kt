@@ -204,6 +204,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
 //
                 })
+
+            bullets.setOnClickListener({
+                if (isValidTab()) {
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+
+                    //cf.makeBullets()
+                    cf.isBulletsOn=!cf.isBulletsOn
+//
+                    binding.textEditorBottam.bullets.apply {
+                        if (cf.isBulletsOn) this.setBackgroundResource(R.drawable.round_btn)
+                        else this.background = null
+                    }
+                }
+            })
                 alignCenter.setOnClickListener({
 
                     if (isValidTab()) {
@@ -505,16 +520,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             uri = null,
             data = Utils.htmlToSpannable(applicationContext," "),
             isNote = true
+
         )
-        val fragment = EditorFragment(dataFile,applicationContext)
+        val fragment = EditorFragment(dataFile,applicationContext,hasUnsavedChanges = true)
         adapter.addFragment(fragment)
+
+
+
         binding.tabLayout.apply {
             this.addTab(newTab())
             setCustomTabLayout(tabCount - 1, fileName)
             adapter.notifyItemInserted(tabCount - 1)
             selectTab(getTabAt(tabCount - 1))
         }
-
+        fragment.hasUnsavedChanges.observe(this@MainActivity) {
+            if (it) {
+                setCustomTabLayout(binding.tabLayout.tabCount-1, "*${fragment.getFileName()}")
+            }else setCustomTabLayout(binding.tabLayout.tabCount-1, fragment.getFileName())
+        }
     }
     private fun showUnsavedDialog(currentFragment: EditorFragment) {
         val builder = AlertDialog.Builder(this)
@@ -917,6 +940,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
 
+
                 }
             }
             false
@@ -1165,11 +1189,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         {
                             Log.e(TAG, "showPopupMenu: ${e.message}")
                         }
-                        currentFragment.hasUnsavedChanges.value = false
-                        if (isValidTab()) setCustomTabLayout(
-                            binding.tabLayout.selectedTabPosition,
-                            currentFragment.getFileName()
-                        )
+
                     }
 
                 }
@@ -1257,6 +1277,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         reloadFile(currentFragment)
 
                 }
+                R.id.refresh ->
+                {
+                    if (currentFragment != null)
+                        currentFragment.invalidateEditText()
+                }
+
                 R.id.print->{
                     if (currentFragment != null) {
                         doWebViewPrint(currentFragment)
@@ -1727,17 +1753,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 } else {
                     file.bufferedWriter().use {
                         it.write(
-                            "${
-                                Utils.spannableToHtml(
-                                    fragment.getEditable() ?: SpannableStringBuilder(
-                                        ""
-                                    )
+                            Utils.spannableToHtml(
+                                fragment.getEditable() ?: SpannableStringBuilder(
+                                    ""
                                 )
-                            }"
+                            )
                         )
                     }
                     model.addNote(Note(fragment.getFileName(),fragment.fontFamily,fragment.getTextSize(applicationContext)))
                     model.updateNoteList()
+                    Toast.makeText(applicationContext, "Saved", Toast.LENGTH_SHORT).show()
                 }
 
             }

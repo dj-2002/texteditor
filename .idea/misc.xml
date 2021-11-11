@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioProjects/TextEditor/app/src/main/res/layout/text_editor_bottam.xml" value="0.29674220963172804" />
         <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/layout/text_editor_bottam.xml" value="0.15806159420289856" />
+        <entry key="..\:/Users/J/AndroidStudioProjects/TextEditor/app/src/main/res/menu/copy_paste_menu.xml" value="0.25" />
       </map>
     </option>
   </component>

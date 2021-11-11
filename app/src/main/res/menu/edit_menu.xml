@@ -32,4 +32,10 @@
         android:icon="@drawable/ic_reload"
         app:showAsAction="never"></item>
 
+    <item
+        android:id="@+id/refresh"
+        android:title="Refresh Layout"
+        android:icon="@drawable/ic_refresh"
+        app:showAsAction="never"></item>
+
 </menu>

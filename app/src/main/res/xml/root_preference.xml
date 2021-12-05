@@ -38,7 +38,7 @@
             android:entries="@array/font_style_array"
             app:entryValues="@array/font_style_array"
             android:defaultValue="DEFAULT"
-            android:icon="@drawable/ic_font"
+            android:icon="@drawable/ic_color_background"
             />
 
 

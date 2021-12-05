@@ -24,6 +24,7 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
+import com.nbow.texteditor.*
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 
@@ -400,7 +401,8 @@ class EditorFragment : Fragment {
                 if (selectionStart != selectionEnd) {
                     val myTypeface = Utils.getTypefaceFromName(context,mFontName)
 
-                    val customeSapns = text.getSpans(selectionStart,selectionEnd,CustomTypefaceSpan::class.java)
+                    val customeSapns = text.getSpans(selectionStart,selectionEnd,
+                        CustomTypefaceSpan::class.java)
                     for(s in customeSapns) text.removeSpan(s)
 
                     (text as Spannable).setSpan(
@@ -753,88 +755,125 @@ class EditorFragment : Fragment {
         return dataFile?.textSize?:16f
     }
 
-    fun makeBullets()
+    fun makeBullets(change:Boolean = false)
     {
         Log.e(TAG, "makeBullets: ", )
         this.hasUnsavedChanges .value =true
 
         editText?.apply {
-
-
-            if(selectionStart==selectionEnd) {
-                if (isBulletsOn) {
-                    var index = selectionStart - 2
-                    while (index > 0 && text[index - 1] != '\n') {
-                        index--;
-                    }
-
-                    if (index < selectionStart) {
-
-                        val spans = text.getSpans(index, selectionStart - 1, BulletSpan::class.java)
-                        for (span in spans) {
-                            if (span is BulletSpan) {
-                                text.removeSpan(span)
-                            }
-                        }
-                        text.setSpan(BulletSpan(2), index, selectionStart - 1, flag)
-                        Log.e(TAG, "makeBullets removed and set span: $index ${selectionStart - 1}")
-
+            if(selectionStart!=selectionEnd)
+            {
+                var spans = this.text.getSpans(
+                    selectionStart,
+                    selectionEnd,
+                    ParcelableSpan::class.java
+                )
+                val txt = text.toString().substring(selectionStart,selectionEnd)
+                val regex = Regex("\u2022")
+                for (span in spans) {
+                    if (span is BulletSpan  ) {
+                        this.text.removeSpan(span)
+                        val txt2 = txt.replace("\u2022","")
+                        this.text.replace(selectionStart,selectionEnd,txt2)
+                        Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
+                        isBulletsOn=false
+                        return
                     }
                 }
+                if(txt.contains(regex))
+                {
+                    val txt2 = txt.replace("\u2022","")
+                    this.text.replace(selectionStart,selectionEnd,txt2)
+                    isBulletsOn=false
+                    Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
+                    return
+                }
             }
-            else{
-               // text.setSpan(BulletSpan(2), selectionStart, selectionEnd, flag)
+            if(selectionStart==selectionEnd) {
+                if(change==true) {
+                    isBulletsOn = !isBulletsOn
+                }
+                    if (isBulletsOn == true)
+                        text.replace(selectionStart, selectionEnd, "\u2022")
 
             }
-
-
-
+            else
+            {
+                var t ="\u2022"+ this.text.toString().subSequence(selectionStart,selectionEnd)
+                val regex = Regex("\n")
+                val t2=t.replace(regex,"\n\u2022")
+                this.text.replace(selectionStart, selectionEnd,t2)
+            }
         }
 
 
 
     }
 
+
+    fun selectCurrentLine() {
+        if (editText != null) {
+
+            editText!!.apply {
+
+                var ss = selectionStart
+                var se = selectionEnd
+                if (ss == se && (ss > 0 && text[ss - 1] != '\n')) {
+                    //means end at line or first char at line
+                    ss = ss - 1;
+                }
+                var text: CharSequence = editText!!.text
+                se = text.toString().indexOf('\n', se)
+                if (se == -1 || se > text.length)
+                    se = text.length
+                while (ss > 0 && text[ss - 1] != '\n') {
+                    ss--
+                }
+                if (ss != se && ss >= 0 && se <= text.length) {
+                    setSelection(ss, se)
+
+                }
+            }
+
+        }
+    }
 
     fun makeH1(value : Float) {
         this.hasUnsavedChanges .value =true
-
+        selectCurrentLine()
         editText?.apply {
 
-                    var ss=selectionStart
-                    var se=selectionEnd
-                     if(ss==se && (ss>0 && text[ss-1]!='\n'))
-                     {
-                         //means end at line or first char at line
-                         ss=ss-1;
-                     }
-                    var text:CharSequence=editText!!.text
-                    se=text.toString().indexOf('\n',se)
-                    if(se==-1 || se>text.length)
-                        se=text.length
-                    while(ss>0 && text[ss-1]!='\n') {
-                        ss--
-                    }
-                    if (ss != se && ss>=0 && se<=text.length ) {
-                        setSelection(ss,se)
-                        editText!!.apply {
-                        val spans = this.text.getSpans(selectionStart,selectionEnd,RelativeSizeSpan::class.java)
-                        for(span in spans){
-                            if(span is RelativeSizeSpan){
-                                this.text.removeSpan(span)
-                            }
+
+                    val spans = this.text.getSpans(
+                        selectionStart,
+                        selectionEnd,
+                        RelativeSizeSpan::class.java
+                    )
+                    for (span in spans) {
+                        if (span is RelativeSizeSpan) {
+                            this.text.removeSpan(span)
                         }
-                        this.text.setSpan(RelativeSizeSpan(value), selectionStart, selectionEnd, flag)
-                        this.text.setSpan(StyleSpan(Typeface.BOLD), selectionStart, selectionEnd, flag)
-                }
+                    }
+                    this.text.setSpan(
+                        RelativeSizeSpan(value),
+                        selectionStart,
+                        selectionEnd,
+                        flag
+                    )
+                    this.text.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        selectionStart,
+                        selectionEnd,
+                        flag
+                    )
             }
 
-        }
-//
-    //        Log.e("utils hello :", Utils.spannableToHtml(Utils.htmlToSpannable("<h1>Hello</h1>")))
         invalidateEditText()
+        Toast.makeText(context, "Heading Applied to current Line", Toast.LENGTH_SHORT).show()
 
     }
+
+
     fun invalidateEditText() {
         if (editText != null) {
             val se = editText!!.selectionStart
@@ -878,6 +917,225 @@ class EditorFragment : Fragment {
             return size
         }
         return 16f;
+
+    }
+
+    fun urlSpan(url:String)
+    {
+        if(editText!=null)
+        {
+            editText!!.apply {
+                if(this.selectionStart!=this.selectionEnd)
+                {
+                    text.setSpan(URLSpan(url),selectionStart,selectionEnd,flag)
+                }
+                else
+                {
+                    Toast.makeText(context, "Please Select Text", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+
+        }
+    }
+    fun removeIfUrlSpan():Boolean
+    {
+        if(editText!=null) {
+            editText!!.apply {
+                if (this.selectionStart != this.selectionEnd) {
+                    var spans = this.text.getSpans(
+                        selectionStart,
+                        selectionEnd,
+                        ParcelableSpan::class.java
+                    )
+                    for (span in spans) {
+                        if (span is URLSpan) {
+                            this.text.removeSpan(span)
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false
+
+    }
+
+    fun quoteSpan()
+    {
+        if(editText!=null)
+        {
+            editText!!.apply {
+                if(this.selectionStart!=this.selectionEnd)
+                {
+                    text.setSpan(QuoteSpan(),selectionStart,selectionEnd,flag)
+                }
+                else
+                {
+                    Toast.makeText(context, "Please Select Text", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+
+        }
+    }
+
+    fun setHtmlText() {
+        if(editText!=null)
+        {
+            val content = Utils.spannableToHtml(editText!!.text).toString()
+            editText!!.setText(content)
+        }
+    }
+
+    fun small() {
+        if(editText!=null)
+        {
+            editText!!.apply {
+                val spans = this.text.getSpans(
+                    selectionStart,
+                    selectionEnd,
+                    RelativeSizeSpan::class.java
+                )
+                for (span in spans) {
+                    if (span is RelativeSizeSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+
+                text!!.setSpan(RelativeSizeSpan(0.8f),selectionStart,selectionEnd,flag)
+            }
+        }
+    }
+    fun big(){
+        if(editText!=null)
+        {
+            editText!!.apply {
+
+                val spans = this.text.getSpans(
+                    selectionStart,
+                    selectionEnd,
+                    RelativeSizeSpan::class.java
+                )
+                for (span in spans) {
+                    if (span is RelativeSizeSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+                text!!.setSpan(RelativeSizeSpan(1.25f),selectionStart,selectionEnd,flag)
+            }
+        }
+    }
+
+
+
+    fun superScript()
+    {
+        if(editText!=null)
+        {
+
+            editText!!.apply {
+
+                val spans = this.text.getSpans(
+                    selectionStart,
+                    selectionEnd,
+                    MetricAffectingSpan::class.java
+                )
+                for (span in spans) {
+                    if (span is SuperscriptSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+                for (span in spans) {
+                    if (span is RelativeSizeSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+                text!!.setSpan(SuperscriptSpan(),selectionStart,selectionEnd,flag)
+                text!!.setSpan(RelativeSizeSpan(0.8f),selectionStart,selectionEnd,flag)
+
+            }
+        }
+
+    }
+    fun subScript()
+    {
+        if(editText!=null)
+        {
+
+            editText!!.apply {
+
+                val spans = this.text.getSpans(
+                    selectionStart,
+                    selectionEnd,
+                    MetricAffectingSpan::class.java
+                )
+                for (span in spans) {
+                    if (span is SubscriptSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+                for (span in spans) {
+                    if (span is RelativeSizeSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+                text!!.setSpan(SubscriptSpan(),selectionStart,selectionEnd,flag)
+                text!!.setSpan(RelativeSizeSpan(0.8f),selectionStart,selectionEnd,flag)
+
+            }
+        }
+
+
+    }
+
+    fun normal() {
+
+        if(editText!=null)
+        {
+            editText!!.apply {
+
+                var spans = this.text.getSpans(
+                    selectionStart,
+                    selectionEnd,
+                    RelativeSizeSpan::class.java
+                )
+                for (span in spans) {
+                    if (span is RelativeSizeSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+
+                val spans2 = this.text.getSpans(
+                    selectionStart,
+                    selectionEnd,
+                    MetricAffectingSpan::class.java
+                )
+                for (span in spans2) {
+                    if (span is SubscriptSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+                for (span in spans2) {
+                    if (span is SuperscriptSpan) {
+                        this.text.removeSpan(span)
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun setBackgroundColor(color: Int) {
+
+        if(editText!=null) {
+            editText!!.text!!.setSpan(
+                BackgroundColorSpan(color),
+                editText!!.selectionStart,
+                editText!!.selectionEnd,
+                flag
+            )
+        }
 
     }
 

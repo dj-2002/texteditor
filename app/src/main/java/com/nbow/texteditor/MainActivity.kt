@@ -1,6 +1,7 @@
 package com.nbow.texteditor
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.*
 import android.content.ClipboardManager
 import android.net.Uri
@@ -42,6 +43,7 @@ import android.text.*
 import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
+import android.text.style.URLSpan
 import android.util.DisplayMetrics
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -123,8 +125,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.textEditorBottam.apply {
 
                 textSize.setOnClickListener({
-                    seekbarDialog()
+                    if (isValidTab()) {
+                        val cf =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                            seekbarDialog()
+                    }
                 })
+
+            effect.setOnClickListener({
+                if (isValidTab()) {
+                    val cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                    if (cf.isSelected())
+                        viewSpecialDialog(cf)
+                    else
+                        Toast.makeText(applicationContext, "Select Text to apply Effects", Toast.LENGTH_SHORT).show()
+
+                }
+            })
 
                 heading.setOnClickListener({
                     showHeadingSelectionPopUp()
@@ -207,15 +224,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             bullets.setOnClickListener({
                 if (isValidTab()) {
-                    var cf =
-                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-
-                    //cf.makeBullets()
-                    cf.isBulletsOn=!cf.isBulletsOn
-//
+                    var cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                    cf.makeBullets(true)
                     binding.textEditorBottam.bullets.apply {
-                        if (cf.isBulletsOn) this.setBackgroundResource(R.drawable.round_btn)
-                        else this.background = null
+                        if (cf.isBulletsOn)
+                            this.setBackgroundResource(R.drawable.round_btn)
+                        else
+                            this.background = null
                     }
                 }
             })
@@ -246,9 +261,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
 //
                 })
-                colorText.setOnClickListener({
+
+            hyperlink.setOnClickListener({
+
+                if (isValidTab()) {
+                    var cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                    if(cf.isSelected()) {
+                        if (cf.removeIfUrlSpan()) {
+                            Toast.makeText(applicationContext, "Url Removed", Toast.LENGTH_SHORT).show()
+                        } else {
+                            askForUrl(cf)
+                        }
+                    }
+                    else
+                    {
+                        Toast.makeText(applicationContext, "Please Select Text", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+            })
+
+//            quote.setOnClickListener({
+//
+//                if (isValidTab()) {
+//                    var cf =
+//                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.quoteSpan()
+//                }
+//
+//            })
+
+
+
+
+            colorText.setOnClickListener({
                     pickColor()
                 })
+            colorBackground.setOnClickListener({
+                pickColor(background=true)
+            })
             textFont.setOnClickListener({
 //
                 showFontSelectionPopUp()
@@ -260,17 +311,57 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    private fun viewSpecialDialog(cf:EditorFragment) {
+
+
+        var view = binding.textEditorBottam.textSize as View
+        val popup = android.widget.PopupMenu(applicationContext,view)
+        popup.inflate(R.menu.special_layout_menu)
+
+
+        popup.setOnMenuItemClickListener { item ->
+            if(isValidTab()) {
+                val currentFragment =
+                    adapter.fragmentList[binding.tabLayout.selectedTabPosition] as EditorFragment
+
+
+                when (item.itemId) {
+
+                    R.id.smaller -> {
+                        cf.small()
+                    }
+                    R.id.bigger -> {
+                        cf.big()
+                    }
+                    R.id.sub_script -> {
+                        cf.subScript()
+                    }
+                    R.id.super_script -> {
+                        cf.superScript()
+                    }
+                    R.id.normal-> {
+                        cf.normal()
+                    }
+
+                }
+            }
+            false
+        }
+        popup.show()
 
 
 
-    fun pickColor() {
+    }
+
+
+    fun pickColor(background: Boolean=false) {
 
         val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         val editor = sharedPreferences.edit()
 
         val v:View = binding.textEditorBottam.root as View
         ColorPickerPopup.Builder(this)
-            .initialColor(sharedPreferences.getInt("color",Color.BLACK)) // Set initial color
+            .initialColor(sharedPreferences.getInt("color",Color.RED)) // Set initial color
             .enableBrightness(true) // Enable brightness slider or not
             .enableAlpha(true) // Enable alpha slider or not
             .okTitle("Choose")
@@ -290,8 +381,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 Toast.makeText(applicationContext, "Select Text to Apply Color", Toast.LENGTH_SHORT).show()
                             }
                             else {
-                                cf.setColor(color)
-
+                                if(background==false)
+                                    cf.setColor(color)
+                                else
+                                    cf.setBackgroundColor(color)
                             }
                         }
                     }
@@ -1004,32 +1097,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if(adapter.fragmentList!=null)
                 createTabsInTabLayout(adapter.fragmentList)
 
-                for ((count, frag) in model.getFragmentList().value!!.withIndex()) {
+                for ( frag in model.getFragmentList().value!!) {
                     val fragment = frag as EditorFragment
-                    fragment.hasUnsavedChanges.observe(this@MainActivity) {
-                        if (it) {
-                            setCustomTabLayout(count, "*${fragment.getFileName()}")
-                        }else setCustomTabLayout(count, fragment.getFileName())
-                    }
+//                    fragment.hasUnsavedChanges.observe(this@MainActivity) {
+//                        if (it) {
+//                            setCustomTabLayout(count, "*${fragment.getFileName()}")
+//                        }else setCustomTabLayout(count, fragment.getFileName())
+//                    }
+
                     fragment.hasLongPress.observe(this@MainActivity) {
                         if (it) {
 
                                 startActionMode(actionModeCallbackCopyPaste)
                                 fragment.hasLongPress.value = false
                         }
-
-
                     }
                     fragment.cursorChanged.observe(this@MainActivity) {
                         if (it) {
                             changeColorBottamText()
                             fragment.cursorChanged.value = false
                         }
-
-
                     }
-
-
                 }
 
 //                if (binding.tabLayout.tabCount == 0 && adapter.fragmentList.size==0) {
@@ -1064,13 +1152,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             var cf =
                 adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
 
+
             binding.textEditorBottam.apply {
                 this.bold.background=null
                 this.italic.background=null
                 this.strikethrough.background=null
                 this.underline.background=null
+                this.hyperlink.background=null
             }
-
 
             cf.isBoldEnabled = false
             cf.isItalicEnabled = false
@@ -1097,6 +1186,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     } else if (span is StrikethroughSpan) {
                         binding.textEditorBottam.strikethrough.setBackgroundResource(R.drawable.round_btn)
                         cf.isStrikethroughEnabled = true
+                    }
+                    else if(span is URLSpan)
+                    {
+                        binding.textEditorBottam.hyperlink.setBackgroundResource(R.drawable.round_btn)
                     }
                 }
 
@@ -1194,7 +1287,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 }
 
-
                 R.id.save -> {
                     if (currentFragment != null) {
                         if (currentFragment.hasUnsavedChanges.value != false) {
@@ -1289,6 +1381,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
 
                 }
+
 
                 R.id.copy -> {
 
@@ -1630,7 +1723,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     //                  Log.e(TAG, "createTabsInTabLayout: tab count inside apply $tabCount")
                     val frag = it as EditorFragment
                     addTab(newTab())
-                    setCustomTabLayout(tabCount - 1, frag.getFileName())
+                    //setCustomTabLayout(tabCount - 1, frag.getFileName())
+                    setCustomTabLayout(tabCount-1, "*${frag.getFileName()}")
+
                 }
 
                 binding.pager2.currentItem = selectedTabPosition
@@ -1783,7 +1878,51 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
 
     }
-    private fun createNewNoteFile(uniqueFileName: String, fragment: EditorFragment) {
+    private fun askForUrl(fragment: EditorFragment) {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Enter Url")
+        builder.setIcon(R.drawable.ic_insert_link)
+        val view = LayoutInflater.from(this).inflate(R.layout.file_name_input_dialog, null, false)
+        val editText = view.findViewById<EditText>(R.id.file_name)
+        editText.setText("https://")
+        builder.setView(view)
+        builder.setPositiveButton("OK") { dialogInterface, which ->
+            run {
+                findText = editText.text.toString()
+                fragment.urlSpan(findText)
+                dialogInterface.dismiss()
+            }
+        }
+        //performing cancel action
+        builder.setNeutralButton("Cancel") { dialogInterface, which ->
+            //Toast.makeText(applicationContext, "operation cancel", Toast.LENGTH_LONG).show()
+            dialogInterface.dismiss()
+        }
+
+        // Create the AlertDialog
+        val alertDialog: AlertDialog = builder.create()
+        // Set other dialog properties
+        alertDialog.setCancelable(true)
+        alertDialog.show()
+        if (TextUtils.isEmpty(editText.text)) {
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+        }
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !TextUtils.isEmpty(s)
+            }
+        })
+
+
+
+    }private fun createNewNoteFile(uniqueFileName: String, fragment: EditorFragment) {
         val dir = File(applicationContext.filesDir, "note")
         val builder = AlertDialog.Builder(this)
 
@@ -1850,6 +1989,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
+
+
+
+
+
+
     private fun saveAsNoteFile(uniqueFileName: String, fragment: EditorFragment) {
         val dir = File(applicationContext.filesDir, "note")
         val builder = AlertDialog.Builder(this)
@@ -2312,7 +2457,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         editor.putInt(opened,num+1)
         editor.commit()
         val gotFeedback = sharedPreferences.getBoolean(key_got_feedback,false)
-
         Log.e(TAG,"opened $num times")
         if(num>10 && !gotFeedback) {
             editor.putInt(opened,0)

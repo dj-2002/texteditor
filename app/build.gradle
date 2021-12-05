@@ -15,9 +15,9 @@ android {
     defaultConfig {
         applicationId "com.nbow.texteditor"
         minSdkVersion 19
-        targetSdkVersion 30
-        versionCode 3
-        versionName "1.0.0"
+        targetSdkVersion 31
+        versionCode 6
+        versionName "1.1.0"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

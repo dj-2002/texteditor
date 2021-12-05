@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/smaller" android:title="Smaller"/>
+    <item android:id="@+id/bigger" android:title="Bigger"/>
+    <item android:id="@+id/normal" android:title="Normal"/>
+    <item android:id="@+id/super_script" android:title="Super Script"/>
+    <item android:id="@+id/sub_script" android:title="Sub Script"/>
+</menu>

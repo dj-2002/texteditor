@@ -24,10 +24,7 @@
             android:exported="true"
             android:parentActivityName=".MainActivity"/>
 
-        <activity
-            android:name=".SplashScreen"
-            android:noHistory="true"
-            android:theme="@style/SplashTheme"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -76,9 +73,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity
-            android:name=".SettingActivity"
-            android:parentActivityName=".MainActivity" />
+
 
     </application>
 

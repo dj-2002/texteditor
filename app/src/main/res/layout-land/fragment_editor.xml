@@ -11,28 +11,29 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         >
+
         <HorizontalScrollView
             android:id="@+id/horizontal_scroller"
             android:layout_width="match_parent"
             android:scrollbars="none"
             android:paddingEnd="3dp"
             android:layout_height="match_parent">
-        <EditText
-            android:id="@+id/editText"
-            android:layout_width="match_parent"
-            android:minWidth="350dp"
-            android:maxWidth="680dp"
-            android:imeOptions="flagNoExtractUi|actionSend"
-            android:layout_height="match_parent"
-            android:inputType="textNoSuggestions|textMultiLine"
-            android:singleLine="false"
-            android:layout_marginStart="7dp"
-            android:background="@android:color/transparent"
-            android:lastBaselineToBottomHeight="550dp"
-            android:textSize="16dp"
-            android:paddingEnd="7dp"
+            <EditText
+                android:id="@+id/editText"
+                android:layout_width="match_parent"
+                android:minWidth="350dp"
+                android:maxWidth="680dp"
+                android:imeOptions="flagNoExtractUi|actionSend"
+                android:layout_height="match_parent"
+                android:inputType="textNoSuggestions|textMultiLine"
+                android:singleLine="false"
+                android:layout_marginStart="7dp"
+                android:background="@android:color/transparent"
+                android:lastBaselineToBottomHeight="50dp"
+                android:textSize="16dp"
+                android:paddingEnd="7dp"
 
-        />
+                />
         </HorizontalScrollView>
 
     </RelativeLayout>

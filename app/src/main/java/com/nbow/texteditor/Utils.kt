@@ -92,10 +92,10 @@ class Utils {
         fun spannableToHtml(data : Spanned): String {
                 val s= CustomHtmlCompact.spannedtoHtml(data)
             //Log.e(TAG, "spannableToHtml: ${s.indexOf("<ul><li></li></ul>")}", )
-            val str =s.replace("<ul><li></li></ul>","",true)
-            Log.e(TAG, "spannableToHtml: $str", )
+           // val str =s.replace("<ul><li></li></ul>","",true)
+            Log.e(TAG, "spannableToHtml: $s", )
             
-            return str;
+            return s;
         }
 
         fun convertValueToInt(charSeq: CharSequence?, defaultValue: Int): Int {

@@ -254,9 +254,6 @@ class CustomHtmlCompact {
                         out.append("<span style=\"font-family:${s1}\">")
                     }
 
-
-
-
                     if (style[j] is StyleSpan) {
                         val s = (style[j] as StyleSpan).style
                         if (s and Typeface.BOLD != 0) {
@@ -305,10 +302,24 @@ class CustomHtmlCompact {
                     }
                     if (style[j] is RelativeSizeSpan) {
                         val sizeEm = (style[j] as RelativeSizeSpan).sizeChange
-                        if(!(sizeEm==Utils.heading[0] || sizeEm==Utils.heading[1] || sizeEm==Utils.heading[2] || sizeEm==Utils.heading[3] || sizeEm==Utils.heading[4] || sizeEm==Utils.heading[5])) {
+
+                        if(sizeEm==0.8f)
+                        {
+                            out.append("<small>")
+                        }
+                        else if(sizeEm==1.25f)
+                        {
+                            out.append("<big>")
+                        }
+
+                        else if(!(sizeEm==Utils.heading[0] || sizeEm==Utils.heading[1] || sizeEm==Utils.heading[2] || sizeEm==Utils.heading[3] || sizeEm==Utils.heading[4] || sizeEm==Utils.heading[5])) {
                             out.append(String.format("<span style=\"font-size:%.2fem;\">", sizeEm))
                             hCount = 0
                         }
+
+
+
+
                     }
                     if (style[j] is ForegroundColorSpan) {
                         val color = (style[j] as ForegroundColorSpan).foregroundColor
@@ -340,10 +351,20 @@ class CustomHtmlCompact {
                     }
                     if (style[j] is RelativeSizeSpan) {
 
-                        if(hCount==0) {
+                        val sizeEm = (style[j] as RelativeSizeSpan).sizeChange
+                        if(sizeEm==0.8f)
+                        {
+                            out.append("</small>")
+                        }
+                        else if(sizeEm==1.25f)
+                        {
+                            out.append("</big>")
+                        }
+                        else if(hCount==0) {
                             out.append("</span>")
                             hCount = -1
                         }
+
                     }
 
 
@@ -958,6 +979,7 @@ internal class HtmlToSpannedConverter(
             start(mSpannableStringBuilder, Super())
         } else if (tag.equals("sub", ignoreCase = true)) {
             start(mSpannableStringBuilder, Sub())
+
         } else if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
             startHeading(mSpannableStringBuilder, attributes, tag[1] - '1')
         } else if (tag.equals("img", ignoreCase = true)) {

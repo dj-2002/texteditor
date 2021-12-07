@@ -1,4 +1,4 @@
-package com.nbow .texteditor
+package com.nbow.texteditor
 
 import android.content.Context
 import android.graphics.Typeface
@@ -159,7 +159,7 @@ class EditorFragment : Fragment {
                             if(isBulletsOn) {
                                 val se = editText!!.selectionStart
                                 if (se > 0 && text!![se - 1] == '\n') {
-                                    makeBullets()
+                                    setBullets(isNewLine = true)
                                 }
                             }
                             
@@ -637,10 +637,10 @@ class EditorFragment : Fragment {
         if(editText!=null) {
             val text = editText!!.text
             var ss = editText!!.selectionStart
-            var isEmptyLine = false;
+            var isEmptyLine = false
 
             if (ss == text.length)
-                ss--;
+                ss--
             if (ss > 0 && text[ss] == '\n' && text[ss - 1] == '\n') {
                 isEmptyLine = true
             }
@@ -728,6 +728,14 @@ class EditorFragment : Fragment {
         return null
     }
 
+    fun getCurrentParagraphStyleSpan():Array<ParagraphStyle>?{
+        if(editText!=null ) {
+            return editText!!.text.getSpans(editText!!.selectionStart,editText!!.selectionEnd,ParagraphStyle::class.java)
+        }
+        return null
+    }
+
+
     fun isSelected(): Boolean{
         if(editText!=null)
         {
@@ -769,13 +777,13 @@ class EditorFragment : Fragment {
                     ParcelableSpan::class.java
                 )
                 val txt = text.toString().substring(selectionStart,selectionEnd)
-                val regex = Regex("\u2022")
+                val regex = Regex("\u2022") // bullet char
                 for (span in spans) {
                     if (span is BulletSpan  ) {
                         this.text.removeSpan(span)
                         val txt2 = txt.replace("\u2022","")
                         this.text.replace(selectionStart,selectionEnd,txt2)
-                        Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
                         isBulletsOn=false
                         return
                     }
@@ -785,15 +793,15 @@ class EditorFragment : Fragment {
                     val txt2 = txt.replace("\u2022","")
                     this.text.replace(selectionStart,selectionEnd,txt2)
                     isBulletsOn=false
-                    Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
                     return
                 }
             }
             if(selectionStart==selectionEnd) {
-                if(change==true) {
+                if(change) {
                     isBulletsOn = !isBulletsOn
                 }
-                    if (isBulletsOn == true)
+                    if (isBulletsOn)
                         text.replace(selectionStart, selectionEnd, "\u2022")
 
             }
@@ -811,7 +819,7 @@ class EditorFragment : Fragment {
     }
 
 
-    fun selectCurrentLine() {
+    private fun selectCurrentLine() {
         if (editText != null) {
 
             editText!!.apply {
@@ -820,7 +828,7 @@ class EditorFragment : Fragment {
                 var se = selectionEnd
                 if (ss == se && (ss > 0 && text[ss - 1] != '\n')) {
                     //means end at line or first char at line
-                    ss = ss - 1;
+                    ss -= 1
                 }
                 var text: CharSequence = editText!!.text
                 se = text.toString().indexOf('\n', se)
@@ -831,7 +839,6 @@ class EditorFragment : Fragment {
                 }
                 if (ss != se && ss >= 0 && se <= text.length) {
                     setSelection(ss, se)
-
                 }
             }
 
@@ -842,8 +849,6 @@ class EditorFragment : Fragment {
         this.hasUnsavedChanges .value =true
         selectCurrentLine()
         editText?.apply {
-
-
                     val spans = this.text.getSpans(
                         selectionStart,
                         selectionEnd,
@@ -1137,6 +1142,70 @@ class EditorFragment : Fragment {
             )
         }
 
+    }
+
+    fun removeBullets(){
+        editText?.apply {
+
+            val spans = this.text.getSpans(
+                selectionStart,
+                selectionEnd,
+                ParagraphStyle::class.java
+            )
+            for (span in spans) {
+                if (span is BulletSpan  ) {
+
+                    val where = text.getSpanStart(span)
+                    this.text.removeSpan(span)
+
+                    if(selectionStart>0 && text[selectionStart-1]=='\n' && where >=0 && where < selectionStart)
+                        this.text.setSpan(BulletSpan(),where,selectionStart-1,Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+
+    //                        Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun setBullets(isNewLine : Boolean = false) {
+        Log.e(TAG, "setBullets: ${isBulletsOn}")
+        this.hasUnsavedChanges .value = true
+        if(!isNewLine)
+            isBulletsOn = !isBulletsOn
+
+        editText?.apply {
+            if(!isBulletsOn){
+                removeBullets()
+            }else{
+                if(selectionStart!=selectionEnd) {
+                    var start = selectionStart
+                    while(start>0 && this.text[start-1]!='\n'){
+                        start--
+                    }
+                    var end = this.text.indexOf('\n',selectionStart)
+                    if(end == -1) end = this.text.length
+                    while(end != -1 && start < this.text.length && start<selectionEnd && end<=selectionEnd){
+                        this.text.setSpan(BulletSpan(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                        start = end+1
+                        if(start < text.length)
+                            end = this.text.indexOf('\n',start)
+                        if(end == -1) end = this.text.length
+                    }
+
+                }else{
+
+                        val cursorPosition = editText?.selectionStart
+                        selectCurrentLine()
+                        removeBullets()
+
+
+                        this.text.setSpan(BulletSpan(), selectionStart, selectionEnd,Spanned.SPAN_INCLUSIVE_INCLUSIVE )
+                        if(cursorPosition!=null)
+                            editText?.setSelection(cursorPosition)
+
+                }
+            }
+        }
     }
 
 

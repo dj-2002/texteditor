@@ -40,10 +40,7 @@ import android.graphics.Typeface
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.text.*
-import android.text.style.RelativeSizeSpan
-import android.text.style.StrikethroughSpan
-import android.text.style.StyleSpan
-import android.text.style.URLSpan
+import android.text.style.*
 import android.util.DisplayMetrics
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -208,7 +205,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
 
                 })
-                strikethrough.setOnClickListener({
+                strikethrough.setOnClickListener {
                     if (isValidTab()) {
                         var cf =
                             adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
@@ -220,12 +217,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
 //
-                })
+                }
 
-            bullets.setOnClickListener({
+            bullets.setOnClickListener {
                 if (isValidTab()) {
-                    var cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                    cf.makeBullets(true)
+                    var cf =
+                        adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+//                    cf.makeBullets(true)   // by jayesh
+
+                    cf.setBullets()
                     binding.textEditorBottam.bullets.apply {
                         if (cf.isBulletsOn)
                             this.setBackgroundResource(R.drawable.round_btn)
@@ -233,8 +233,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             this.background = null
                     }
                 }
-            })
-                alignCenter.setOnClickListener({
+            }
+            alignCenter.setOnClickListener({
 
                     if (isValidTab()) {
                         var cf =
@@ -459,7 +459,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             title = getFileName()
                             subtitle = ""
                         }
-
                     }
                 }
                 changeBottamBarColor()
@@ -1159,12 +1158,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 this.strikethrough.background=null
                 this.underline.background=null
                 this.hyperlink.background=null
+                this.bullets.background=null
             }
 
             cf.isBoldEnabled = false
             cf.isItalicEnabled = false
             cf.isUnderlineEnabled = false
             cf.isStrikethroughEnabled = false
+            cf.isBulletsOn = false
 
             val spans = cf.getCurrentSpan()
             if (spans != null) {
@@ -1193,6 +1194,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
 
+            }
+
+            val paragraphStyleSpans = cf.getCurrentParagraphStyleSpan()
+            if(paragraphStyleSpans != null ){
+                for (span in paragraphStyleSpans){
+                    if(span is BulletSpan){
+                        binding.textEditorBottam.bullets.setBackgroundResource(R.drawable.round_btn)
+                        cf.isBulletsOn = true
+                    }
+                }
             }
         }
     }

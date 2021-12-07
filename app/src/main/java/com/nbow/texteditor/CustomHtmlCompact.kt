@@ -161,15 +161,17 @@ class CustomHtmlCompact {
                 }
 
                 val spans2 = text.getSpans(i,next-nl,BulletSpan::class.java)
-                var isBullets =false;
-                for(span in spans2)
-                {
-                    if(span is BulletSpan)
-                    {
-                        out.append("<ul><li>")
-                        isBullets = true
+                var isBullets =false
+
+                    for (span in spans2) {
+                        if (span is BulletSpan) {
+                            if(i != next-nl) {
+                                out.append("<ul><li>")
+                            }
+                            isBullets = true
+                            break
+                        }
                     }
-                }
 
                 withinParagraph(out, text, i, next - nl,isHeading)
 
@@ -191,15 +193,14 @@ class CustomHtmlCompact {
                         }
                     }
                 }
-                for(span in spans2)
-                {
-                    if(span is BulletSpan)
-                    {
-                        out.append("</li></ul>")
+                if(i!=next-nl) {
+                    for (span in spans2) {
+                        if (span is BulletSpan) {
+                            out.append("</li></ul>")
+                        }
+                        break
                     }
                 }
-
-
                 if(isHeading || needDiv || isBullets){
                     nl--
                 }
@@ -932,7 +933,7 @@ internal class HtmlToSpannedConverter(
         } else if (tag.equals("ul", ignoreCase = true)) {
             startBlockElement(
                 mSpannableStringBuilder, attributes,
-                marginList
+                1
             )
         } else if (tag.equals("li", ignoreCase = true)) {
             startLi(mSpannableStringBuilder, attributes)
@@ -1115,7 +1116,7 @@ internal class HtmlToSpannedConverter(
     }
 
     private fun startLi(text: Editable, attributes: Attributes) {
-        startBlockElement(text, attributes, marginListItem)
+        startBlockElement(text, attributes, 1)  // marginListItem)
         start(text, Bullet())
         startCssStyle(text, attributes)
     }

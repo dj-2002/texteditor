@@ -1,3 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="select_text_to_apply_effects">Выберите текст, чтобы применить эффекты</string>
+    <string name="url_removed">URL удален</string>
+    <string name="please_select_text">Пожалуйста, выберите текст</string>
+    <string name="please_save_as_to_keep_effect">Пожалуйста, сохраните, чтобы сохранить эффекты</string>
+    <string name="file_already_exits">Файл уже существует</string>
+    <string name="file_saved_as_note">Файл сохранен как примечание</string>
+    <string name="write_something">напишите что-нибудь до выравнивания</string>
+    <string name="heading_applied_current">Заголовок применяется к текущей линии</string>
+    <string name="prev" >предыдущий</string>
+    <string name="next" >следующий</string>
+    <string name="line_number" >Номер строки</string>
+    <string name="saved_successfully" >Успешно сохранено</string>
+    <string name="greet_line" >Привет!</string>
+    <string name="file_doesnot_saved" >Файл не сохраняется</string>
+    <string name="file_havenot_permission_to_write" >Не имеет действительного разрешения на запись</string>
+    <string name="search_and_replace" >Поиск и заменить</string>
+    <string name="find" >Находить</string>
+    <string name="clear_history" >Чистая история</string>
+    <string name="feedback" >Сообщить об ошибке</string>
+    <string name="reload_file">Перезагрузить файл</string>
+    <string name="setting" >Настройки</string>
+    <string name="storage_manager" >Менеджер хранения</string>
+    <string name="history" >История</string>
+    <string name="previous" >Предыдущий</string>
+    <string name="create_new_file" >Создать новый файл</string>
+    <string name="open_existing_file" >Откройте существующий файл</string>
+    <string name="save_as_note" >Сохранить как примечание</string>
+    <string name="action_settings" >Настройки</string>
+    <string name="replace_all" >Заменить все</string>
+    <string name="replace" >Заменять</string>
+    <string name="open" >Открытым</string>
+    <string name="edit" >Редактировать</string>
+    <string name="new_file" >Новый</string>
+    <string name="save_as" >Сохранить как</string>
+    <string name="share" >доля</string>
+    <string name="unsaved_dialog_message" >Вы хотите сохранить ваши изменения?</string>
+    <string name="no_change_found" >Изменения не найдены</string>
+    <string name="search_not_found" >поиск не найден</string>
+    <string name="cancel" >Отмена</string>
+
 
 </resources>

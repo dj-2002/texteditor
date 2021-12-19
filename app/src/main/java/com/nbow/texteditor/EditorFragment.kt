@@ -1,5 +1,6 @@
 package com.nbow.texteditor
 
+import android.app.Application
 import android.content.Context
 import android.graphics.Typeface
 import android.net.Uri
@@ -8,6 +9,7 @@ import android.text.*
 import android.text.style.*
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -15,16 +17,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
-
 import android.view.View.OnLongClickListener
 import android.view.accessibility.AccessibilityEvent
-import android.widget.EditText
-import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
-import com.nbow.texteditor.*
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 
@@ -32,7 +29,7 @@ import kotlinx.coroutines.launch
 class EditorFragment : Fragment {
 
     private val TAG = "EditorFragment"
-    lateinit var mcontext: Context
+    var mcontext:Context? = null
     public var selectedFont: String = "default"
     public var isBulletsOn:Boolean =false;
     var isBoldEnabled = false
@@ -46,8 +43,9 @@ class EditorFragment : Fragment {
     val flag = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
     var isTextChanged = false
     var fontFamily = "default"
-
-    private var editText : EditText? = null
+    var isWrap = false
+     var model: MyViewModel? = null
+    private var editText : CustomEditText? = null
     var hasUnsavedChanges = MutableLiveData(false)
     var hasLongPress = MutableLiveData<Boolean>(false)
     var cursorChanged = MutableLiveData<Boolean>(false)
@@ -61,7 +59,7 @@ class EditorFragment : Fragment {
 
     fun getEditTextData():StringBuilder{
         val temp =java.lang.StringBuilder()
-        temp.append(editText!!.text.toString())
+        temp.append(editText!!.text!!.toString())
         return temp
     }
     fun selectAll(){
@@ -76,10 +74,12 @@ class EditorFragment : Fragment {
         Log.e(TAG, "constructor of fragment called: $this")
     }
 
-    constructor(dataFile: DataFile, application:Context, hasUnsavedChanges : Boolean = false){
+    constructor(dataFile: DataFile, application:Context, hasUnsavedChanges : Boolean = false, viewModel:MyViewModel ){
         this.dataFile = dataFile
         this.hasUnsavedChanges.postValue(hasUnsavedChanges)
         this.mcontext=application
+        this.model = viewModel
+
     }
 
 
@@ -241,14 +241,17 @@ class EditorFragment : Fragment {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val KEY_WRAP = "word_wrap"
-        val preference= PreferenceManager.getDefaultSharedPreferences(context)
-        val isWrap = preference.getBoolean(KEY_WRAP,false)
+        Log.e(TAG, "onCreateView: " )
+
+        isWrap = model?.isWrap?:false
+        Log.e(TAG, "onCreateView: isWrap $isWrap", )
         var layout = R.layout.fragment_editor
+        if(isWrap)
+            layout = R.layout.fragment_editor_wrap
         val view = inflater.inflate(layout, container, false)
         editText = view.findViewById(R.id.editText)
 
-//        editText.setHorizontallyScrolling(false)
+//        edittext!!.setHorizontallyScrolling(false)
         if(editText!=null) {
             // undoRedo = TextViewUndoRedo(editText,viewLifecycleOwner)
         }
@@ -401,9 +404,9 @@ class EditorFragment : Fragment {
                 if (selectionStart != selectionEnd) {
                     val myTypeface = Utils.getTypefaceFromName(context,mFontName)
 
-                    val customeSapns = text.getSpans(selectionStart,selectionEnd,
+                    val customeSapns = text!!.getSpans(selectionStart,selectionEnd,
                         CustomTypefaceSpan::class.java)
-                    for(s in customeSapns) text.removeSpan(s)
+                    for(s in customeSapns) text!!.removeSpan(s)
 
                     (text as Spannable).setSpan(
                         CustomTypefaceSpan(myTypeface,mFontName),
@@ -411,23 +414,23 @@ class EditorFragment : Fragment {
                         selectionEnd,
                         flag
                     )
-                    val spans = text.getSpans(selectionStart,selectionEnd,StyleSpan::class.java)
+                    val spans = text!!.getSpans(selectionStart,selectionEnd,StyleSpan::class.java)
                     var isB = false
                     var isI = false
                     for(span in spans){
                         val style = (span as StyleSpan).style
                         if(style == Typeface.BOLD){
-                            text.removeSpan(span)
+                            text!!.removeSpan(span)
                             isB = true
                         }
                         if(style == Typeface.ITALIC){
-                            text.removeSpan(span)
+                            text!!.removeSpan(span)
                             isI =true
                         }
                     }
-                    Log.e(TAG, "applyFontEdittext: length ${text.length} sstart:$selectionStart send:$selectionEnd ", )
-                    if(isB) text.setSpan(StyleSpan(Typeface.BOLD),selectionStart,selectionEnd,flag)
-                    if(isI) text.setSpan(StyleSpan(Typeface.ITALIC),selectionStart,selectionEnd,flag)
+                    Log.e(TAG, "applyFontEdittext: length ${text!!.length} sstart:$selectionStart send:$selectionEnd ", )
+                    if(isB) text!!.setSpan(StyleSpan(Typeface.BOLD),selectionStart,selectionEnd,flag)
+                    if(isI) text!!.setSpan(StyleSpan(Typeface.ITALIC),selectionStart,selectionEnd,flag)
 
                 }
 
@@ -478,7 +481,7 @@ class EditorFragment : Fragment {
 
     fun saveDataToDataFile() {
         if(editText!=null && dataFile!=null) {
-            dataFile!!.data= editText!!.text
+            dataFile!!.data= editText!!.text!!
         }
 
     }
@@ -506,7 +509,7 @@ class EditorFragment : Fragment {
 
     fun replaceAll(findText : String,replaceText : String,ignoreCase : Boolean = false){
         if(editText!=null) {
-            val editTextData = editText!!.text.toString()
+            val editTextData = editText!!.text!!.toString()
             val replacedData: String = editTextData.replace(findText, replaceText, ignoreCase)
             editText!!.setText(replacedData)
         }
@@ -514,13 +517,13 @@ class EditorFragment : Fragment {
 
     fun highlight(find: String, index: Int,ignoreCase: Boolean): Int {
 
-        val str: String = editText!!.text.toString()
+        val str: String = editText!!.text!!.toString()
         val sIndex: Int = str.indexOf(find, index, ignoreCase)
 
         if (sIndex != -1) {
             editText!!.requestFocus()
             editText!!.setSelection(sIndex, sIndex + find.length)
-//            editText.setSelection(sIndex)
+//            edittext!!.setSelection(sIndex)
         }
         return sIndex
     }
@@ -528,7 +531,7 @@ class EditorFragment : Fragment {
 
     fun findReplace(find: String, replace: String, index: Int, ignoreCase: Boolean): Int {
 
-        val string: String = editText!!.text.toString()
+        val string: String = editText!!.text!!.toString()
         if (index >= 0 && index < string.length) {
             val firstIndex: Int = string.indexOf(find, index, ignoreCase)
             if (firstIndex != -1) {
@@ -545,7 +548,7 @@ class EditorFragment : Fragment {
         if (line <= 0) {
             editText?.setSelection(0)
         } else {
-            val position = ordinalIndexOf(editText?.text.toString(), "\n", line)
+            val position = ordinalIndexOf(editText?.text!!.toString(), "\n", line)
             editText?.clearFocus()
             editText?.requestFocus()
             if (position != -1) {
@@ -589,7 +592,7 @@ class EditorFragment : Fragment {
         if(editText!=null && editText!!.isFocused){
             editText?.apply {
 
-                return  this.text.subSequence(selectionStart,selectionEnd)
+                return  this.text!!.subSequence(selectionStart,selectionEnd)
             }
         }
         return null
@@ -639,9 +642,9 @@ class EditorFragment : Fragment {
             var ss = editText!!.selectionStart
             var isEmptyLine = false
 
-            if (ss == text.length)
+            if (ss == text!!.length)
                 ss--
-            if (ss > 0 && text[ss] == '\n' && text[ss - 1] == '\n') {
+            if (ss > 0 && text!![ss] == '\n' && text[ss - 1] == '\n') {
                 isEmptyLine = true
             }
 
@@ -649,7 +652,8 @@ class EditorFragment : Fragment {
                 changeAlignmentValue(center = true)
                 changeParagraphStyle(alignCenter = true)
             } else {
-                Toast.makeText(mcontext, "Enter Text To align", Toast.LENGTH_SHORT).show()
+                if(context!=null)
+                Toast.makeText(mcontext, requireContext().getString(R.string.write_something), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -662,7 +666,7 @@ class EditorFragment : Fragment {
             var ss = editText!!.selectionStart
             var isEmptyLine = false;
 
-            if (ss == text.length)
+            if (ss == text!!.length)
                 ss--;
             if (ss > 0 && text[ss] == '\n' && text[ss - 1] == '\n') {
                 isEmptyLine = true
@@ -672,7 +676,8 @@ class EditorFragment : Fragment {
                 changeAlignmentValue(left = true)
                 changeParagraphStyle(alignLeft = true)
             } else {
-                Toast.makeText(mcontext, "Enter Text To align", Toast.LENGTH_SHORT).show()
+                if(context!=null)
+                Toast.makeText(mcontext, requireContext().getString(R.string.write_something), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -685,7 +690,7 @@ class EditorFragment : Fragment {
             var ss = editText!!.selectionStart
             var isEmptyLine = false;
 
-            if (ss == text.length)
+            if (ss == text!!.length)
                 ss--;
             if (ss > 0 && text[ss] == '\n' && text[ss - 1] == '\n') {
                 isEmptyLine = true
@@ -694,7 +699,8 @@ class EditorFragment : Fragment {
                 changeAlignmentValue(right = true)
                 changeParagraphStyle(alignRight = true)
             } else {
-                Toast.makeText(mcontext, "Enter Text To align", Toast.LENGTH_SHORT).show()
+                if(context!=null)
+                Toast.makeText(mcontext, requireContext().getString(R.string.write_something), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -723,14 +729,14 @@ class EditorFragment : Fragment {
 
     fun getCurrentSpan() : Array<CharacterStyle>?{
         if(editText!=null ) {
-            return editText!!.text.getSpans(editText!!.selectionStart,editText!!.selectionEnd,CharacterStyle::class.java)
+            return editText!!.text!!.getSpans(editText!!.selectionStart,editText!!.selectionEnd,CharacterStyle::class.java)
         }
         return null
     }
 
     fun getCurrentParagraphStyleSpan():Array<ParagraphStyle>?{
         if(editText!=null ) {
-            return editText!!.text.getSpans(editText!!.selectionStart,editText!!.selectionEnd,ParagraphStyle::class.java)
+            return editText!!.text!!.getSpans(editText!!.selectionStart,editText!!.selectionEnd,ParagraphStyle::class.java)
         }
         return null
     }
@@ -754,6 +760,7 @@ class EditorFragment : Fragment {
 
             editText?.apply {
                 textSize = x
+                editText!!.setLineNumberTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,x,mcontext!!.resources.displayMetrics))
             }
             dataFile?.textSize = x
 
@@ -771,18 +778,18 @@ class EditorFragment : Fragment {
         editText?.apply {
             if(selectionStart!=selectionEnd)
             {
-                var spans = this.text.getSpans(
+                var spans = this.text!!.getSpans(
                     selectionStart,
                     selectionEnd,
                     ParcelableSpan::class.java
                 )
-                val txt = text.toString().substring(selectionStart,selectionEnd)
+                val txt = text!!.toString().substring(selectionStart,selectionEnd)
                 val regex = Regex("\u2022") // bullet char
                 for (span in spans) {
                     if (span is BulletSpan  ) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                         val txt2 = txt.replace("\u2022","")
-                        this.text.replace(selectionStart,selectionEnd,txt2)
+                        this.text!!.replace(selectionStart,selectionEnd,txt2)
 //                        Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
                         isBulletsOn=false
                         return
@@ -791,7 +798,7 @@ class EditorFragment : Fragment {
                 if(txt.contains(regex))
                 {
                     val txt2 = txt.replace("\u2022","")
-                    this.text.replace(selectionStart,selectionEnd,txt2)
+                    this.text!!.replace(selectionStart,selectionEnd,txt2)
                     isBulletsOn=false
 //                    Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
                     return
@@ -802,15 +809,15 @@ class EditorFragment : Fragment {
                     isBulletsOn = !isBulletsOn
                 }
                     if (isBulletsOn)
-                        text.replace(selectionStart, selectionEnd, "\u2022")
+                        text!!.replace(selectionStart, selectionEnd, "\u2022")
 
             }
             else
             {
-                var t ="\u2022"+ this.text.toString().subSequence(selectionStart,selectionEnd)
+                var t ="\u2022"+ this.text!!.toString().subSequence(selectionStart,selectionEnd)
                 val regex = Regex("\n")
                 val t2=t.replace(regex,"\n\u2022")
-                this.text.replace(selectionStart, selectionEnd,t2)
+                this.text!!.replace(selectionStart, selectionEnd,t2)
             }
         }
 
@@ -820,24 +827,24 @@ class EditorFragment : Fragment {
 
 
     private fun selectCurrentLine() {
-        if (editText != null) {
+        if (editText != null && editText!!.text!= null) {
 
             editText!!.apply {
 
                 var ss = selectionStart
                 var se = selectionEnd
-                if (ss == se && (ss > 0 && text[ss - 1] != '\n')) {
+                if (ss == se && (ss > 0 && text!![ss - 1] != '\n')) {
                     //means end at line or first char at line
                     ss -= 1
                 }
-                var text: CharSequence = editText!!.text
+                var text: CharSequence = editText!!.text!!
                 se = text.toString().indexOf('\n', se)
-                if (se == -1 || se > text.length)
+                if (se == -1 || se > text!!.length)
                     se = text.length
                 while (ss > 0 && text[ss - 1] != '\n') {
                     ss--
                 }
-                if (ss != se && ss >= 0 && se <= text.length) {
+                if (ss != se && ss >= 0 && se <= text!!.length) {
                     setSelection(ss, se)
                 }
             }
@@ -849,23 +856,23 @@ class EditorFragment : Fragment {
         this.hasUnsavedChanges .value =true
         selectCurrentLine()
         editText?.apply {
-                    val spans = this.text.getSpans(
+                    val spans = this.text!!.getSpans(
                         selectionStart,
                         selectionEnd,
                         RelativeSizeSpan::class.java
                     )
                     for (span in spans) {
                         if (span is RelativeSizeSpan) {
-                            this.text.removeSpan(span)
+                            this.text!!.removeSpan(span)
                         }
                     }
-                    this.text.setSpan(
+                    this.text!!.setSpan(
                         RelativeSizeSpan(value),
                         selectionStart,
                         selectionEnd,
                         flag
                     )
-                    this.text.setSpan(
+                    this.text!!.setSpan(
                         StyleSpan(Typeface.BOLD),
                         selectionStart,
                         selectionEnd,
@@ -874,7 +881,8 @@ class EditorFragment : Fragment {
             }
 
         invalidateEditText()
-        Toast.makeText(context, "Heading Applied to current Line", Toast.LENGTH_SHORT).show()
+        if(context!=null)
+        Toast.makeText(context,requireContext().getString(R.string.heading_applied_current), Toast.LENGTH_SHORT).show()
 
     }
 
@@ -905,20 +913,20 @@ class EditorFragment : Fragment {
         if(editText!=null)
         {
             editText!!.apply {
-                text.replace(selectionStart,selectionEnd,dataToPaste)
+                text!!.replace(selectionStart,selectionEnd,dataToPaste)
             }
         }
     }
 
     fun getCharSequence():CharSequence{
-        return editText!!.text
+        return editText!!.text!!
     }
 
     fun getTextSizeForPrint(context: Context): Float {
 
         if(editText!=null)
         {
-            var size = (editText!!.textSize) / (context.resources.displayMetrics.density)
+            var size = (editText!!.textSize) / (mcontext!!.resources.displayMetrics.density)
             return size
         }
         return 16f;
@@ -932,11 +940,12 @@ class EditorFragment : Fragment {
             editText!!.apply {
                 if(this.selectionStart!=this.selectionEnd)
                 {
-                    text.setSpan(URLSpan(url),selectionStart,selectionEnd,flag)
+                    text!!.setSpan(URLSpan(url),selectionStart,selectionEnd,flag)
                 }
                 else
                 {
-                    Toast.makeText(context, "Please Select Text", Toast.LENGTH_SHORT).show()
+                    if(context!=null)
+                    Toast.makeText(context, requireContext().getString(R.string.please_select_text), Toast.LENGTH_SHORT).show()
                 }
 
             }
@@ -948,14 +957,14 @@ class EditorFragment : Fragment {
         if(editText!=null) {
             editText!!.apply {
                 if (this.selectionStart != this.selectionEnd) {
-                    var spans = this.text.getSpans(
+                    var spans = this.text!!.getSpans(
                         selectionStart,
                         selectionEnd,
                         ParcelableSpan::class.java
                     )
                     for (span in spans) {
                         if (span is URLSpan) {
-                            this.text.removeSpan(span)
+                            this.text!!.removeSpan(span)
                             return true;
                         }
                     }
@@ -973,11 +982,12 @@ class EditorFragment : Fragment {
             editText!!.apply {
                 if(this.selectionStart!=this.selectionEnd)
                 {
-                    text.setSpan(QuoteSpan(),selectionStart,selectionEnd,flag)
+                    text!!.setSpan(QuoteSpan(),selectionStart,selectionEnd,flag)
                 }
                 else
                 {
-                    Toast.makeText(context, "Please Select Text", Toast.LENGTH_SHORT).show()
+                    if(context!=null)
+                    Toast.makeText(context, requireContext().getString(R.string.please_select_text), Toast.LENGTH_SHORT).show()
                 }
 
             }
@@ -988,7 +998,7 @@ class EditorFragment : Fragment {
     fun setHtmlText() {
         if(editText!=null)
         {
-            val content = Utils.spannableToHtml(editText!!.text).toString()
+            val content = Utils.spannableToHtml(editText!!.text!!).toString()
             editText!!.setText(content)
         }
     }
@@ -997,14 +1007,14 @@ class EditorFragment : Fragment {
         if(editText!=null)
         {
             editText!!.apply {
-                val spans = this.text.getSpans(
+                val spans = this.text!!.getSpans(
                     selectionStart,
                     selectionEnd,
                     RelativeSizeSpan::class.java
                 )
                 for (span in spans) {
                     if (span is RelativeSizeSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
 
@@ -1017,14 +1027,14 @@ class EditorFragment : Fragment {
         {
             editText!!.apply {
 
-                val spans = this.text.getSpans(
+                val spans = this.text!!.getSpans(
                     selectionStart,
                     selectionEnd,
                     RelativeSizeSpan::class.java
                 )
                 for (span in spans) {
                     if (span is RelativeSizeSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
                 text!!.setSpan(RelativeSizeSpan(1.25f),selectionStart,selectionEnd,flag)
@@ -1041,19 +1051,19 @@ class EditorFragment : Fragment {
 
             editText!!.apply {
 
-                val spans = this.text.getSpans(
+                val spans = this.text!!.getSpans(
                     selectionStart,
                     selectionEnd,
                     MetricAffectingSpan::class.java
                 )
                 for (span in spans) {
                     if (span is SuperscriptSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
                 for (span in spans) {
                     if (span is RelativeSizeSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
                 text!!.setSpan(SuperscriptSpan(),selectionStart,selectionEnd,flag)
@@ -1070,19 +1080,19 @@ class EditorFragment : Fragment {
 
             editText!!.apply {
 
-                val spans = this.text.getSpans(
+                val spans = this.text!!.getSpans(
                     selectionStart,
                     selectionEnd,
                     MetricAffectingSpan::class.java
                 )
                 for (span in spans) {
                     if (span is SubscriptSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
                 for (span in spans) {
                     if (span is RelativeSizeSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
                 text!!.setSpan(SubscriptSpan(),selectionStart,selectionEnd,flag)
@@ -1100,30 +1110,30 @@ class EditorFragment : Fragment {
         {
             editText!!.apply {
 
-                var spans = this.text.getSpans(
+                var spans = this.text!!.getSpans(
                     selectionStart,
                     selectionEnd,
                     RelativeSizeSpan::class.java
                 )
                 for (span in spans) {
                     if (span is RelativeSizeSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
 
-                val spans2 = this.text.getSpans(
+                val spans2 = this.text!!.getSpans(
                     selectionStart,
                     selectionEnd,
                     MetricAffectingSpan::class.java
                 )
                 for (span in spans2) {
                     if (span is SubscriptSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
                 for (span in spans2) {
                     if (span is SuperscriptSpan) {
-                        this.text.removeSpan(span)
+                        this.text!!.removeSpan(span)
                     }
                 }
             }
@@ -1147,7 +1157,7 @@ class EditorFragment : Fragment {
     fun removeBullets(){
         editText?.apply {
 
-            val spans = this.text.getSpans(
+            val spans = this.text!!.getSpans(
                 selectionStart,
                 selectionEnd,
                 ParagraphStyle::class.java
@@ -1155,11 +1165,11 @@ class EditorFragment : Fragment {
             for (span in spans) {
                 if (span is BulletSpan  ) {
 
-                    val where = text.getSpanStart(span)
-                    this.text.removeSpan(span)
+                    val where = text!!.getSpanStart(span)
+                    this.text!!.removeSpan(span)
 
-                    if(selectionStart>0 && text[selectionStart-1]=='\n' && where >=0 && where < selectionStart)
-                        this.text.setSpan(BulletSpan(),where,selectionStart-1,Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    if(selectionStart>0 && text!![selectionStart-1]=='\n' && where >=0 && where < selectionStart)
+                        this.text!!.setSpan(BulletSpan(),where,selectionStart-1,Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
 
     //                        Toast.makeText(context, "Bullets Removed", Toast.LENGTH_SHORT).show()
                 }
@@ -1179,17 +1189,17 @@ class EditorFragment : Fragment {
             }else{
                 if(selectionStart!=selectionEnd) {
                     var start = selectionStart
-                    while(start>0 && this.text[start-1]!='\n'){
+                    while(start>0 && this.text!![start-1]!='\n'){
                         start--
                     }
-                    var end = this.text.indexOf('\n',selectionStart)
-                    if(end == -1) end = this.text.length
-                    while(end != -1 && start < this.text.length && start<selectionEnd && end<=selectionEnd){
-                        this.text.setSpan(BulletSpan(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    var end = this.text!!.indexOf('\n',selectionStart)
+                    if(end == -1) end = this.text!!.length
+                    while(end != -1 && start < this.text!!.length && start<selectionEnd && end<=selectionEnd){
+                        this.text!!.setSpan(BulletSpan(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                         start = end+1
-                        if(start < text.length)
-                            end = this.text.indexOf('\n',start)
-                        if(end == -1) end = this.text.length
+                        if(start < text!!.length)
+                            end = this.text!!.indexOf('\n',start)
+                        if(end == -1) end = this.text!!.length
                     }
 
                 }else{
@@ -1199,12 +1209,37 @@ class EditorFragment : Fragment {
                         removeBullets()
 
 
-                        this.text.setSpan(BulletSpan(), selectionStart, selectionEnd,Spanned.SPAN_INCLUSIVE_INCLUSIVE )
+                        this.text!!.setSpan(BulletSpan(), selectionStart, selectionEnd,Spanned.SPAN_INCLUSIVE_INCLUSIVE )
                         if(cursorPosition!=null)
                             editText?.setSelection(cursorPosition)
 
                 }
             }
+        }
+    }
+
+    fun removeHeadingSpan() {
+        this.hasUnsavedChanges.value = true
+        selectCurrentLine()
+        editText?.apply {
+            val spans = this.text!!.getSpans(
+                selectionStart,
+                selectionEnd,
+                RelativeSizeSpan::class.java
+            )
+            for (span in spans) {
+                if (span is RelativeSizeSpan) {
+                    this.text!!.removeSpan(span)
+                }
+            }
+            val spans2 = this.text!!.getSpans(selectionStart, selectionEnd, CharacterStyle::class.java)
+            for (span in spans2) {
+                if (span is StyleSpan) {
+                    if ((span.style == Typeface.BOLD))
+                        text!!.removeSpan(span)
+                }
+            }
+            invalidateEditText()
         }
     }
 

@@ -1,0 +1,42 @@
+<resources>
+
+    <string name="select_text_to_apply_effects">Seleccione texto para aplicar efectos.</string>
+    <string name="url_removed">URL eliminado</string>
+    <string name="please_select_text">Por favor seleccione el texto</string>
+    <string name="please_save_as_to_keep_effect">Por favor, Saveas para mantener los efectos.</string>
+    <string name="file_already_exits">El archivo ya existe</string>
+    <string name="file_saved_as_note">Archivo guardado como nota</string>
+    <string name="write_something">Escribe algo antes de alinear</string>
+    <string name="heading_applied_current">Encabezado aplicado a la línea actual</string>
+    <string name="prev" >avance</string>
+    <string name="next" >Siguiente</string>
+    <string name="line_number" >Número de línea</string>
+    <string name="saved_successfully" >Guardado exitosamente</string>
+    <string name="greet_line" >¡Hola!</string>
+    <string name="file_doesnot_saved" >El archivo no se guarda</string>
+    <string name="file_havenot_permission_to_write" >No tiene permiso válido para escribir</string>
+    <string name="search_and_replace" >Buscar y reemplazar</string>
+    <string name="find" >Encontrar</string>
+    <string name="clear_history" >Historia clara</string>
+    <string name="feedback" >Reportar un error</string>
+    <string name="reload_file">Archivo de recarga</string>
+    <string name="setting" >Ajustes</string>
+    <string name="storage_manager" >Gerente de almacenamiento</string>
+    <string name="history" >Historia</string>
+    <string name="previous" >Anterior</string>
+    <string name="create_new_file" >Crear nuevo archivo</string>
+    <string name="open_existing_file" >Abrir archivo existente</string>
+    <string name="save_as_note" >Guardar como nota</string>
+    <string name="action_settings" >Ajustes</string>
+    <string name="replace_all" >Reemplaza todo</string>
+    <string name="replace" >Reemplazar</string>
+    <string name="open" >Abierto</string>
+    <string name="edit" >Editar</string>
+    <string name="new_file" >Nuevo</string>
+    <string name="save_as" >Guardar como</string>
+    <string name="share" >Cuota</string>
+    <string name="unsaved_dialog_message" >¿Quieres guardar tus cambios?</string>
+    <string name="no_change_found" >No se han encontrado cambios</string>
+    <string name="search_not_found" >búsqueda no encontrada</string>
+    <string name="cancel" >Cancelar</string>
+</resources>

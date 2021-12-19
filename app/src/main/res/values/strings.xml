@@ -1,13 +1,7 @@
 <resources>
 
-    <string name="prev" translatable="false">prev</string>
-    <string name="next" translatable="false">next</string>
-    <string name="line_number" translatable="false">Line Number</string>
-    <string name="saved_successfully" translatable="false">Saved Successfully</string>
     <string name="ignore_case" translatable="false">Ignore Case</string>
     <string name="tab" translatable="false">tab</string>
-    <string name="replace_all" translatable="false">Replace All</string>
-    <string name="replace" translatable="false">Replace</string>
     <string name="up" translatable="false">Up</string>
     <string name="down" translatable="false">Down</string>
     <string name="paste" translatable="false">Paste</string>
@@ -19,45 +13,14 @@
     <string name="search" translatable="false">Search</string>
     <string name="find_amp_replace" translatable="false"><![CDATA[Find & Replace]]></string>
     <string name="close" translatable="false">Close</string>
-    <string name="open" translatable="false">Open</string>
-    <string name="edit" translatable="false">Edit</string>
     <string name="menu" translatable="false">menu</string>
-    <string name="new_file" translatable="false">New</string>
-    <string name="save_as" translatable="false">Save As</string>
-    <string name="share" translatable="false">Share</string>
-    <string name="unsaved_dialog_message" translatable="false">Do you want to save your changes?</string>
-    <string name="no_change_found" translatable="false">No Changes Found</string>
-    <string name="search_not_found" translatable="false">search not found</string>
     <string name="unsaved_file" translatable="false">Unsaved File</string>
-    <string name="cancel" translatable="false">Cancel</string>
     <string name="yes" translatable="false">Yes</string>
     <string name="no" translatable="false">No</string>
-    <string name="greet_line" translatable="false">Hello!</string>
-    <string name="file_doesnot_saved" translatable="false">File Doesn\'t Saved</string>
-    <string name="file_havenot_permission_to_write" translatable="false">Doesn\'t have valid permission to write</string>
-    <string name="search_and_replace" translatable="false">Search and Replace</string>
-    <string name="find" translatable="false">Find</string>
-    <string name="enter_linenumber_btwn" translatable="false">Enter line number between</string>
-    <string name="clear_history" translatable="false">Clear History</string>
-    <string name="feedback" translatable="false">Report a Bug</string>
-    <string name="reload_file">Reload File</string>
-    <string name="setting" translatable="false">Settings</string>
-    <string name="storage_manager" translatable="false">Storage Manager</string>
-    <string name="history" translatable="false">History</string>
-    <string name="previous" translatable="false">Previous</string>
-    <string name="create_new_file" translatable="false">Create New File</string>
-    <string name="open_existing_file" translatable="false">Open Existing File</string>
-    <string name="save_as_note" translatable="false">Save As Note</string>
-
-
-    <string name="action_settings" translatable="false">Settings</string>
-
-
     <string name="title_activity_web_view" translatable="false">WebView</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>
-
     <string name="hello_first_fragment" translatable="false">Hello first fragment</string>
     <string name="hello_second_fragment" translatable="false">Hello second fragment. Arg: %1$s</string>
     <string name="font_brush_script_mt" translatable="false">Brush Script MT</string>
@@ -71,28 +34,18 @@
     <string name="font_arial" translatable="false">Arial</string>
     <string name="fonr_georgia" translatable="false">Georgia</string>
     <string name="fonr_normal" translatable="false">Normal</string>
-
     <string name="app_name" translatable="false">Text Editor</string>
-
     <string name="default_edit_text_data" translatable="false">Default Value</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-
     <string name="title_activity_drawer_layout" translatable="false">DrawerLayoutActivity</string>
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
     <string name="nav_header_title" translatable="false">Android Studio</string>
     <string name="nav_header_subtitle" translatable="false">Nbow Developer</string>
     <string name="nav_header_desc" translatable="false">Navigation header</string>
-
-
-
     <string name="title_activity_settings" translatable="false">SettingsActivity</string>
-
     <string name="appereance" translatable="false">Appereance</string>
-
-
-
     <string name="empersand" translatable="false"><html>&amp;</html></string>
     <string name="lessthan" translatable="false"><html>&lt;</html></string>
     <string name="greaterthan" translatable="false"><html>&gt;</html></string>
@@ -100,6 +53,59 @@
     <!--    <string name="singlequote">a</string>-->
     <string name="attherat" translatable="false">a</string>
     <string name="dollar" translatable="false">$</string>
+
+
+
+
+
+
+
+
+
+
+
+
+    <string name="select_text_to_apply_effects">Select Text to apply Effects</string>
+    <string name="url_removed">Url Removed</string>
+    <string name="please_select_text">Please Select Text</string>
+    <string name="please_save_as_to_keep_effect">Please SaveAs to keep effects</string>
+    <string name="file_already_exits">File already exist</string>
+    <string name="file_saved_as_note">File Saved as Note</string>
+    <string name="write_something">write something before align</string>
+    <string name="heading_applied_current">Heading Applied To Current Line</string>
+    <string name="prev" >prev</string>
+    <string name="next" >next</string>
+    <string name="line_number" >Line Number</string>
+    <string name="saved_successfully" >Saved Successfully</string>
+    <string name="greet_line" >Hello!</string>
+    <string name="file_doesnot_saved" >File Does not Saved</string>
+    <string name="file_havenot_permission_to_write" >Does not have valid permission to write</string>
+    <string name="search_and_replace" >Search and Replace</string>
+    <string name="find" >Find</string>
+    <string name="clear_history" >Clear History</string>
+    <string name="feedback" >Report a Bug</string>
+    <string name="reload_file">Reload File</string>
+    <string name="setting" >Settings</string>
+    <string name="storage_manager" >Storage Manager</string>
+    <string name="history" >History</string>
+    <string name="previous" >Previous</string>
+    <string name="create_new_file" >Create New File</string>
+    <string name="open_existing_file" >Open Existing File</string>
+    <string name="save_as_note" >Save As Note</string>
+    <string name="action_settings" >Settings</string>
+    <string name="replace_all" >Replace All</string>
+    <string name="replace" >Replace</string>
+    <string name="open" >Open</string>
+    <string name="edit" >Edit</string>
+    <string name="new_file" >New</string>
+    <string name="save_as" >Save As</string>
+    <string name="share" >Share</string>
+    <string name="unsaved_dialog_message" >Do you want to save your changes?</string>
+    <string name="no_change_found" >No Changes Found</string>
+    <string name="search_not_found" >search not found</string>
+    <string name="cancel" >Cancel</string>
+    <string name="please_restart_app">Please Restart App</string>
+
 
     <!-- Preference Titles -->
 </resources>

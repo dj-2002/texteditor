@@ -30,7 +30,7 @@ class NoteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recycler_view)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
-        toolbar.setTitle("Recent File")
+        toolbar.setTitle("Notes")
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         buildRecyclerView()

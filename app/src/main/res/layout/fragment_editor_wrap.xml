@@ -6,39 +6,21 @@
     android:orientation="vertical"
     tools:context=".EditorFragment">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        >
 
-        <HorizontalScrollView
-            android:id="@+id/horizontal_scroller"
-            android:layout_width="match_parent"
-            android:scrollbars="none"
-            android:paddingEnd="3dp"
-            android:layout_height="match_parent">
             <com.nbow.texteditor.CustomEditText
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
-                android:minWidth="350dp"
-                android:maxWidth="680dp"
                 android:minLines="40"
-                android:gravity="start"
                 android:imeOptions="flagNoExtractUi|actionSend"
                 android:layout_height="match_parent"
                 android:inputType="textNoSuggestions|textMultiLine"
                 android:singleLine="false"
-                android:layout_marginStart="7dp"
+                android:gravity="start"
                 android:background="@android:color/transparent"
-                android:lastBaselineToBottomHeight="25dp"
+                android:lastBaselineToBottomHeight="50dp"
                 android:textSize="16dp"
-                android:paddingEnd="7dp"
                 android:paddingStart="3dp"
-
+                android:paddingEnd="7dp"
 
                 />
-        </HorizontalScrollView>
-
-    </RelativeLayout>
 </ScrollView>

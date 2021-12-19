@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string name="select_text_to_apply_effects">エフェクトを適用するにはテキストを選択してください</string>
+    <string name="url_removed">URLが削除されました</string>
+    <string name="please_select_text">テキストを選択してください</string>
+    <string name="please_save_as_to_keep_effect">エフェクトを維持するために努力してください</string>
+    <string name="file_already_exits">ファイルはすでに存在しています</string>
+    <string name="file_saved_as_note">ファイルとして保存されたファイル</string>
+    <string name="write_something">整列前に何かを書く</string>
+    <string name="heading_applied_current">現在の行に適用された見出し</string>
+    <string name="prev" >prev prev</string>
+    <string name="next" >次</string>
+    <string name="line_number" >行番号</string>
+    <string name="saved_successfully" >正常に保存</string>
+    <string name="greet_line" >こんにちは！</string>
+    <string name="file_doesnot_saved" >ファイルが保存されません</string>
+    <string name="file_havenot_permission_to_write" >書き込みに対する有効な許可はありません</string>
+    <string name="search_and_replace" >検索と置換</string>
+    <string name="find" >探す</string>
+    <string name="clear_history" >履歴をクリア</string>
+    <string name="feedback" >バグを報告</string>
+    <string name="reload_file">リロードファイル</string>
+    <string name="setting" >設定</string>
+    <string name="storage_manager" >ストレージマネージャー</string>
+    <string name="history" >歴史</string>
+    <string name="previous" >前</string>
+    <string name="create_new_file" >新しいファイルを作成します</string>
+    <string name="open_existing_file" >既存のファイルを開きます</string>
+    <string name="save_as_note" >注記してください</string>
+    <string name="action_settings" >設定</string>
+    <string name="replace_all" >すべてを交換してください</string>
+    <string name="replace" >交換</string>
+    <string name="open" >開ける</string>
+    <string name="edit" >編集</string>
+    <string name="new_file" >新しい</string>
+    <string name="save_as" >節約</string>
+    <string name="share" >シェア</string>
+    <string name="unsaved_dialog_message" >変更を保存しますか？</string>
+    <string name="no_change_found" >変更は見つかりませんでした</string>
+    <string name="search_not_found" >検索が見つかりません</string>
+    <string name="cancel" >キャンセル</string>
+
+</resources>

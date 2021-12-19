@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="select_text_to_apply_effects">Επιλέξτε κείμενο για να εφαρμόσετε εφέ</string>
+    <string name="url_removed">Η διεύθυνση URL αφαιρείται</string>
+    <string name="please_select_text">Επιλέξτε κείμενο</string>
+    <string name="please_save_as_to_keep_effect">Παρακαλώ saveas για να διατηρήσετε τα αποτελέσματα</string>
+    <string name="file_already_exits">Το αρχείο υπάρχει ήδη</string>
+    <string name="file_saved_as_note">Το αρχείο αποθηκεύτηκε ως σημείωση</string>
+    <string name="write_something">Γράψτε κάτι πριν ευθυγραμμίσετε</string>
+    <string name="heading_applied_current">Η επικεφαλίδα εφαρμόζεται στην τρέχουσα γραμμή</string>
+    <string name="prev" >προπετίζομαι</string>
+    <string name="next" >Επόμενο</string>
+    <string name="line_number" >Αριθμός σειράς</string>
+    <string name="saved_successfully" >Αποθηκεύτηκε επιτυχώς</string>
+    <string name="greet_line" >Γειά σου!</string>
+    <string name="file_doesnot_saved" >Το αρχείο δεν αποθηκεύεται</string>
+    <string name="file_havenot_permission_to_write" >Δεν έχει έγκυρη άδεια να γράψει</string>
+    <string name="search_and_replace" >Αναζήτηση και αντικατάσταση</string>
+    <string name="find" >Εύρημα</string>
+    <string name="clear_history" >Καθαρισμός ιστορικού</string>
+    <string name="feedback" >Αναφέρετε ένα σφάλμα</string>
+    <string name="reload_file">Επαναφόρτωση αρχείου</string>
+    <string name="setting" >Ρυθμίσεις</string>
+    <string name="storage_manager" >Διαχειριστής αποθήκευσης</string>
+    <string name="history" >Ιστορία</string>
+    <string name="previous" >Προηγούμενος</string>
+    <string name="create_new_file" >Δημιουργία νέου αρχείου</string>
+    <string name="open_existing_file" >Ανοίξτε το υπάρχον αρχείο</string>
+    <string name="save_as_note" >Αποθήκευση ως σημείωση</string>
+    <string name="action_settings" >Ρυθμίσεις</string>
+    <string name="replace_all" >Αντικαταστήστε όλους</string>
+    <string name="replace" >Αντικαθιστώ</string>
+    <string name="open" >Ανοιξε</string>
+    <string name="edit" >Επεξεργασία</string>
+    <string name="new_file" >Νέος</string>
+    <string name="save_as" >Αποθήκευση ως</string>
+    <string name="share" >Μερίδιο</string>
+    <string name="unsaved_dialog_message" >Θέλετε να αποθηκεύσετε τις αλλαγές σας;</string>
+    <string name="no_change_found" >Δεν βρέθηκαν αλλαγές</string>
+    <string name="search_not_found" >αναζήτηση δεν βρέθηκε</string>
+    <string name="cancel" >Ματαίωση</string>
+
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="select_text_to_apply_effects">Sélectionnez le texte pour appliquer des effets</string>
+    <string name="url_removed">URL supprimé</string>
+    <string name="please_select_text">S\'il vous plaît sélectionner du texte</string>
+    <string name="please_save_as_to_keep_effect">S\'il vous plaît savez pour garder les effets</string>
+    <string name="file_already_exits">Le fichier existe déjà</string>
+    <string name="file_saved_as_note">Fichier enregistré comme note</string>
+    <string name="write_something">écrire quelque chose avant d\'aligner</string>
+    <string name="heading_applied_current">Rubrique appliquée à la ligne de courant</string>
+    <string name="prev" >prev</string>
+    <string name="next" >suivant</string>
+    <string name="line_number" >Numéro de ligne</string>
+    <string name="saved_successfully" >Sauvé avec succès</string>
+    <string name="greet_line" >Salut!</string>
+    <string name="file_doesnot_saved" >Le fichier n\'a pas sauvegardé</string>
+    <string name="file_havenot_permission_to_write" >N\'a pas la permission valide pour écrire</string>
+    <string name="search_and_replace" >Rechercher et remplacer</string>
+    <string name="find" >Trouver</string>
+    <string name="clear_history" >Histoire claire</string>
+    <string name="feedback" >Signaler un bug</string>
+    <string name="reload_file">Recharger le fichier</string>
+    <string name="setting" >Réglages</string>
+    <string name="storage_manager" >Gestionnaire de stockage</string>
+    <string name="history" >Histoire</string>
+    <string name="previous" >Précédent</string>
+    <string name="create_new_file" >Créer un nouveau fichier</string>
+    <string name="open_existing_file" >Ouvrir le fichier existant</string>
+    <string name="save_as_note" >Enregistrer en tant que note</string>
+    <string name="action_settings" >Réglages</string>
+    <string name="replace_all" >Remplace tout</string>
+    <string name="replace" >Remplacer</string>
+    <string name="open" >Ouvert</string>
+    <string name="edit" >Éditer</string>
+    <string name="new_file" >Nouvelle</string>
+    <string name="save_as" >Enregistrer sous</string>
+    <string name="share" >Partager</string>
+    <string name="unsaved_dialog_message" >Voulez-vous enregistrer vos modifications?</string>
+    <string name="no_change_found" >Aucun changement trouvé</string>
+    <string name="search_not_found" >recherche introuvable</string>
+    <string name="cancel" >Annuler</string>
+
+</resources>

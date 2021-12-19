@@ -17,19 +17,22 @@
             android:scrollbars="none"
             android:paddingEnd="3dp"
             android:layout_height="match_parent">
-        <EditText
+        <com.nbow.texteditor.CustomEditText
             android:id="@+id/editText"
             android:layout_width="match_parent"
             android:minWidth="350dp"
             android:maxWidth="680dp"
+            android:minLines="40"
             android:imeOptions="flagNoExtractUi|actionSend"
             android:layout_height="match_parent"
             android:inputType="textNoSuggestions|textMultiLine"
             android:singleLine="false"
+            android:gravity="start"
             android:layout_marginStart="7dp"
             android:background="@android:color/transparent"
-            android:lastBaselineToBottomHeight="550dp"
+            android:lastBaselineToBottomHeight="50dp"
             android:textSize="16dp"
+            android:paddingStart="3dp"
             android:paddingEnd="7dp"
 
         />

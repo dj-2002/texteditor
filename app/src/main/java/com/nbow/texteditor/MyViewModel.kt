@@ -26,6 +26,8 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
 
     var currentTab : Int = -1
     var isWrap = false
+    var isLineNumber = false
+
     var isHistoryLoaded = MutableLiveData(false)
 
     private val TAG = "MyViewModel"
@@ -35,6 +37,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
         loadHistory(application.applicationContext)
         val preferences = PreferenceManager.getDefaultSharedPreferences(application)
         isWrap = preferences.getBoolean("word_wrap",true)
+        isLineNumber = preferences.getBoolean("line_number",false)
 
     }
 
@@ -102,7 +105,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                         font = history.font,
                         textSize =  history.textSize
                     )
-                    val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
+                    val frag = EditorFragment(datafile, context, history.hasUnsavedData,this@MyViewModel)
                     (fragmentList.value ?: arrayListOf()).add(frag)
 //                Log.e(TAG, "loadHistory: ${history.fileName} => hasUnsavedData ${history.hasUnsavedData} and frag unsaved data : ${frag.hasUnsavedChanges.value}")
 
@@ -121,7 +124,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                         font = history.font,
                         textSize =  history.textSize
                     )
-                    val frag = EditorFragment(datafile, getApplication(), history.hasUnsavedData)
+                    val frag = EditorFragment(datafile, context, history.hasUnsavedData,this@MyViewModel)
                     (fragmentList.value ?: arrayListOf()).add(frag)
                 }
             }

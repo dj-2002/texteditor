@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (cf.isSelected())
                         viewSpecialDialog(cf)
                     else
-                        Toast.makeText(applicationContext, "Select Text to apply Effects", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, application.getString(R.string.select_text_to_apply_effects),Toast.LENGTH_SHORT).show()
 
                 }
             })
@@ -268,14 +268,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     var cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
                     if(cf.isSelected()) {
                         if (cf.removeIfUrlSpan()) {
-                            Toast.makeText(applicationContext, "Url Removed", Toast.LENGTH_SHORT).show()
+
+                            Toast.makeText(applicationContext, application.getString(R.string.url_removed), Toast.LENGTH_SHORT).show()
                         } else {
                             askForUrl(cf)
                         }
                     }
                     else
                     {
-                        Toast.makeText(applicationContext, "Please Select Text", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, application.getString(R.string.please_select_text), Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -378,7 +379,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (isValidTab()) {
                         var cf = adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
                             if (!cf.isSelected()) {
-                                Toast.makeText(applicationContext, "Select Text to Apply Color", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(applicationContext, application.getString(R.string.select_text_to_apply_effects), Toast.LENGTH_SHORT).show()
                             }
                             else {
                                 if(background==false)
@@ -411,6 +412,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.pager2.adapter = adapter
         binding.pager2.offscreenPageLimit=1
         binding.pager2.isUserInputEnabled = false
+
         val v:View  = binding.noTabLayout.cl1
         v.setOnClickListener({
             try {
@@ -614,7 +616,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             isNote = true
 
         )
-        val fragment = EditorFragment(dataFile,applicationContext,hasUnsavedChanges = true)
+        val fragment = EditorFragment(dataFile,applicationContext,hasUnsavedChanges = true,model)
         adapter.addFragment(fragment)
 
 
@@ -774,7 +776,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     textSize = note.textSize
 
                 )
-                val fragment = EditorFragment(dataFile, applicationContext)
+                val fragment = EditorFragment(dataFile, applicationContext, viewModel = model)
                 if (isReload && isValidTab()) {
                     val position = binding.tabLayout.selectedTabPosition
                     adapter.fragmentList.removeAt(position)
@@ -1031,7 +1033,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             currentFragment.makeH1(Utils.heading[5])
                         }
                     }
-
+                    R.id.normal ->
+                    {
+                        if(isValidTab())
+                        {
+                            currentFragment.removeHeadingSpan()
+                        }
+                    }
 
                 }
             }
@@ -1084,6 +1092,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //lifecycleScope.launch(Dispatchers.Main){
 
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        if(model.isWrap!=preferences.getBoolean("word_wrap",true)) {
+            model.isWrap = !model.isWrap
+            recreate()
+        }
+        if(model.isLineNumber!=preferences.getBoolean("line_number",false)) {
+            model.isLineNumber = !model.isLineNumber
+            recreate()
+        }
 
             model.isHistoryLoaded.observe(this@MainActivity) {
                 adapter.fragmentList = model.getFragmentList().value ?: arrayListOf()
@@ -1310,7 +1328,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         }
                         else
-                            Toast.makeText(this, "No Changes Found", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, application.getString(R.string.no_change_found), Toast.LENGTH_SHORT).show()
                     }
 
                 R.id.close -> {
@@ -1391,6 +1409,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         doWebViewPrint(currentFragment)
                     }
 
+                }
+
+                R.id.wrap_content -> {
+                    val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                    val editor = preferences.edit()
+                    editor.putBoolean("word_wrap", !model.isWrap)
+                    editor.apply()
+                    onResume()
+                }
+
+                R.id.line_number -> {
+
+                    val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                    val editor = preferences.edit()
+                    editor.putBoolean("line_number", !model.isLineNumber)
+                    editor.apply()
+                    onResume()
                 }
 
 
@@ -1654,7 +1689,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 data = content,
                 isNote = false
             )
-            val fragment = EditorFragment(dataFile,applicationContext)
+            val fragment = EditorFragment(dataFile,applicationContext, viewModel = model)
 
             if (isReload && isValidTab()) {
                 val position = binding.tabLayout.selectedTabPosition
@@ -1814,7 +1849,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             it.write(
                                 fragment.getEditTextData().toString().toByteArray()
                             )
-                            Toast.makeText(applicationContext, "Please SaveAs to keep Formatting", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext, application.getString(R.string.please_save_as_to_keep_effect), Toast.LENGTH_SHORT).show()
                         }
 
 
@@ -1822,23 +1857,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                             showProgressBarDialog("Saved Successfully", isCloseFlag)
                         if(!isHtml)
-                            Toast.makeText(applicationContext, "Please saveAs to save formatting ", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext, application.getString(R.string.please_save_as_to_keep_effect), Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: FileNotFoundException) {
-                Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, application.getString(R.string.file_doesnot_saved), Toast.LENGTH_SHORT).show()
                 Log.e(TAG, " file not found saveFile: ${e.message}")
                 e.printStackTrace()
 
             } catch (e: IOException) {
-                Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, application.getString(R.string.file_doesnot_saved), Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
                 Log.e(TAG, " io exception saveFile: ${e.message}")
 
             } catch (e: SecurityException) {
                 showSecureSaveAsDialog(fragment)
             } catch (e: Exception) {
-                Toast.makeText(applicationContext, "File Doesn't Saved", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, application.getString(R.string.file_doesnot_saved), Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
                 Log.e(TAG, "saveFile unknown exception: ${e.message}")
 
@@ -1868,7 +1903,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                     model.addNote(Note(fragment.getFileName(),fragment.fontFamily,fragment.getTextSize(applicationContext)))
                     model.updateNoteList()
-                    Toast.makeText(applicationContext, "Saved", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, application.getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show()
                 }
 
             }
@@ -1959,7 +1994,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 else
                 {
-                    Toast.makeText(applicationContext, "File already exist", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, application.getString(R.string.file_already_exits), Toast.LENGTH_SHORT).show()
                     createNewNoteFile(uniqueFileName,fragment)
                 }
 
@@ -1967,7 +2002,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     it.write("${Utils.spannableToHtml(fragment.getEditable()?: SpannableStringBuilder(""))}")
                 }
 
-                Toast.makeText(applicationContext, "File Saved as Note", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, application.getString(R.string.file_saved_as_note), Toast.LENGTH_SHORT).show()
                 dialogInterface.dismiss()
             }
         }
@@ -2028,13 +2063,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 else
                 {
-                    Toast.makeText(applicationContext, "File already exist", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, application.getString(R.string.file_already_exits), Toast.LENGTH_SHORT).show()
                     createNewNoteFile(uniqueFileName,fragment)
                 }
 
 
 
-                Toast.makeText(applicationContext, "File Saved as Note", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, application.getString(R.string.file_saved_as_note), Toast.LENGTH_SHORT).show()
                 dialogInterface.dismiss()
             }
         }

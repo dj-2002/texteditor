@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="select_text_to_apply_effects">પ્રભાવો લાગુ કરવા માટે ટેક્સ્ટ પસંદ કરો</string>
+    <string name="url_removed">URL દૂર કર્યું</string>
+    <string name="please_select_text">કૃપા કરીને ટેક્સ્ટ પસંદ કરો</string>
+    <string name="please_save_as_to_keep_effect">કૃપા કરીને ઇફેક્ટ્સ રાખવા માટે સાવચેત રહો</string>
+    <string name="file_already_exits">ફાઇલ પહેલેથી અસ્તિત્વમાં છે</string>
+    <string name="file_saved_as_note">ફાઇલ નોંધ તરીકે સાચવી</string>
+    <string name="write_something">સંરેખિત પહેલાં કંઈક લખો</string>
+    <string name="heading_applied_current">શીર્ષક વર્તમાન રેખા પર લાગુ</string>
+    <string name="prev" >પૂર્વ</string>
+    <string name="next" >આગળ</string>
+    <string name="line_number" >રેખા નંબર</string>
+    <string name="saved_successfully" >સફળતાપૂર્વક સાચવી</string>
+    <string name="greet_line" >નમસ્તે!</string>
+    <string name="file_doesnot_saved" >ફાઇલ સંગ્રહિત નથી</string>
+    <string name="file_havenot_permission_to_write" >લખવા માટે માન્ય પરવાનગી નથી</string>
+    <string name="search_and_replace" >શોધો અને બદલો</string>
+    <string name="find" >શોધો</string>
+    <string name="clear_history" >સ્પષ્ટ ઇતિહાસ</string>
+    <string name="feedback" >બગની જાણ કરો</string>
+    <string name="reload_file">ફરીથી લોડ કરો</string>
+    <string name="setting" >ગોઠવણીઓ</string>
+    <string name="storage_manager" >સંગ્રહ વ્યવસ્થાપક</string>
+    <string name="history" >ઇતિહાસ</string>
+    <string name="previous" >અગાઉના</string>
+    <string name="create_new_file" >નવી ફાઇલ બનાવો</string>
+    <string name="open_existing_file" >હાલની ફાઈલ ખોલો</string>
+    <string name="save_as_note" >નોંધ તરીકે સાચવો</string>
+    <string name="action_settings" >ગોઠવણીઓ</string>
+    <string name="replace_all" >બધા બદલો</string>
+    <string name="replace" >બદલો</string>
+    <string name="open" >ખુલ્લા</string>
+    <string name="edit" >ફેરફાર કરવો</string>
+    <string name="new_file" >નવું</string>
+    <string name="save_as" >તરીકે જમા કરવુ</string>
+    <string name="share" >શેર</string>
+    <string name="unsaved_dialog_message" >શું તમે તમારા ફેરફારોને સાચવવા માંગો છો?</string>
+    <string name="no_change_found" >કોઈ ફેરફારો મળ્યાં નથી</string>
+    <string name="search_not_found" >શોધ મળી નથી</string>
+    <string name="cancel" >રદ કરવું</string>
+
+</resources>

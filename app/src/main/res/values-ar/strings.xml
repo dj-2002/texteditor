@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="select_text_to_apply_effects">حدد نص لتطبيق التأثيرات</string>
+    <string name="url_removed">إزالتها عنوان URL.</string>
+    <string name="please_select_text">يرجى اختيار النص</string>
+    <string name="please_save_as_to_keep_effect">من فضلك سافيس للحفاظ على التأثيرات</string>
+    <string name="file_already_exits">ملف موجود بالفعل</string>
+    <string name="file_saved_as_note">ملف محفوظ كملاحظة</string>
+    <string name="write_something">اكتب شيئا قبل محاذاة</string>
+    <string name="heading_applied_current">العنوان المطبق على الخط الحالي</string>
+    <string name="prev" >السابق</string>
+    <string name="next" >التالي</string>
+    <string name="line_number" >رقم السطر</string>
+    <string name="saved_successfully" >حفظ بنجاح</string>
+    <string name="greet_line" >مرحبا!</string>
+    <string name="file_doesnot_saved" >الملف لا يتم حفظه</string>
+    <string name="file_havenot_permission_to_write" >ليس لديه إذن صالح للكتابة</string>
+    <string name="search_and_replace" >البحث واستبدالها</string>
+    <string name="find" >تجد</string>
+    <string name="clear_history" >تاريخ واضح</string>
+    <string name="feedback" >الإبلاغ عن خطأ</string>
+    <string name="reload_file">تحديث الملف</string>
+    <string name="setting" >إعدادات</string>
+    <string name="storage_manager" >مدير المخزن</string>
+    <string name="history" >تاريخ</string>
+    <string name="previous" >سابق</string>
+    <string name="create_new_file" >إنشاء ملف جديد</string>
+    <string name="open_existing_file" >افتح الملف الموجود</string>
+    <string name="save_as_note" >حفظ كما مذكرة</string>
+    <string name="action_settings" >إعدادات</string>
+    <string name="replace_all" >استبدال الكل</string>
+    <string name="replace" >يحل محل</string>
+    <string name="open" >فتح</string>
+    <string name="edit" >تعديل</string>
+    <string name="new_file" >جديد</string>
+    <string name="save_as" >حفظ باسم</string>
+    <string name="share" >شارك</string>
+    <string name="unsaved_dialog_message" >هل تريد حفظ التغييرات؟</string>
+    <string name="no_change_found" >لم يتم العثور على تغييرات</string>
+    <string name="search_not_found" >البحث غير موجود</string>
+    <string name="cancel" >يلغي</string>
+
+</resources>

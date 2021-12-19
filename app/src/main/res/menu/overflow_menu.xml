@@ -22,12 +22,21 @@
         app:showAsAction="never"
         />
 
+    <item
+        android:id="@+id/wrap_content"
+        android:title="Wrap Content"
+        android:icon="@drawable/ic_wrap_content"/>
+
+    <item
+        android:id="@+id/line_number"
+        android:title="Line Number"
+        android:icon="@drawable/ic_line_number_bullets"></item>
 
     <item
         android:id="@+id/print"
-        android:title="Print"
+        android:title="Print Pdf"
         android:icon="@drawable/ic_print"
-        ></item>
+        />
 
 
 </menu>

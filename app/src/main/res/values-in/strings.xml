@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="select_text_to_apply_effects">Pilih teks untuk menerapkan efek</string>
+    <string name="url_removed">URL dihapus</string>
+    <string name="please_select_text">Silakan pilih Text.</string>
+    <string name="please_save_as_to_keep_effect">Silakan Saveas untuk menjaga efek</string>
+    <string name="file_already_exits">File sudah ada</string>
+    <string name="file_saved_as_note">File disimpan sebagai catatan</string>
+    <string name="write_something">Tulis sesuatu sebelum sejajar</string>
+    <string name="heading_applied_current">Heading diterapkan ke baris saat ini</string>
+    <string name="prev" >Sebelumnya</string>
+    <string name="next" >Selanjutnya</string>
+    <string name="line_number" >Nomor baris.</string>
+    <string name="saved_successfully" >Diselamatkan dengan sukses</string>
+    <string name="greet_line" >Halo!</string>
+    <string name="file_doesnot_saved" >File tidak disimpan</string>
+    <string name="file_havenot_permission_to_write" >Tidak memiliki izin yang valid untuk menulis</string>
+    <string name="search_and_replace" >Cari dan ganti</string>
+    <string name="find" >Menemukan</string>
+    <string name="clear_history" >Sejarah yang jelas</string>
+    <string name="feedback" >Laporkan bug.</string>
+    <string name="reload_file">Reload File.</string>
+    <string name="setting" >Pengaturan</string>
+    <string name="storage_manager" >Manajer Penyimpanan</string>
+    <string name="history" >Sejarah</string>
+    <string name="previous" >Sebelumnya</string>
+    <string name="create_new_file" >Buat File Baru</string>
+    <string name="open_existing_file" >Buka file yang ada</string>
+    <string name="save_as_note" >Simpan sebagai Catatan</string>
+    <string name="action_settings" >Pengaturan</string>
+    <string name="replace_all" >Menggantikan semua</string>
+    <string name="replace" >Mengganti</string>
+    <string name="open" >Membuka</string>
+    <string name="edit" >Edit</string>
+    <string name="new_file" >Baru</string>
+    <string name="save_as" >Simpan sebagai</string>
+    <string name="share" >Membagikan</string>
+    <string name="unsaved_dialog_message" >Apakah Anda ingin menyimpan perubahan Anda?</string>
+    <string name="no_change_found" >Tidak ditemukan perubahan</string>
+    <string name="search_not_found" >Cari tidak ditemukan</string>
+    <string name="cancel" >Membatalkan</string>
+
+</resources>

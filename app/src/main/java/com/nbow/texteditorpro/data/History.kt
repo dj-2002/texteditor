@@ -1,13 +1,11 @@
 
 
-package com.nbow.texteditor.data
-import androidx.annotation.FontRes
+package com.nbow.texteditorpro.data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
 import androidx.room.Index
-import java.lang.StringBuilder
 
 @Entity(indices = [Index(value = ["uriString"], unique = true)] , tableName = "history")
 data class History(

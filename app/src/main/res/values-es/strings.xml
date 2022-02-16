@@ -39,4 +39,8 @@
     <string name="no_change_found" >No se han encontrado cambios</string>
     <string name="search_not_found" >búsqueda no encontrada</string>
     <string name="cancel" >Cancelar</string>
+
+    <string name="please_restart_app">Por favor reinicie la aplicación</string>
+    <string name="please_keep_word_wrap_on">Por favor, mantenga el contenido de envoltura para obtener una mejor calidad de impresión</string>
+    <string name="wrap_content">Resumir contenido</string>
 </resources>

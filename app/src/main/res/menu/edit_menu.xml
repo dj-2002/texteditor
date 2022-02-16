@@ -38,4 +38,11 @@
         android:icon="@drawable/ic_refresh"
         app:showAsAction="never"></item>
 
+
+    <item
+        android:id="@+id/rename"
+        android:title="Rename"
+        android:icon="@drawable/ic_edit"
+        app:showAsAction="never"></item>
+
 </menu>

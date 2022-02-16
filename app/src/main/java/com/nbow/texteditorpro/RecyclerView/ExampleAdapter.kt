@@ -1,4 +1,4 @@
-package com.nbow.texteditor.RecyclerView
+package com.nbow.texteditorpro.RecyclerView
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.nbow.texteditor.R
+import com.nbow.texteditorpro.R
 
 
 class ExampleAdapter(private val mExampleList: ArrayList<ExampleItem>) :

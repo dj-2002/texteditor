@@ -24,7 +24,7 @@
 
     <item
         android:id="@+id/wrap_content"
-        android:title="Wrap Content"
+        android:title="@string/wrap_content"
         android:icon="@drawable/ic_wrap_content"/>
 
     <item

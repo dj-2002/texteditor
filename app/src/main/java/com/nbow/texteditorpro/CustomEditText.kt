@@ -1,22 +1,26 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.widget.EditText
+import android.util.Log
+import android.view.ScaleGestureDetector
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.view.ScaleGestureDetectorCompat
 import androidx.preference.PreferenceManager
 import java.util.*
 
-class CustomEditText : AppCompatEditText {
+private const val TAG = "CustomEditText"
+class CustomEditText : AppCompatEditText  {
 
 
 
     private var lineNumberRect: Rect
     private var lineNumberPaint: Paint
     private var enableLineNumber = false
+    lateinit var scaleGestureDetector: ScaleGestureDetector
 
 
     init {
@@ -26,10 +30,12 @@ class CustomEditText : AppCompatEditText {
         lineNumberPaint.textSize=this.textSize
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         enableLineNumber =  preferences.getBoolean("line_number",false)
+
+
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs){
-
+        scaleGestureDetector = ScaleGestureDetector(context,ScaleListener())
     }
 
     constructor(context: Context) : super(context)
@@ -65,6 +71,34 @@ class CustomEditText : AppCompatEditText {
 
     fun getLineNumberTextSize(): Float {
         return lineNumberPaint.textSize
+    }
+
+
+    inner  class ScaleListener : ScaleGestureDetector.OnScaleGestureListener{
+        override fun onScale(detector: ScaleGestureDetector?): Boolean {
+            Log.e(TAG, "onScale: ", )
+            var mfactor = 1f
+            detector?.apply {
+                mfactor *= detector.scaleFactor
+            }
+            mfactor = Math.max(0.1f,Math.min(mfactor,5.0f))
+
+            val prevSize = this@CustomEditText.textSize
+            this@CustomEditText.textSize = prevSize*mfactor
+            lineNumberPaint.textSize = prevSize*mfactor
+            return true
+        }
+
+        override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+            Log.e(TAG, "onScaleBegin: ", )
+            return true
+        }
+
+        override fun onScaleEnd(detector: ScaleGestureDetector?) {
+            Log.e(TAG, "onScaleEnd: ", )
+
+        }
+
     }
 
 }

@@ -9,7 +9,7 @@
 
 
 
-            <com.nbow.texteditor.CustomEditText
+            <com.nbow.texteditorpro.CustomEditText
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
                 android:minLines="40"
@@ -21,8 +21,8 @@
                 android:background="@android:color/transparent"
                 android:lastBaselineToBottomHeight="25dp"
                 android:textSize="16dp"
-                android:paddingEnd="3dp"
-                android:paddingStart="7dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
 
 
                 />

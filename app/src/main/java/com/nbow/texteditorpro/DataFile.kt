@@ -1,4 +1,4 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import android.net.Uri
 import android.text.Spanned

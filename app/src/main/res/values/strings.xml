@@ -34,7 +34,7 @@
     <string name="font_arial" translatable="false">Arial</string>
     <string name="fonr_georgia" translatable="false">Georgia</string>
     <string name="fonr_normal" translatable="false">Normal</string>
-    <string name="app_name" translatable="false">Text Editor</string>
+    <string name="app_name" translatable="false">Text Editor PRO</string>
     <string name="default_edit_text_data" translatable="false">Default Value</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
@@ -105,6 +105,8 @@
     <string name="search_not_found" >search not found</string>
     <string name="cancel" >Cancel</string>
     <string name="please_restart_app">Please Restart App</string>
+    <string name="please_keep_word_wrap_on">Please keep Wrap Content off to get better print quality</string>
+    <string name="wrap_content">Wrap Content</string>
 
 
     <!-- Preference Titles -->

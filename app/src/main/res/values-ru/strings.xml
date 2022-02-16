@@ -41,5 +41,9 @@
     <string name="search_not_found" >поиск не найден</string>
     <string name="cancel" >Отмена</string>
 
+    <string name="please_restart_app">Пожалуйста, перезапустите приложение</string>
+    <string name="please_keep_word_wrap_on">Пожалуйста, держите контент, чтобы получить лучшее качество печати</string>
+    <string name="wrap_content">Обернуть содержимое</string>
+
 
 </resources>

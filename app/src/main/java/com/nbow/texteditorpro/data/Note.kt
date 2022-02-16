@@ -1,7 +1,6 @@
-package com.nbow.texteditor.data
+package com.nbow.texteditorpro.data
 
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity( tableName = "note")

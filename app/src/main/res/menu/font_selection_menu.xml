@@ -12,5 +12,10 @@
     <item android:title="@string/font_garamond" android:id="@+id/garamond"></item>
     <item android:title="@string/font_courier_new" android:id="@+id/courier"></item>
     <item android:title="@string/font_brush_script_mt" android:id="@+id/brush_script_mt"></item>
+    <item android:title="Festive" android:id="@+id/festive"></item>
+    <item android:title="GreatVibes" android:id="@+id/great_vibes"></item>
+    <item android:title="LoveLight" android:id="@+id/love_light"></item>
+    <item android:title="Ole" android:id="@+id/ole"></item>
+    <item android:title="Sacramento" android:id="@+id/sacramento"></item>
 
 </menu>

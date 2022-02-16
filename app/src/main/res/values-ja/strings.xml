@@ -42,4 +42,9 @@
     <string name="search_not_found" >検索が見つかりません</string>
     <string name="cancel" >キャンセル</string>
 
+
+    <string name="please_restart_app">アプリを再起動してください</string>
+    <string name="please_keep_word_wrap_on">印刷品質を良くするために、コンテンツを折り返してください。</string>
+    <string name="wrap_content">コンテンツを折り返す</string>
+
 </resources>

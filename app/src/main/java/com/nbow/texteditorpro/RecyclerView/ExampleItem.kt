@@ -1,6 +1,4 @@
-package com.nbow.texteditor.RecyclerView
-
-import java.io.File
+package com.nbow.texteditorpro.RecyclerView
 
 data class ExampleItem(
 

@@ -17,7 +17,7 @@
             android:scrollbars="none"
             android:paddingEnd="3dp"
             android:layout_height="match_parent">
-        <com.nbow.texteditor.CustomEditText
+        <com.nbow.texteditorpro.CustomEditText
             android:id="@+id/editText"
             android:layout_width="match_parent"
             android:minWidth="350dp"
@@ -28,13 +28,11 @@
             android:inputType="textNoSuggestions|textMultiLine"
             android:singleLine="false"
             android:gravity="start"
-            android:layout_marginStart="7dp"
+            android:layout_marginStart="10dp"
             android:background="@android:color/transparent"
             android:lastBaselineToBottomHeight="50dp"
             android:textSize="16dp"
-            android:paddingStart="3dp"
-            android:paddingEnd="7dp"
-
+            android:layout_marginEnd="5dp"
         />
         </HorizontalScrollView>
 

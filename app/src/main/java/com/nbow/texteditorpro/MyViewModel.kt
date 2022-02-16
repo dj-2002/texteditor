@@ -1,25 +1,24 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
-import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.Spanned
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
-import com.nbow.texteditor.data.*
+import com.nbow.texteditorpro.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.*
 import java.lang.StringBuilder
 import java.util.*
 
 class MyViewModel(application: Application) : AndroidViewModel(application) {
+    var open = 1;
     private val fragmentList = MutableLiveData<MutableList<Fragment>>(arrayListOf())
     public var noteList:MutableList<Note>  = arrayListOf()
     private val repository : Repository = Repository(application)
@@ -175,6 +174,32 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
             }
 
         }
+    }
+
+     fun renameNoteFile(context: Context,name:String,editorFragment:EditorFragment)
+    {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val dir = File(context.filesDir, "note")
+            if (!dir.exists())
+                dir.mkdir()
+            val file = File(dir, name)
+            if (!file.exists()) file.createNewFile()
+
+            val note= Note(name,editorFragment.fontFamily,editorFragment.getTextSize(context))
+            val job = async {  repository.saveNote(note) }
+            job.join()
+            updateNoteList()
+
+            file.bufferedWriter().use {
+                it.write("${Utils.spannableToHtml(editorFragment.getEditable()?: SpannableStringBuilder(""))}")
+            }
+
+            val fileToDelete = File(dir,editorFragment.getFileName())
+            if(fileToDelete.exists())
+                fileToDelete.delete()
+        }
+
     }
 
     fun getNoteByName(name:String): Note? {

@@ -18,7 +18,7 @@
             android:scrollbars="none"
             android:paddingEnd="3dp"
             android:layout_height="match_parent">
-            <com.nbow.texteditor.CustomEditText
+            <com.nbow.texteditorpro.CustomEditText
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
                 android:minWidth="350dp"
@@ -33,9 +33,8 @@
                 android:background="@android:color/transparent"
                 android:lastBaselineToBottomHeight="25dp"
                 android:textSize="16dp"
-                android:paddingEnd="7dp"
-                android:paddingStart="3dp"
-
+                android:layout_marginLeft="5dp"
+                android:layout_marginEnd="5dp"
 
                 />
         </HorizontalScrollView>

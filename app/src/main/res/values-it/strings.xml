@@ -41,5 +41,9 @@
     <string name="search_not_found" >ricerca non trovata</string>
     <string name="cancel" >Annulla</string>
 
+    <string name="please_restart_app">Si prega di riavviare l\'App.</string>
+    <string name="please_keep_word_wrap_on">Si prega di tenere il contenuto di avvolgere per ottenere una migliore qualità di stampa</string>
+    <string name="wrap_content">Avvolgere il contenuto</string>
+
 
 </resources>

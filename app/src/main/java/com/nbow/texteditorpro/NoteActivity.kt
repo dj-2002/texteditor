@@ -1,4 +1,4 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,8 +9,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.nbow.texteditor.RecyclerView.ExampleAdapter
-import com.nbow.texteditor.RecyclerView.ExampleItem
+import com.nbow.texteditorpro.RecyclerView.ExampleAdapter
+import com.nbow.texteditorpro.RecyclerView.ExampleItem
 import java.io.File
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -50,8 +50,6 @@ class NoteActivity : AppCompatActivity() {
                     Date(f.lastModified())
                 ).toString(), fileSize))
             }
-
-
             mAdapter.notifyDataSetChanged()
         }
     }

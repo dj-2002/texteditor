@@ -40,4 +40,9 @@
     <string name="search_not_found" >Cari tidak ditemukan</string>
     <string name="cancel" >Membatalkan</string>
 
+    <string name="please_restart_app">Silakan restart aplikasi</string>
+    <string name="please_keep_word_wrap_on">Harap terus bungkus konten untuk mendapatkan kualitas cetak yang lebih baik</string>
+    <string name="wrap_content">Bungkus konten</string>
+
+
 </resources>

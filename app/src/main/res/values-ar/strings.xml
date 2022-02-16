@@ -39,5 +39,8 @@
     <string name="no_change_found" >لم يتم العثور على تغييرات</string>
     <string name="search_not_found" >البحث غير موجود</string>
     <string name="cancel" >يلغي</string>
+    <string name="please_restart_app">يرجى إعادة تشغيل التطبيق</string>
+<string name="please_keep_word_wrap_on">يرجى الاحتفاظ بلف المحتوى لإيقاف جودة طباعة أفضل</string>
+<string name="wrap_content">لف المحتوى</string>
 
 </resources>

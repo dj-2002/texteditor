@@ -1,4 +1,4 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

@@ -41,4 +41,8 @@
     <string name="search_not_found" >αναζήτηση δεν βρέθηκε</string>
     <string name="cancel" >Ματαίωση</string>
 
+    <string name="please_restart_app">Παρακαλούμε επανεκκινήστε την εφαρμογή</string>
+    <string name="please_keep_word_wrap_on">Παρακαλείσθε να διατηρήσετε το περιεχόμενο περιτύλιξης για να αποκτήσετε καλύτερη ποιότητα εκτύπωσης</string>
+    <string name="wrap_content">Περιτύλιγμα περιεχομένου</string>
+
 </resources>

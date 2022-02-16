@@ -1,4 +1,4 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import android.app.Application
 import android.content.Context
@@ -12,7 +12,6 @@ import android.text.style.*
 import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import java.io.IOException
 import java.io.StringReader
 import java.lang.RuntimeException

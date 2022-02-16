@@ -41,4 +41,8 @@
     <string name="search_not_found" >검색 할 수 없습니다</string>
     <string name="cancel" >취소</string>
 
+    <string name="please_restart_app">앱을 다시 시작하십시오</string>
+    <string name="please_keep_word_wrap_on">더 나은 인쇄 품질을 얻기 위해 내용을 랩으로 유지하십시오.</string>
+    <string name="wrap_content">랩 콘텐츠</string>
+
 </resources>

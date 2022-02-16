@@ -40,4 +40,8 @@
     <string name="search_not_found" >શોધ મળી નથી</string>
     <string name="cancel" >રદ કરવું</string>
 
+    <string name="please_restart_app">કૃપા કરીને એપ્લિકેશનને ફરીથી પ્રારંભ કરો</string>
+    <string name="please_keep_word_wrap_on">બહેતર પ્રિંટ ગુણવત્તા મેળવવા માટે કૃપા કરીને લપેટી સામગ્રીને બંધ રાખો</string>
+    <string name="wrap_content">લપેટી સામગ્રી</string>
+
 </resources>

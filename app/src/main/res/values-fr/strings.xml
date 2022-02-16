@@ -40,5 +40,8 @@
     <string name="no_change_found" >Aucun changement trouvé</string>
     <string name="search_not_found" >recherche introuvable</string>
     <string name="cancel" >Annuler</string>
+    <string name="please_restart_app">please restart app</string>
+    <string name="please_keep_word_wrap_on">please keep wrap content off to get better print</string>
+    <string name="wrap_content">wrap content</string>
 
 </resources>

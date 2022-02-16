@@ -1,4 +1,4 @@
-package com.nbow.texteditor.data
+package com.nbow.texteditorpro.data
 
 
 import androidx.room.*

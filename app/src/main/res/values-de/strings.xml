@@ -40,5 +40,10 @@
     <string name="search_not_found" >Suche nicht gefunden</string>
     <string name="cancel" >Abbrechen</string>
 
+    <string name="please_restart_app">Bitte starten Sie die App</string>
+<string name="please_keep_word_wrap_on">Bitte halten Sie den Inhalt der Inhalte auf, um eine bessere Druckqualität zu erhalten</string>
+<string name="wrap_content">Inhalte wickeln</string>
+
+
 
 </resources>

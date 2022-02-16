@@ -1,4 +1,4 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import android.content.ContentValues.TAG
 import android.widget.TextView

@@ -1,7 +1,6 @@
-package com.nbow.texteditor
+package com.nbow.texteditorpro
 
 import android.app.Activity
-import android.app.Dialog
 import android.content.*
 import android.content.ClipboardManager
 import android.net.Uri
@@ -30,7 +29,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.android.play.core.review.testing.FakeReviewManager
-import com.nbow.texteditor.databinding.ActivityMainBinding
+import com.nbow.texteditorpro.databinding.ActivityMainBinding
 import java.io.*
 import java.net.URLConnection
 import java.util.*
@@ -39,21 +38,20 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.print.PrintAttributes
 import android.print.PrintManager
+import android.provider.DocumentsContract
+import android.provider.Settings
 import android.text.*
 import android.text.style.*
-import android.util.DisplayMetrics
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.core.content.res.ResourcesCompat
 import top.defaults.colorpicker.ColorPickerPopup
 
 import android.view.LayoutInflater
 import androidx.core.content.FileProvider
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.*
-import android.webkit.WebSettings
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.nbow.texteditor.data.Note
+import com.nbow.texteditorpro.data.Note
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -97,7 +95,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var progressBar: ProgressBar
     lateinit var constraintLayout: ConstraintLayout
     private var mWebView: WebView? = null
-    private lateinit var analytics :FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,9 +103,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding = ActivityMainBinding.inflate(layoutInflater)
        // analytics = FirebaseAnalytics.getInstance(this)
-
-
-
         setContentView(binding.root)
         init()
         if(savedInstanceState==null)
@@ -404,7 +398,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 MyViewModel::class.java
             )
         helper  = Utils(this)
-        if (!helper.isStoragePermissionGranted()) helper.takePermission()
+        if (!helper.isStoragePermissionGranted()) helper.takePermission(applicationContext)
 
         toolbar = findViewById(R.id.toolbar)
         adapter = FragmentAdapter(fragmentManager = supportFragmentManager, lifecycle = lifecycle)
@@ -436,7 +430,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
         val v2:View = binding.noTabLayout.cl2
         v2.setOnClickListener({
-            if (!helper.isStoragePermissionGranted()) helper.takePermission()
+            if (!helper.isStoragePermissionGranted()) helper.takePermission(applicationContext)
 
             if (helper.isStoragePermissionGranted()) chooseFile()
 
@@ -632,7 +626,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 setCustomTabLayout(binding.tabLayout.tabCount-1, "*${fragment.getFileName()}")
             }else setCustomTabLayout(binding.tabLayout.tabCount-1, fragment.getFileName())
         }
+
+
     }
+
+
     private fun showUnsavedDialog(currentFragment: EditorFragment) {
         val builder = AlertDialog.Builder(this)
 
@@ -745,6 +743,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     Log.e(TAG, "$fileName: ")
                     if(fileName!=null)
                     createFragmentFromNote(fileName)
+
                 }
             }
         }
@@ -805,7 +804,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
             R.id.nav_storage_manager -> {
-                if (!helper.isStoragePermissionGranted()) helper.takePermission()
+                if (!helper.isStoragePermissionGranted()) helper.takePermission(applicationContext)
 
                 if (helper.isStoragePermissionGranted()) chooseFile()
             }
@@ -816,6 +815,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Log.e(TAG, "onNavigationItemSelected: clicked")
                 val intent = Intent(this@MainActivity, NoteActivity::class.java)
                 noteActivityLauncher.launch(intent)
+
             }
 
         }
@@ -827,7 +827,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     {
         var menuItem  = popup.menu.findItem(res)
         val ss = SpannableStringBuilder(title)
-        val typeface = getTypefaceFromName(title)
+        val typeface = Utils.getTypefaceFromName(applicationContext,title)
         ss.setSpan(CustomTypefaceSpan(typeface,title),0,ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         menuItem.title= SpannableString(ss)
     }
@@ -839,38 +839,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ss.setSpan(RelativeSizeSpan(size),0,ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         menuItem.title= SpannableString(ss)
     }
-    fun getTypefaceFromName(s:String): Typeface {
-        if(s==Utils.garamond)
-            return Typeface.createFromAsset(applicationContext.assets,"garamond_regular.ttf")
-        else if(s==Utils.tahoma)
-            return Typeface.createFromAsset(application.assets,"tahoma.ttf")
-        else if(s==Utils.brushscript)
-            return Typeface.createFromAsset(applicationContext.assets,"brush_script_mt_kursiv.ttf")
-        else if(s==Utils.trebuchet)
-            return Typeface.createFromAsset(applicationContext.assets,"trebuc.ttf")
-        else if(s==Utils.timesnew)
-            return Typeface.createFromAsset(applicationContext.assets,"times_new_roman.ttf")
-        else if(s==Utils.courier)
-            return Typeface.createFromAsset(applicationContext.assets,"cour.ttf")
-        else if(s==Utils.helvetica)
-            return Typeface.createFromAsset(applicationContext.assets,"helvetica.ttf")
-        else if(s==Utils.georgia)
-            return Typeface.createFromAsset(applicationContext.assets,"georgia.ttf")
-        else if(s==Utils.arial)
-            return Typeface.createFromAsset(applicationContext.assets,"arial.ttf")
-        else if(s==Utils.verdana)
-            return Typeface.createFromAsset(applicationContext.assets,"verdana.ttf")
 
-
-        return  Typeface.DEFAULT
-
-    }
 
     private fun showFontSelectionPopUp() {
         //val view = findViewById<View>(item.itemId)
-
         var view = binding.textEditorBottam.textFont as View
-
         val courier = "Courier New"
         val helvetica = "Helvetica"
         val georgia = "Georgia"
@@ -881,10 +854,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val verdana = "Verdana"
         val brushscript = "Brush Script MT"
         val trebuchet = "Trebuchet MS"
-
-
-
-
         val popup = android.widget.PopupMenu(applicationContext,view)
         popup.inflate(R.menu.font_selection_menu)
         initFontPopUpMenu(popup,R.id.courier,"Courier New")
@@ -897,8 +866,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initFontPopUpMenu(popup,R.id.verdana,"Verdana")
         initFontPopUpMenu(popup,R.id.brush_script_mt,"Brush Script MT")
         initFontPopUpMenu(popup,R.id.trebuchet_ms,"Trebuchet MS")
-
-
+        initFontPopUpMenu(popup,R.id.festive,Utils.festive)
+        initFontPopUpMenu(popup,R.id.great_vibes,Utils.greatvibes)
+        initFontPopUpMenu(popup,R.id.love_light,Utils.lovelight)
+        initFontPopUpMenu(popup,R.id.ole,Utils.ole)
+        initFontPopUpMenu(popup,R.id.sacramento,Utils.sacramento)
         popup.setOnMenuItemClickListener { item ->
            if(isValidTab()) {
                val currentFragment =
@@ -977,6 +949,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                        else
                            currentFragment.applyFontEdittext(trebuchet)
                    }
+                   R.id.festive -> {
+                       if ( !currentFragment.isSelected())
+                           currentFragment.settingFont(Utils.festive)
+                       else
+                           currentFragment.applyFontEdittext(Utils.festive)
+                   }
+                   R.id.great_vibes -> {
+                   if ( !currentFragment.isSelected())
+                       currentFragment.settingFont(Utils.greatvibes)
+                   else
+                       currentFragment.applyFontEdittext(Utils.greatvibes)
+               }
+                   R.id.love_light -> {
+                   if ( !currentFragment.isSelected())
+                       currentFragment.settingFont(Utils.lovelight)
+                   else
+                       currentFragment.applyFontEdittext(Utils.lovelight)
+               }
+                   R.id.ole -> {
+                   if ( !currentFragment.isSelected())
+                       currentFragment.settingFont(Utils.ole)
+                   else
+                       currentFragment.applyFontEdittext(Utils.ole)
+               }
+                   R.id.sacramento -> {
+                   if ( !currentFragment.isSelected())
+                       currentFragment.settingFont(Utils.sacramento)
+                   else
+                       currentFragment.applyFontEdittext(Utils.sacramento)
+               }
+
+
                }
            }
             false
@@ -1114,13 +1118,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if(adapter.fragmentList!=null)
                 createTabsInTabLayout(adapter.fragmentList)
 
+                var count = 0;
                 for ( frag in model.getFragmentList().value!!) {
                     val fragment = frag as EditorFragment
-//                    fragment.hasUnsavedChanges.observe(this@MainActivity) {
-//                        if (it) {
-//                            setCustomTabLayout(count, "*${fragment.getFileName()}")
-//                        }else setCustomTabLayout(count, fragment.getFileName())
-//                    }
+                    fragment.hasUnsavedChanges.observe(this@MainActivity) {
+                        if (it) {
+                            setCustomTabLayout(count, "*${fragment.getFileName()}")
+                        }else setCustomTabLayout(count, fragment.getFileName())
+                    }
 
                     fragment.hasLongPress.observe(this@MainActivity) {
                         if (it) {
@@ -1135,6 +1140,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             fragment.cursorChanged.value = false
                         }
                     }
+                    count++;
                 }
 
 //                if (binding.tabLayout.tabCount == 0 && adapter.fragmentList.size==0) {
@@ -1265,7 +1271,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.edit -> showPopupMenu(item, R.menu.edit_menu)
             R.id.overflow_menu -> showPopupMenu(item, R.menu.overflow_menu)
         }
-
         return super.onOptionsItemSelected(item)
     }
     private fun showPopupMenu(menuItem: MenuItem, menuResourceId: Int) {
@@ -1289,7 +1294,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 R.id.open -> {
 
-                    if (!helper.isStoragePermissionGranted()) helper.takePermission()
+                    if (!helper.isStoragePermissionGranted()) helper.takePermission(applicationContext)
 
                     if (helper.isStoragePermissionGranted()) chooseFile()
 //                    Log.e(TAG, "showPopupMenu: open called")
@@ -1403,11 +1408,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (currentFragment != null)
                         currentFragment.invalidateEditText()
                 }
+                R.id.rename -> {
+
+
+                    if(currentFragment != null)
+                    {
+                        if(isValidTab())
+                        openRenameDialog(currentFragment)
+                    }
+
+                }
 
                 R.id.print->{
                     if (currentFragment != null) {
                         doWebViewPrint(currentFragment)
+                        if(model.isWrap==true)
+                        Toast.makeText(applicationContext, applicationContext.getString(R.string.please_keep_word_wrap_on), Toast.LENGTH_SHORT).show()
                     }
+
 
                 }
 
@@ -1426,6 +1444,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     editor.putBoolean("line_number", !model.isLineNumber)
                     editor.apply()
                     onResume()
+
                 }
 
 
@@ -1531,8 +1550,89 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         popup.show()
     }
 
+    private fun openRenameDialog(currentFragment: EditorFragment) {
 
 
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Enter File Name")
+        builder.setIcon(R.drawable.ic_search)
+        val view = LayoutInflater.from(this).inflate(R.layout.file_name_input_dialog, null, false)
+        val editText = view.findViewById<EditText>(R.id.file_name)
+        editText.setText("untitled"+currentFragment.getFileExtension())
+        builder.setView(view)
+        builder.setPositiveButton("OK") { dialogInterface, which ->
+            run {
+                try {
+                    findText = editText.text.toString()
+                    if(currentFragment.isNote()==false) {
+                        if (Build.VERSION.SDK_INT >= 21) {
+                            currentFragment.getUri()?.let {
+                                DocumentsContract.renameDocument(
+                                    contentResolver,
+                                    it, findText
+                                )
+                            }
+                            Toast.makeText(
+                                applicationContext,
+                                "File Name Changed Successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            setCustomTabLayout(binding.tabLayout.selectedTabPosition,findText)
+                            currentFragment.changeFilename(findText)
+                        }
+                    }
+                    else
+                    {
+
+                       model.renameNoteFile(applicationContext,findText,currentFragment)
+                        Toast.makeText(
+                            applicationContext,
+                            "File Name Changed Successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        setCustomTabLayout(binding.tabLayout.selectedTabPosition,findText)
+                        currentFragment.changeFilename(findText)
+
+                    }
+                }
+                catch (e:Exception)
+                {
+                    Toast.makeText(applicationContext, "Something Went Wrong", Toast.LENGTH_SHORT).show()
+                }
+                dialogInterface.dismiss()
+            }
+        }
+        //performing cancel action
+        builder.setNeutralButton("Cancel") { dialogInterface, which ->
+            //Toast.makeText(applicationContext, "operation cancel", Toast.LENGTH_LONG).show()
+            dialogInterface.dismiss()
+        }
+
+        // Create the AlertDialog
+        val alertDialog: AlertDialog = builder.create()
+        // Set other dialog properties
+        alertDialog.setCancelable(true)
+        alertDialog.show()
+        if (TextUtils.isEmpty(editText.text)) {
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+        }
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !TextUtils.isEmpty(s)
+            }
+        })
+
+
+
+    }
 
 
     private fun reloadFile(currentFragment: EditorFragment) {
@@ -1758,23 +1858,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
     private fun createTabsInTabLayout(list: MutableList<Fragment>) {
-//        Log.e(TAG, "createTabsInTabLayout: called "+list.size)
         binding.tabLayout.removeAllTabs()
 
         if (binding.tabLayout.tabCount == 0) {
 
-//                Log.e(TAG, "createTabsInTabLayout: $it")
             binding.tabLayout.apply {
                 list.forEach {
-                    //                  Log.e(TAG, "createTabsInTabLayout: tab count inside apply $tabCount")
                     val frag = it as EditorFragment
                     addTab(newTab())
-                    //setCustomTabLayout(tabCount - 1, frag.getFileName())
                     setCustomTabLayout(tabCount-1, "*${frag.getFileName()}")
-
                 }
-
-                binding.pager2.currentItem = selectedTabPosition
             }
 
         }
@@ -1782,6 +1875,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             binding.pager2.setCurrentItem(model.currentTab)
         }
         adapter.notifyDataSetChanged()
+
+//        TabLayoutMediator(binding.tabLayout,binding.pager2){
+//            tab , position ->
+//            tab.text = list[position].getFileName()
+//        }.attach()
     }
     private fun setCustomTabLayout(position: Int, fileName: String) {
         binding.tabLayout.apply {
@@ -1806,7 +1904,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (isValidTab()) {
                         val fragment =
                             adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
-                        saveFile(fragment, uri, isSaveAs = true)
+                        saveAsFile(fragment, uri,true)
+                    }
+                }
+            }
+        }
+    val saveAsSystemPickerLauncherTxt =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent: Intent? = result.data
+                val uri: Uri? = intent?.data
+                if (uri != null) {
+//                    Log.e(TAG, "save as sytem picker: uri -> $uri")
+                    if (isValidTab()) {
+                        val fragment =
+                            adapter.fragmentList.get(binding.tabLayout.selectedTabPosition) as EditorFragment
+                        saveAsFile(fragment, uri,false)
                     }
                 }
             }
@@ -1822,10 +1935,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun saveFile(
         fragment: EditorFragment,
         uri: Uri?,
-        isSaveAs: Boolean = false,
         isCloseFlag: Boolean = false,
         isHtml:Boolean = true
     ) {
+
+
 
         Log.e(TAG, "saveFile: isNote ${fragment.isNote()}")
 
@@ -1833,8 +1947,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             Log.e(TAG, "saveFile: saving external file" )
             try {
-                val takeFlags: Int =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                val takeFlags: Int = Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                     applicationContext.contentResolver.takePersistableUriPermission(uri!!, takeFlags)
                 contentResolver.openFileDescriptor(uri!!, "wt")?.use {
@@ -1852,9 +1965,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             Toast.makeText(applicationContext, application.getString(R.string.please_save_as_to_keep_effect), Toast.LENGTH_SHORT).show()
                         }
 
-
-//                        Toast.makeText(applicationContext, "File Saved", Toast.LENGTH_SHORT).show()
-
                             showProgressBarDialog("Saved Successfully", isCloseFlag)
                         if(!isHtml)
                             Toast.makeText(applicationContext, application.getString(R.string.please_save_as_to_keep_effect), Toast.LENGTH_SHORT).show()
@@ -1871,7 +1981,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Log.e(TAG, " io exception saveFile: ${e.message}")
 
             } catch (e: SecurityException) {
-                showSecureSaveAsDialog(fragment)
+
+              saveAsFile(fragment,uri,isHtml)
+
             } catch (e: Exception) {
                 Toast.makeText(applicationContext, application.getString(R.string.file_doesnot_saved), Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
@@ -1916,14 +2028,105 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         {
             saveAsDialog(".txt")
         }
-        if(!isSaveAs)
-            fragment.hasUnsavedChanges.value = false
         if (isValidTab()) setCustomTabLayout(
             binding.tabLayout.selectedTabPosition,
             fragment.getFileName()
         )
 
     }
+
+    private fun saveAsFile(fragment: EditorFragment,uri: Uri?,isHtml: Boolean=true)
+    {
+
+        Log.e(TAG, "saveFile: isNote ${fragment.isNote()}")
+
+        if (uri != null) {
+
+            Log.e(TAG, "saveFile: saving external file" )
+            try {
+                val takeFlags: Int = Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                    applicationContext.contentResolver.takePersistableUriPermission(uri!!, takeFlags)
+                contentResolver.openFileDescriptor(uri!!, "wt")?.use {
+                    FileOutputStream(it.fileDescriptor).use {
+                        if(isHtml)
+                        {
+                            it.write(
+                                fragment.getEditable()?.let { it1 -> Utils.spannableToHtml(it1).toByteArray() }
+                            )
+                        }
+                        else {
+                            it.write(
+                                fragment.getEditTextData().toString().toByteArray()
+                            )
+                            //Toast.makeText(applicationContext, application.getString(R.string.please_save_as_to_keep_effect), Toast.LENGTH_SHORT).show()
+                        }
+
+                        showProgressBarDialog("Saved Successfully", false)
+                        if(!isHtml)
+                            Toast.makeText(applicationContext, application.getString(R.string.please_save_as_to_keep_effect), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: FileNotFoundException) {
+                Toast.makeText(applicationContext, application.getString(R.string.file_doesnot_saved), Toast.LENGTH_SHORT).show()
+                Log.e(TAG, " file not found saveFile: ${e.message}")
+                e.printStackTrace()
+
+            } catch (e: IOException) {
+                Toast.makeText(applicationContext, application.getString(R.string.file_doesnot_saved), Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+                Log.e(TAG, " io exception saveFile: ${e.message}")
+
+            } catch (e: SecurityException) {
+
+                Toast.makeText(applicationContext, "Permission Denied", Toast.LENGTH_SHORT).show()
+
+            } catch (e: Exception) {
+                Toast.makeText(applicationContext, application.getString(R.string.file_doesnot_saved), Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+                Log.e(TAG, "saveFile unknown exception: ${e.message}")
+
+            }
+        }
+        else if(fragment.isNote()) {
+
+            Log.e(TAG, "saveFile: in Note saving " )
+            try {
+                val uniqueFileName = fragment.getFileName()
+                val dir = File(applicationContext.filesDir, "note")
+                if (!dir.exists())
+                    dir.mkdir()
+                var file = File(dir, uniqueFileName)
+                if (!file.exists()) {
+                    createNewNoteFile(uniqueFileName, fragment)
+                    //file.createNewFile()
+                } else {
+                    file.bufferedWriter().use {
+                        it.write(
+                            Utils.spannableToHtml(
+                                fragment.getEditable() ?: SpannableStringBuilder(
+                                    ""
+                                )
+                            )
+                        )
+                    }
+                    model.addNote(Note(fragment.getFileName(),fragment.fontFamily,fragment.getTextSize(applicationContext)))
+                    model.updateNoteList()
+                    Toast.makeText(applicationContext, application.getString(R.string.saved_successfully), Toast.LENGTH_SHORT).show()
+                }
+
+            }
+            catch(e:Exception)
+            {
+                Log.e(TAG, "saveFile: ${e.message}")
+            }
+        }
+
+
+    }
+
+
+
     private fun askForUrl(fragment: EditorFragment) {
         val builder = AlertDialog.Builder(this)
 
@@ -2136,14 +2339,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     type = "text/*" //TODO :
                     putExtra(Intent.EXTRA_TITLE, "untitled${fileExtension}")
                 }
-                saveAsSystemPickerLauncher.launch(intent)
+                if(fileExtension==".txt")
+                    saveAsSystemPickerLauncherTxt.launch(intent)
+                else
+                    saveAsSystemPickerLauncher.launch(intent)
             } else {
                 val intent: Intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = "text/*"
                     putExtra(Intent.EXTRA_TITLE, "untitled${fileExtension}")
                 }
-                saveAsSystemPickerLauncher.launch(intent)
+                if(fileExtension==".txt")
+                    saveAsSystemPickerLauncherTxt.launch(intent)
+                else
+                    saveAsSystemPickerLauncher.launch(intent)
             }
 
         }

@@ -1,0 +1,1146 @@
+Index: app/src/main/java/com/nbow/texteditor/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/MainActivity.kt b/app/src/main/java/com/nbow/texteditorpro/MainActivity.kt
+rename from app/src/main/java/com/nbow/texteditor/MainActivity.kt
+rename to app/src/main/java/com/nbow/texteditorpro/MainActivity.kt
+--- a/app/src/main/java/com/nbow/texteditor/MainActivity.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/MainActivity.kt	(date 1645245335890)
+@@ -1,7 +1,6 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.app.Activity
+-import android.app.Dialog
+ import android.content.*
+ import android.content.ClipboardManager
+ import android.net.Uri
+@@ -30,7 +29,7 @@
+ import com.google.android.play.core.review.ReviewManager
+ import com.google.android.play.core.review.ReviewManagerFactory
+ import com.google.android.play.core.review.testing.FakeReviewManager
+-import com.nbow.texteditor.databinding.ActivityMainBinding
++import com.nbow.texteditorpro.databinding.ActivityMainBinding
+ import java.io.*
+ import java.net.URLConnection
+ import java.util.*
+@@ -41,19 +40,15 @@
+ import android.print.PrintManager
+ import android.text.*
+ import android.text.style.*
+-import android.util.DisplayMetrics
+ import android.webkit.WebResourceRequest
+ import android.webkit.WebView
+ import android.webkit.WebViewClient
+-import androidx.core.content.res.ResourcesCompat
+ import top.defaults.colorpicker.ColorPickerPopup
+ 
+ import android.view.LayoutInflater
+ import androidx.core.content.FileProvider
+ import kotlinx.coroutines.*
+-import android.webkit.WebSettings
+-import com.google.firebase.analytics.FirebaseAnalytics
+-import com.nbow.texteditor.data.Note
++import com.nbow.texteditorpro.data.Note
+ 
+ 
+ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+@@ -97,7 +92,6 @@
+     lateinit var progressBar: ProgressBar
+     lateinit var constraintLayout: ConstraintLayout
+     private var mWebView: WebView? = null
+-    private lateinit var analytics :FirebaseAnalytics
+ 
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+@@ -106,9 +100,6 @@
+ 
+         binding = ActivityMainBinding.inflate(layoutInflater)
+        // analytics = FirebaseAnalytics.getInstance(this)
+-
+-
+-
+         setContentView(binding.root)
+         init()
+         if(savedInstanceState==null)
+@@ -632,7 +623,11 @@
+                 setCustomTabLayout(binding.tabLayout.tabCount-1, "*${fragment.getFileName()}")
+             }else setCustomTabLayout(binding.tabLayout.tabCount-1, fragment.getFileName())
+         }
++
++
+     }
++
++
+     private fun showUnsavedDialog(currentFragment: EditorFragment) {
+         val builder = AlertDialog.Builder(this)
+ 
+@@ -745,6 +740,7 @@
+                     Log.e(TAG, "$fileName: ")
+                     if(fileName!=null)
+                     createFragmentFromNote(fileName)
++
+                 }
+             }
+         }
+@@ -816,6 +812,7 @@
+                 Log.e(TAG, "onNavigationItemSelected: clicked")
+                 val intent = Intent(this@MainActivity, NoteActivity::class.java)
+                 noteActivityLauncher.launch(intent)
++
+             }
+ 
+         }
+@@ -1116,11 +1113,11 @@
+ 
+                 for ( frag in model.getFragmentList().value!!) {
+                     val fragment = frag as EditorFragment
+-//                    fragment.hasUnsavedChanges.observe(this@MainActivity) {
+-//                        if (it) {
+-//                            setCustomTabLayout(count, "*${fragment.getFileName()}")
+-//                        }else setCustomTabLayout(count, fragment.getFileName())
+-//                    }
++                    fragment.hasUnsavedChanges.observe(this@MainActivity) {
++                        if (it) {
++                            setCustomTabLayout(count, "*${fragment.getFileName()}")
++                        }else setCustomTabLayout(count, fragment.getFileName())
++                    }
+ 
+                     fragment.hasLongPress.observe(this@MainActivity) {
+                         if (it) {
+@@ -1407,7 +1404,10 @@
+                 R.id.print->{
+                     if (currentFragment != null) {
+                         doWebViewPrint(currentFragment)
++                        if(model.isWrap==true)
++                        Toast.makeText(applicationContext, applicationContext.getString(R.string.please_keep_word_wrap_on), Toast.LENGTH_SHORT).show()
+                     }
++
+ 
+                 }
+ 
+@@ -1426,6 +1426,7 @@
+                     editor.putBoolean("line_number", !model.isLineNumber)
+                     editor.apply()
+                     onResume()
++
+                 }
+ 
+ 
+@@ -1773,7 +1774,6 @@
+                     setCustomTabLayout(tabCount-1, "*${frag.getFileName()}")
+ 
+                 }
+-
+                 binding.pager2.currentItem = selectedTabPosition
+             }
+ 
+Index: app/google-services.json
+===================================================================
+diff --git a/app/google-services.json b/app/google-services.json
+deleted file mode 100644
+--- a/app/google-services.json	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ /dev/null	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
+@@ -1,39 +0,0 @@
+-{
+-  "project_info": {
+-    "project_number": "492453782040",
+-    "project_id": "text-editor-e37f4",
+-    "storage_bucket": "text-editor-e37f4.appspot.com"
+-  },
+-  "client": [
+-    {
+-      "client_info": {
+-        "mobilesdk_app_id": "1:492453782040:android:9d72081afabc554c23596d",
+-        "android_client_info": {
+-          "package_name": "com.nbow.texteditor"
+-        }
+-      },
+-      "oauth_client": [
+-        {
+-          "client_id": "492453782040-2hb40odk610ntjbnip9f126gcghh77rl.apps.googleusercontent.com",
+-          "client_type": 3
+-        }
+-      ],
+-      "api_key": [
+-        {
+-          "current_key": "AIzaSyB7WVEc96ggDOCFopD_9GrM-TyRjSYhWLI"
+-        }
+-      ],
+-      "services": {
+-        "appinvite_service": {
+-          "other_platform_oauth_client": [
+-            {
+-              "client_id": "492453782040-2hb40odk610ntjbnip9f126gcghh77rl.apps.googleusercontent.com",
+-              "client_type": 3
+-            }
+-          ]
+-        }
+-      }
+-    }
+-  ],
+-  "configuration_version": "1"
+-}
+\ No newline at end of file
+Index: app/src/main/res/values-gu/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n    <string name=\"select_text_to_apply_effects\">પ્રભાવો લાગુ કરવા માટે ટેક્સ્ટ પસંદ કરો</string>\r\n    <string name=\"url_removed\">URL દૂર કર્યું</string>\r\n    <string name=\"please_select_text\">કૃપા કરીને ટેક્સ્ટ પસંદ કરો</string>\r\n    <string name=\"please_save_as_to_keep_effect\">કૃપા કરીને ઇફેક્ટ્સ રાખવા માટે સાવચેત રહો</string>\r\n    <string name=\"file_already_exits\">ફાઇલ પહેલેથી અસ્તિત્વમાં છે</string>\r\n    <string name=\"file_saved_as_note\">ફાઇલ નોંધ તરીકે સાચવી</string>\r\n    <string name=\"write_something\">સંરેખિત પહેલાં કંઈક લખો</string>\r\n    <string name=\"heading_applied_current\">શીર્ષક વર્તમાન રેખા પર લાગુ</string>\r\n    <string name=\"prev\" >પૂર્વ</string>\r\n    <string name=\"next\" >આગળ</string>\r\n    <string name=\"line_number\" >રેખા નંબર</string>\r\n    <string name=\"saved_successfully\" >સફળતાપૂર્વક સાચવી</string>\r\n    <string name=\"greet_line\" >નમસ્તે!</string>\r\n    <string name=\"file_doesnot_saved\" >ફાઇલ સંગ્રહિત નથી</string>\r\n    <string name=\"file_havenot_permission_to_write\" >લખવા માટે માન્ય પરવાનગી નથી</string>\r\n    <string name=\"search_and_replace\" >શોધો અને બદલો</string>\r\n    <string name=\"find\" >શોધો</string>\r\n    <string name=\"clear_history\" >સ્પષ્ટ ઇતિહાસ</string>\r\n    <string name=\"feedback\" >બગની જાણ કરો</string>\r\n    <string name=\"reload_file\">ફરીથી લોડ કરો</string>\r\n    <string name=\"setting\" >ગોઠવણીઓ</string>\r\n    <string name=\"storage_manager\" >સંગ્રહ વ્યવસ્થાપક</string>\r\n    <string name=\"history\" >ઇતિહાસ</string>\r\n    <string name=\"previous\" >અગાઉના</string>\r\n    <string name=\"create_new_file\" >નવી ફાઇલ બનાવો</string>\r\n    <string name=\"open_existing_file\" >હાલની ફાઈલ ખોલો</string>\r\n    <string name=\"save_as_note\" >નોંધ તરીકે સાચવો</string>\r\n    <string name=\"action_settings\" >ગોઠવણીઓ</string>\r\n    <string name=\"replace_all\" >બધા બદલો</string>\r\n    <string name=\"replace\" >બદલો</string>\r\n    <string name=\"open\" >ખુલ્લા</string>\r\n    <string name=\"edit\" >ફેરફાર કરવો</string>\r\n    <string name=\"new_file\" >નવું</string>\r\n    <string name=\"save_as\" >તરીકે જમા કરવુ</string>\r\n    <string name=\"share\" >શેર</string>\r\n    <string name=\"unsaved_dialog_message\" >શું તમે તમારા ફેરફારોને સાચવવા માંગો છો?</string>\r\n    <string name=\"no_change_found\" >કોઈ ફેરફારો મળ્યાં નથી</string>\r\n    <string name=\"search_not_found\" >શોધ મળી નથી</string>\r\n    <string name=\"cancel\" >રદ કરવું</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-gu/strings.xml b/app/src/main/res/values-gu/strings.xml
+--- a/app/src/main/res/values-gu/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-gu/strings.xml	(date 1639898380865)
+@@ -40,4 +40,8 @@
+     <string name="search_not_found" >શોધ મળી નથી</string>
+     <string name="cancel" >રદ કરવું</string>
+ 
++    <string name="please_restart_app">કૃપા કરીને એપ્લિકેશનને ફરીથી પ્રારંભ કરો</string>
++    <string name="please_keep_word_wrap_on">બહેતર પ્રિંટ ગુણવત્તા મેળવવા માટે કૃપા કરીને લપેટી સામગ્રીને બંધ રાખો</string>
++    <string name="wrap_content">લપેટી સામગ્રી</string>
++
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/values-fr/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n\r\n    <string name=\"select_text_to_apply_effects\">Sélectionnez le texte pour appliquer des effets</string>\r\n    <string name=\"url_removed\">URL supprimé</string>\r\n    <string name=\"please_select_text\">S\\'il vous plaît sélectionner du texte</string>\r\n    <string name=\"please_save_as_to_keep_effect\">S\\'il vous plaît savez pour garder les effets</string>\r\n    <string name=\"file_already_exits\">Le fichier existe déjà</string>\r\n    <string name=\"file_saved_as_note\">Fichier enregistré comme note</string>\r\n    <string name=\"write_something\">écrire quelque chose avant d\\'aligner</string>\r\n    <string name=\"heading_applied_current\">Rubrique appliquée à la ligne de courant</string>\r\n    <string name=\"prev\" >prev</string>\r\n    <string name=\"next\" >suivant</string>\r\n    <string name=\"line_number\" >Numéro de ligne</string>\r\n    <string name=\"saved_successfully\" >Sauvé avec succès</string>\r\n    <string name=\"greet_line\" >Salut!</string>\r\n    <string name=\"file_doesnot_saved\" >Le fichier n\\'a pas sauvegardé</string>\r\n    <string name=\"file_havenot_permission_to_write\" >N\\'a pas la permission valide pour écrire</string>\r\n    <string name=\"search_and_replace\" >Rechercher et remplacer</string>\r\n    <string name=\"find\" >Trouver</string>\r\n    <string name=\"clear_history\" >Histoire claire</string>\r\n    <string name=\"feedback\" >Signaler un bug</string>\r\n    <string name=\"reload_file\">Recharger le fichier</string>\r\n    <string name=\"setting\" >Réglages</string>\r\n    <string name=\"storage_manager\" >Gestionnaire de stockage</string>\r\n    <string name=\"history\" >Histoire</string>\r\n    <string name=\"previous\" >Précédent</string>\r\n    <string name=\"create_new_file\" >Créer un nouveau fichier</string>\r\n    <string name=\"open_existing_file\" >Ouvrir le fichier existant</string>\r\n    <string name=\"save_as_note\" >Enregistrer en tant que note</string>\r\n    <string name=\"action_settings\" >Réglages</string>\r\n    <string name=\"replace_all\" >Remplace tout</string>\r\n    <string name=\"replace\" >Remplacer</string>\r\n    <string name=\"open\" >Ouvert</string>\r\n    <string name=\"edit\" >Éditer</string>\r\n    <string name=\"new_file\" >Nouvelle</string>\r\n    <string name=\"save_as\" >Enregistrer sous</string>\r\n    <string name=\"share\" >Partager</string>\r\n    <string name=\"unsaved_dialog_message\" >Voulez-vous enregistrer vos modifications?</string>\r\n    <string name=\"no_change_found\" >Aucun changement trouvé</string>\r\n    <string name=\"search_not_found\" >recherche introuvable</string>\r\n    <string name=\"cancel\" >Annuler</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-fr/strings.xml b/app/src/main/res/values-fr/strings.xml
+--- a/app/src/main/res/values-fr/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-fr/strings.xml	(date 1639898863559)
+@@ -40,5 +40,8 @@
+     <string name="no_change_found" >Aucun changement trouvé</string>
+     <string name="search_not_found" >recherche introuvable</string>
+     <string name="cancel" >Annuler</string>
++    <string name="please_restart_app">please restart app</string>
++    <string name="please_keep_word_wrap_on">please keep wrap content off to get better print</string>
++    <string name="wrap_content">wrap content</string>
+ 
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/Utils.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/Utils.kt b/app/src/main/java/com/nbow/texteditorpro/Utils.kt
+rename from app/src/main/java/com/nbow/texteditor/Utils.kt
+rename to app/src/main/java/com/nbow/texteditorpro/Utils.kt
+--- a/app/src/main/java/com/nbow/texteditor/Utils.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/Utils.kt	(date 1640858155723)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.Manifest
+ import android.annotation.SuppressLint
+@@ -13,7 +13,6 @@
+ import android.os.Build
+ import android.os.Environment
+ import android.provider.OpenableColumns
+-import android.text.Html
+ import android.text.Spanned
+ import android.util.Log
+ import androidx.activity.result.ActivityResultLauncher
+Index: app/src/main/java/com/nbow/texteditor/CustomTypefaceSpan.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/CustomTypefaceSpan.java b/app/src/main/java/com/nbow/texteditorpro/CustomTypefaceSpan.java
+rename from app/src/main/java/com/nbow/texteditor/CustomTypefaceSpan.java
+rename to app/src/main/java/com/nbow/texteditorpro/CustomTypefaceSpan.java
+--- a/app/src/main/java/com/nbow/texteditor/CustomTypefaceSpan.java	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/CustomTypefaceSpan.java	(date 1640858115366)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor;
++package com.nbow.texteditorpro;
+ 
+ import android.graphics.Paint;
+ import android.graphics.Typeface;
+Index: app/src/main/res/values-it/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n\r\n    <string name=\"select_text_to_apply_effects\">Seleziona il testo per applicare effetti</string>\r\n    <string name=\"url_removed\">URL rimosso</string>\r\n    <string name=\"please_select_text\">Si prega di selezionare il testo.</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Si prega di salvare per mantenere gli effetti</string>\r\n    <string name=\"file_already_exits\">File già esistenti</string>\r\n    <string name=\"file_saved_as_note\">File salvato come nota</string>\r\n    <string name=\"write_something\">Scrivi qualcosa prima di allineare</string>\r\n    <string name=\"heading_applied_current\">Testazione applicata alla linea corrente</string>\r\n    <string name=\"prev\" >Prev</string>\r\n    <string name=\"next\" >prossimo</string>\r\n    <string name=\"line_number\" >Numero di linea</string>\r\n    <string name=\"saved_successfully\" >Salvato con successo</string>\r\n    <string name=\"greet_line\" >Ciao!</string>\r\n    <string name=\"file_doesnot_saved\" >Il file non viene salvato</string>\r\n    <string name=\"file_havenot_permission_to_write\" >Non ha il permesso valido per scrivere</string>\r\n    <string name=\"search_and_replace\" >Cerca e sostituisci</string>\r\n    <string name=\"find\" >Trovare</string>\r\n    <string name=\"clear_history\" >Cancellare la cronologia</string>\r\n    <string name=\"feedback\" >Segnalare un bug</string>\r\n    <string name=\"reload_file\">File di ricarica</string>\r\n    <string name=\"setting\" >Impostazioni</string>\r\n    <string name=\"storage_manager\" >Gestore di archiviazione</string>\r\n    <string name=\"history\" >Storia</string>\r\n    <string name=\"previous\" >Precedente</string>\r\n    <string name=\"create_new_file\" >Crea un nuovo file</string>\r\n    <string name=\"open_existing_file\" >Apri il file esistente</string>\r\n    <string name=\"save_as_note\" >Salva come nota</string>\r\n    <string name=\"action_settings\" >Impostazioni</string>\r\n    <string name=\"replace_all\" >Sostituisci tutto</string>\r\n    <string name=\"replace\" >Sostituire</string>\r\n    <string name=\"open\" >Aprire</string>\r\n    <string name=\"edit\" >Modificare</string>\r\n    <string name=\"new_file\" >Nuovo</string>\r\n    <string name=\"save_as\" >Salva come</string>\r\n    <string name=\"share\" >Condividere</string>\r\n    <string name=\"unsaved_dialog_message\" >Vuoi salvare le tue modifiche?</string>\r\n    <string name=\"no_change_found\" >Nessuna modifica trovata</string>\r\n    <string name=\"search_not_found\" >ricerca non trovata</string>\r\n    <string name=\"cancel\" >Annulla</string>\r\n\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-it/strings.xml b/app/src/main/res/values-it/strings.xml
+--- a/app/src/main/res/values-it/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-it/strings.xml	(date 1639898595177)
+@@ -41,5 +41,9 @@
+     <string name="search_not_found" >ricerca non trovata</string>
+     <string name="cancel" >Annulla</string>
+ 
++    <string name="please_restart_app">Si prega di riavviare l\'App.</string>
++    <string name="please_keep_word_wrap_on">Si prega di tenere il contenuto di avvolgere per ottenere una migliore qualità di stampa</string>
++    <string name="wrap_content">Avvolgere il contenuto</string>
++
+ 
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/CustomHtmlCompact.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/CustomHtmlCompact.kt b/app/src/main/java/com/nbow/texteditorpro/CustomHtmlCompact.kt
+rename from app/src/main/java/com/nbow/texteditor/CustomHtmlCompact.kt
+rename to app/src/main/java/com/nbow/texteditorpro/CustomHtmlCompact.kt
+--- a/app/src/main/java/com/nbow/texteditor/CustomHtmlCompact.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/CustomHtmlCompact.kt	(date 1640858155713)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.app.Application
+ import android.content.Context
+@@ -12,7 +12,6 @@
+ import android.util.Log
+ import androidx.annotation.ColorInt
+ import androidx.core.content.ContextCompat
+-import androidx.core.content.res.ResourcesCompat
+ import java.io.IOException
+ import java.io.StringReader
+ import java.lang.RuntimeException
+Index: app/src/main/res/values-in/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n    <string name=\"select_text_to_apply_effects\">Pilih teks untuk menerapkan efek</string>\r\n    <string name=\"url_removed\">URL dihapus</string>\r\n    <string name=\"please_select_text\">Silakan pilih Text.</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Silakan Saveas untuk menjaga efek</string>\r\n    <string name=\"file_already_exits\">File sudah ada</string>\r\n    <string name=\"file_saved_as_note\">File disimpan sebagai catatan</string>\r\n    <string name=\"write_something\">Tulis sesuatu sebelum sejajar</string>\r\n    <string name=\"heading_applied_current\">Heading diterapkan ke baris saat ini</string>\r\n    <string name=\"prev\" >Sebelumnya</string>\r\n    <string name=\"next\" >Selanjutnya</string>\r\n    <string name=\"line_number\" >Nomor baris.</string>\r\n    <string name=\"saved_successfully\" >Diselamatkan dengan sukses</string>\r\n    <string name=\"greet_line\" >Halo!</string>\r\n    <string name=\"file_doesnot_saved\" >File tidak disimpan</string>\r\n    <string name=\"file_havenot_permission_to_write\" >Tidak memiliki izin yang valid untuk menulis</string>\r\n    <string name=\"search_and_replace\" >Cari dan ganti</string>\r\n    <string name=\"find\" >Menemukan</string>\r\n    <string name=\"clear_history\" >Sejarah yang jelas</string>\r\n    <string name=\"feedback\" >Laporkan bug.</string>\r\n    <string name=\"reload_file\">Reload File.</string>\r\n    <string name=\"setting\" >Pengaturan</string>\r\n    <string name=\"storage_manager\" >Manajer Penyimpanan</string>\r\n    <string name=\"history\" >Sejarah</string>\r\n    <string name=\"previous\" >Sebelumnya</string>\r\n    <string name=\"create_new_file\" >Buat File Baru</string>\r\n    <string name=\"open_existing_file\" >Buka file yang ada</string>\r\n    <string name=\"save_as_note\" >Simpan sebagai Catatan</string>\r\n    <string name=\"action_settings\" >Pengaturan</string>\r\n    <string name=\"replace_all\" >Menggantikan semua</string>\r\n    <string name=\"replace\" >Mengganti</string>\r\n    <string name=\"open\" >Membuka</string>\r\n    <string name=\"edit\" >Edit</string>\r\n    <string name=\"new_file\" >Baru</string>\r\n    <string name=\"save_as\" >Simpan sebagai</string>\r\n    <string name=\"share\" >Membagikan</string>\r\n    <string name=\"unsaved_dialog_message\" >Apakah Anda ingin menyimpan perubahan Anda?</string>\r\n    <string name=\"no_change_found\" >Tidak ditemukan perubahan</string>\r\n    <string name=\"search_not_found\" >Cari tidak ditemukan</string>\r\n    <string name=\"cancel\" >Membatalkan</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-in/strings.xml b/app/src/main/res/values-in/strings.xml
+--- a/app/src/main/res/values-in/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-in/strings.xml	(date 1639898405892)
+@@ -40,4 +40,9 @@
+     <string name="search_not_found" >Cari tidak ditemukan</string>
+     <string name="cancel" >Membatalkan</string>
+ 
++    <string name="please_restart_app">Silakan restart aplikasi</string>
++    <string name="please_keep_word_wrap_on">Harap terus bungkus konten untuk mendapatkan kualitas cetak yang lebih baik</string>
++    <string name="wrap_content">Bungkus konten</string>
++
++
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/data/History.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/data/History.kt b/app/src/main/java/com/nbow/texteditorpro/data/History.kt
+rename from app/src/main/java/com/nbow/texteditor/data/History.kt
+rename to app/src/main/java/com/nbow/texteditorpro/data/History.kt
+--- a/app/src/main/java/com/nbow/texteditor/data/History.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/data/History.kt	(date 1640858155663)
+@@ -1,13 +1,11 @@
+ 
+ 
+-package com.nbow.texteditor.data
+-import androidx.annotation.FontRes
++package com.nbow.texteditorpro.data
+ import androidx.room.Entity
+ import androidx.room.PrimaryKey
+ 
+ 
+ import androidx.room.Index
+-import java.lang.StringBuilder
+ 
+ @Entity(indices = [Index(value = ["uriString"], unique = true)] , tableName = "history")
+ data class History(
+Index: app/src/main/res/values-ko/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n\r\n    <string name=\"select_text_to_apply_effects\">효과를 적용 할 텍스트를 선택하십시오</string>\r\n    <string name=\"url_removed\">URL이 제거되었습니다</string>\r\n    <string name=\"please_select_text\">텍스트를 선택하십시오</string>\r\n    <string name=\"please_save_as_to_keep_effect\">효과를 유지하기 위해 구매하십시오</string>\r\n    <string name=\"file_already_exits\">파일이 이미 있습니다</string>\r\n    <string name=\"file_saved_as_note\">메모로 저장된 파일</string>\r\n    <string name=\"write_something\">정렬하기 전에 뭔가를 써라</string>\r\n    <string name=\"heading_applied_current\">현재 라인에 적용된 제목</string>\r\n    <string name=\"prev\" >예전</string>\r\n    <string name=\"next\" >다음</string>\r\n    <string name=\"line_number\" >행 번호</string>\r\n    <string name=\"saved_successfully\" >성공적으로 저장되었다</string>\r\n    <string name=\"greet_line\" >여보세요!</string>\r\n    <string name=\"file_doesnot_saved\" >파일이 저장되지 않습니다</string>\r\n    <string name=\"file_havenot_permission_to_write\" >쓰기위한 유효한 허가가 없습니다</string>\r\n    <string name=\"search_and_replace\" >검색 및 교체</string>\r\n    <string name=\"find\" >찾다</string>\r\n    <string name=\"clear_history\" >지우기 기록</string>\r\n    <string name=\"feedback\" >버그를보고하십시오</string>\r\n    <string name=\"reload_file\">다시로드 파일</string>\r\n    <string name=\"setting\" >설정</string>\r\n    <string name=\"storage_manager\" >스토리지 매니저</string>\r\n    <string name=\"history\" >역사</string>\r\n    <string name=\"previous\" >이전의</string>\r\n    <string name=\"create_new_file\" >새 파일 만들기</string>\r\n    <string name=\"open_existing_file\" >기존 파일을 엽니 다</string>\r\n    <string name=\"save_as_note\" >메모로 저장하십시오</string>\r\n    <string name=\"action_settings\" >설정</string>\r\n    <string name=\"replace_all\" >모두 다 바꿔</string>\r\n    <string name=\"replace\" >바꾸다</string>\r\n    <string name=\"open\" >열려있는</string>\r\n    <string name=\"edit\" >편집하다</string>\r\n    <string name=\"new_file\" >새로운</string>\r\n    <string name=\"save_as\" >다른 이름으로 저장</string>\r\n    <string name=\"share\" >공유하다</string>\r\n    <string name=\"unsaved_dialog_message\" >변경 사항을 저장 하시겠습니까?</string>\r\n    <string name=\"no_change_found\" >변경 사항이 없습니다</string>\r\n    <string name=\"search_not_found\" >검색 할 수 없습니다</string>\r\n    <string name=\"cancel\" >취소</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-ko/strings.xml b/app/src/main/res/values-ko/strings.xml
+--- a/app/src/main/res/values-ko/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-ko/strings.xml	(date 1639898465915)
+@@ -41,4 +41,8 @@
+     <string name="search_not_found" >검색 할 수 없습니다</string>
+     <string name="cancel" >취소</string>
+ 
++    <string name="please_restart_app">앱을 다시 시작하십시오</string>
++    <string name="please_keep_word_wrap_on">더 나은 인쇄 품질을 얻기 위해 내용을 랩으로 유지하십시오.</string>
++    <string name="wrap_content">랩 콘텐츠</string>
++
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/data/NoteDao.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/data/NoteDao.kt b/app/src/main/java/com/nbow/texteditorpro/data/NoteDao.kt
+rename from app/src/main/java/com/nbow/texteditor/data/NoteDao.kt
+rename to app/src/main/java/com/nbow/texteditorpro/data/NoteDao.kt
+--- a/app/src/main/java/com/nbow/texteditor/data/NoteDao.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/data/NoteDao.kt	(date 1640858117473)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor.data
++package com.nbow.texteditorpro.data
+ 
+ import androidx.room.*
+ 
+Index: app/src/main/res/values-ja/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n\r\n\r\n    <string name=\"select_text_to_apply_effects\">エフェクトを適用するにはテキストを選択してください</string>\r\n    <string name=\"url_removed\">URLが削除されました</string>\r\n    <string name=\"please_select_text\">テキストを選択してください</string>\r\n    <string name=\"please_save_as_to_keep_effect\">エフェクトを維持するために努力してください</string>\r\n    <string name=\"file_already_exits\">ファイルはすでに存在しています</string>\r\n    <string name=\"file_saved_as_note\">ファイルとして保存されたファイル</string>\r\n    <string name=\"write_something\">整列前に何かを書く</string>\r\n    <string name=\"heading_applied_current\">現在の行に適用された見出し</string>\r\n    <string name=\"prev\" >prev prev</string>\r\n    <string name=\"next\" >次</string>\r\n    <string name=\"line_number\" >行番号</string>\r\n    <string name=\"saved_successfully\" >正常に保存</string>\r\n    <string name=\"greet_line\" >こんにちは！</string>\r\n    <string name=\"file_doesnot_saved\" >ファイルが保存されません</string>\r\n    <string name=\"file_havenot_permission_to_write\" >書き込みに対する有効な許可はありません</string>\r\n    <string name=\"search_and_replace\" >検索と置換</string>\r\n    <string name=\"find\" >探す</string>\r\n    <string name=\"clear_history\" >履歴をクリア</string>\r\n    <string name=\"feedback\" >バグを報告</string>\r\n    <string name=\"reload_file\">リロードファイル</string>\r\n    <string name=\"setting\" >設定</string>\r\n    <string name=\"storage_manager\" >ストレージマネージャー</string>\r\n    <string name=\"history\" >歴史</string>\r\n    <string name=\"previous\" >前</string>\r\n    <string name=\"create_new_file\" >新しいファイルを作成します</string>\r\n    <string name=\"open_existing_file\" >既存のファイルを開きます</string>\r\n    <string name=\"save_as_note\" >注記してください</string>\r\n    <string name=\"action_settings\" >設定</string>\r\n    <string name=\"replace_all\" >すべてを交換してください</string>\r\n    <string name=\"replace\" >交換</string>\r\n    <string name=\"open\" >開ける</string>\r\n    <string name=\"edit\" >編集</string>\r\n    <string name=\"new_file\" >新しい</string>\r\n    <string name=\"save_as\" >節約</string>\r\n    <string name=\"share\" >シェア</string>\r\n    <string name=\"unsaved_dialog_message\" >変更を保存しますか？</string>\r\n    <string name=\"no_change_found\" >変更は見つかりませんでした</string>\r\n    <string name=\"search_not_found\" >検索が見つかりません</string>\r\n    <string name=\"cancel\" >キャンセル</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-ja/strings.xml b/app/src/main/res/values-ja/strings.xml
+--- a/app/src/main/res/values-ja/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-ja/strings.xml	(date 1639898440730)
+@@ -42,4 +42,9 @@
+     <string name="search_not_found" >検索が見つかりません</string>
+     <string name="cancel" >キャンセル</string>
+ 
++
++    <string name="please_restart_app">アプリを再起動してください</string>
++    <string name="please_keep_word_wrap_on">印刷品質を良くするために、コンテンツを折り返してください。</string>
++    <string name="wrap_content">コンテンツを折り返す</string>
++
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/values-ru/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n\r\n    <string name=\"select_text_to_apply_effects\">Выберите текст, чтобы применить эффекты</string>\r\n    <string name=\"url_removed\">URL удален</string>\r\n    <string name=\"please_select_text\">Пожалуйста, выберите текст</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Пожалуйста, сохраните, чтобы сохранить эффекты</string>\r\n    <string name=\"file_already_exits\">Файл уже существует</string>\r\n    <string name=\"file_saved_as_note\">Файл сохранен как примечание</string>\r\n    <string name=\"write_something\">напишите что-нибудь до выравнивания</string>\r\n    <string name=\"heading_applied_current\">Заголовок применяется к текущей линии</string>\r\n    <string name=\"prev\" >предыдущий</string>\r\n    <string name=\"next\" >следующий</string>\r\n    <string name=\"line_number\" >Номер строки</string>\r\n    <string name=\"saved_successfully\" >Успешно сохранено</string>\r\n    <string name=\"greet_line\" >Привет!</string>\r\n    <string name=\"file_doesnot_saved\" >Файл не сохраняется</string>\r\n    <string name=\"file_havenot_permission_to_write\" >Не имеет действительного разрешения на запись</string>\r\n    <string name=\"search_and_replace\" >Поиск и заменить</string>\r\n    <string name=\"find\" >Находить</string>\r\n    <string name=\"clear_history\" >Чистая история</string>\r\n    <string name=\"feedback\" >Сообщить об ошибке</string>\r\n    <string name=\"reload_file\">Перезагрузить файл</string>\r\n    <string name=\"setting\" >Настройки</string>\r\n    <string name=\"storage_manager\" >Менеджер хранения</string>\r\n    <string name=\"history\" >История</string>\r\n    <string name=\"previous\" >Предыдущий</string>\r\n    <string name=\"create_new_file\" >Создать новый файл</string>\r\n    <string name=\"open_existing_file\" >Откройте существующий файл</string>\r\n    <string name=\"save_as_note\" >Сохранить как примечание</string>\r\n    <string name=\"action_settings\" >Настройки</string>\r\n    <string name=\"replace_all\" >Заменить все</string>\r\n    <string name=\"replace\" >Заменять</string>\r\n    <string name=\"open\" >Открытым</string>\r\n    <string name=\"edit\" >Редактировать</string>\r\n    <string name=\"new_file\" >Новый</string>\r\n    <string name=\"save_as\" >Сохранить как</string>\r\n    <string name=\"share\" >доля</string>\r\n    <string name=\"unsaved_dialog_message\" >Вы хотите сохранить ваши изменения?</string>\r\n    <string name=\"no_change_found\" >Изменения не найдены</string>\r\n    <string name=\"search_not_found\" >поиск не найден</string>\r\n    <string name=\"cancel\" >Отмена</string>\r\n\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-ru/strings.xml b/app/src/main/res/values-ru/strings.xml
+--- a/app/src/main/res/values-ru/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-ru/strings.xml	(date 1639898502146)
+@@ -41,5 +41,9 @@
+     <string name="search_not_found" >поиск не найден</string>
+     <string name="cancel" >Отмена</string>
+ 
++    <string name="please_restart_app">Пожалуйста, перезапустите приложение</string>
++    <string name="please_keep_word_wrap_on">Пожалуйста, держите контент, чтобы получить лучшее качество печати</string>
++    <string name="wrap_content">Обернуть содержимое</string>
++
+ 
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/data/Repository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/data/Repository.kt b/app/src/main/java/com/nbow/texteditorpro/data/Repository.kt
+rename from app/src/main/java/com/nbow/texteditor/data/Repository.kt
+rename to app/src/main/java/com/nbow/texteditorpro/data/Repository.kt
+--- a/app/src/main/java/com/nbow/texteditor/data/Repository.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/data/Repository.kt	(date 1640858117232)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor.data
++package com.nbow.texteditorpro.data
+ 
+ 
+ import android.app.Application
+Index: app/src/main/java/com/nbow/texteditor/data/Note.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/data/Note.kt b/app/src/main/java/com/nbow/texteditorpro/data/Note.kt
+rename from app/src/main/java/com/nbow/texteditor/data/Note.kt
+rename to app/src/main/java/com/nbow/texteditorpro/data/Note.kt
+--- a/app/src/main/java/com/nbow/texteditor/data/Note.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/data/Note.kt	(date 1640858155752)
+@@ -1,7 +1,6 @@
+-package com.nbow.texteditor.data
++package com.nbow.texteditorpro.data
+ 
+ import androidx.room.Entity
+-import androidx.room.Index
+ import androidx.room.PrimaryKey
+ 
+ @Entity( tableName = "note")
+Index: app/src/main/res/values-pt/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n\r\n    <string name=\"select_text_to_apply_effects\">Selecione texto para aplicar efeitos</string>\r\n    <string name=\"url_removed\">URL removido</string>\r\n    <string name=\"please_select_text\">Por favor selecione o texto</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Por favor save para manter os efeitos</string>\r\n    <string name=\"file_already_exits\">Arquivo já existe</string>\r\n    <string name=\"file_saved_as_note\">Arquivo salvo como nota</string>\r\n    <string name=\"write_something\">Escreva algo antes de alinhar</string>\r\n    <string name=\"heading_applied_current\">Título aplicado à linha atual</string>\r\n    <string name=\"prev\" >prev.</string>\r\n    <string name=\"next\" >Next</string>\r\n    <string name=\"line_number\" >Número da linha</string>\r\n    <string name=\"saved_successfully\" >Salvo com sucesso</string>\r\n    <string name=\"greet_line\" >Olá!</string>\r\n    <string name=\"file_doesnot_saved\" >Arquivo não salvo</string>\r\n    <string name=\"file_havenot_permission_to_write\" >Não tem permissão válida para escrever</string>\r\n    <string name=\"search_and_replace\" >Pesquise e substitua</string>\r\n    <string name=\"find\" >Achar</string>\r\n    <string name=\"clear_history\" >Limpar histórico</string>\r\n    <string name=\"feedback\" >Reportar um erro</string>\r\n    <string name=\"reload_file\">Recarregar o arquivo</string>\r\n    <string name=\"setting\" >Configurações</string>\r\n    <string name=\"storage_manager\" >Gerente de armazenamento</string>\r\n    <string name=\"history\" >História</string>\r\n    <string name=\"previous\" >Anterior</string>\r\n    <string name=\"create_new_file\" >Crie novo arquivo</string>\r\n    <string name=\"open_existing_file\" >Abra o arquivo existente</string>\r\n    <string name=\"save_as_note\" >Salvar como nota</string>\r\n    <string name=\"action_settings\" >Configurações</string>\r\n    <string name=\"replace_all\" >Substitua tudo</string>\r\n    <string name=\"replace\" >Substituir</string>\r\n    <string name=\"open\" >Aberto</string>\r\n    <string name=\"edit\" >Editar</string>\r\n    <string name=\"new_file\" >Novo</string>\r\n    <string name=\"save_as\" >Salvar como</string>\r\n    <string name=\"share\" >Compartilhado</string>\r\n    <string name=\"unsaved_dialog_message\" >Você quer salvar suas mudanças?</string>\r\n    <string name=\"no_change_found\" >Nenhuma alteração encontrada</string>\r\n    <string name=\"search_not_found\" >pesquisa não encontrada</string>\r\n    <string name=\"cancel\" >Cancelar</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-pt/strings.xml b/app/src/main/res/values-pt/strings.xml
+--- a/app/src/main/res/values-pt/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-pt/strings.xml	(date 1639898485021)
+@@ -41,4 +41,8 @@
+     <string name="search_not_found" >pesquisa não encontrada</string>
+     <string name="cancel" >Cancelar</string>
+ 
++    <string name="please_restart_app">Por favor, reinicie o aplicativo</string>
++    <string name="please_keep_word_wrap_on">Por favor, mantenha o conteúdo do envoltório para obter melhor qualidade de impressão</string>
++    <string name="wrap_content">Envolva o conteúdo</string>
++
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/data/MyDatabase.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/data/MyDatabase.kt b/app/src/main/java/com/nbow/texteditorpro/data/MyDatabase.kt
+rename from app/src/main/java/com/nbow/texteditor/data/MyDatabase.kt
+rename to app/src/main/java/com/nbow/texteditorpro/data/MyDatabase.kt
+--- a/app/src/main/java/com/nbow/texteditor/data/MyDatabase.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/data/MyDatabase.kt	(date 1640858111267)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor.data
++package com.nbow.texteditorpro.data
+ import android.content.Context
+ import androidx.room.Database
+ import androidx.room.Room
+Index: app/src/main/java/com/nbow/texteditor/data/HistoryDao.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/data/HistoryDao.kt b/app/src/main/java/com/nbow/texteditorpro/data/HistoryDao.kt
+rename from app/src/main/java/com/nbow/texteditor/data/HistoryDao.kt
+rename to app/src/main/java/com/nbow/texteditorpro/data/HistoryDao.kt
+--- a/app/src/main/java/com/nbow/texteditor/data/HistoryDao.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/data/HistoryDao.kt	(date 1640858117329)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor.data
++package com.nbow.texteditorpro.data
+ 
+ 
+ import androidx.room.*
+Index: app/src/main/res/layout-land/fragment_editor.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:orientation=\"vertical\"\r\n    tools:context=\".EditorFragment\">\r\n\r\n    <RelativeLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"\r\n        android:orientation=\"horizontal\"\r\n        >\r\n\r\n        <HorizontalScrollView\r\n            android:id=\"@+id/horizontal_scroller\"\r\n            android:layout_width=\"match_parent\"\r\n            android:scrollbars=\"none\"\r\n            android:paddingEnd=\"3dp\"\r\n            android:layout_height=\"match_parent\">\r\n            <com.nbow.texteditor.CustomEditText\r\n                android:id=\"@+id/editText\"\r\n                android:layout_width=\"match_parent\"\r\n                android:minWidth=\"350dp\"\r\n                android:maxWidth=\"680dp\"\r\n                android:minLines=\"40\"\r\n                android:gravity=\"start\"\r\n                android:imeOptions=\"flagNoExtractUi|actionSend\"\r\n                android:layout_height=\"match_parent\"\r\n                android:inputType=\"textNoSuggestions|textMultiLine\"\r\n                android:singleLine=\"false\"\r\n                android:layout_marginStart=\"7dp\"\r\n                android:background=\"@android:color/transparent\"\r\n                android:lastBaselineToBottomHeight=\"25dp\"\r\n                android:textSize=\"16dp\"\r\n                android:paddingEnd=\"7dp\"\r\n                android:paddingStart=\"3dp\"\r\n\r\n\r\n                />\r\n        </HorizontalScrollView>\r\n\r\n    </RelativeLayout>\r\n</ScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout-land/fragment_editor.xml b/app/src/main/res/layout-land/fragment_editor.xml
+--- a/app/src/main/res/layout-land/fragment_editor.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/layout-land/fragment_editor.xml	(date 1640858117243)
+@@ -18,7 +18,7 @@
+             android:scrollbars="none"
+             android:paddingEnd="3dp"
+             android:layout_height="match_parent">
+-            <com.nbow.texteditor.CustomEditText
++            <com.nbow.texteditorpro.CustomEditText
+                 android:id="@+id/editText"
+                 android:layout_width="match_parent"
+                 android:minWidth="350dp"
+@@ -33,9 +33,8 @@
+                 android:background="@android:color/transparent"
+                 android:lastBaselineToBottomHeight="25dp"
+                 android:textSize="16dp"
+-                android:paddingEnd="7dp"
+-                android:paddingStart="3dp"
+-
++                android:layout_marginLeft="5dp"
++                android:layout_marginEnd="5dp"
+ 
+                 />
+         </HorizontalScrollView>
+Index: app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleItem.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleItem.kt b/app/src/main/java/com/nbow/texteditorpro/RecyclerView/ExampleItem.kt
+rename from app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleItem.kt
+rename to app/src/main/java/com/nbow/texteditorpro/RecyclerView/ExampleItem.kt
+--- a/app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleItem.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/RecyclerView/ExampleItem.kt	(date 1640858155687)
+@@ -1,6 +1,4 @@
+-package com.nbow.texteditor.RecyclerView
+-
+-import java.io.File
++package com.nbow.texteditorpro.RecyclerView
+ 
+ data class ExampleItem(
+ 
+Index: app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleAdapter.kt b/app/src/main/java/com/nbow/texteditorpro/RecyclerView/ExampleAdapter.kt
+rename from app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleAdapter.kt
+rename to app/src/main/java/com/nbow/texteditorpro/RecyclerView/ExampleAdapter.kt
+--- a/app/src/main/java/com/nbow/texteditor/RecyclerView/ExampleAdapter.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/RecyclerView/ExampleAdapter.kt	(date 1640858117295)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor.RecyclerView
++package com.nbow.texteditorpro.RecyclerView
+ 
+ import android.view.LayoutInflater
+ import android.view.View
+@@ -6,7 +6,7 @@
+ import android.widget.ImageView
+ import android.widget.TextView
+ import androidx.recyclerview.widget.RecyclerView
+-import com.nbow.texteditor.R
++import com.nbow.texteditorpro.R
+ 
+ 
+ class ExampleAdapter(private val mExampleList: ArrayList<ExampleItem>) :
+Index: app/src/main/res/layout-land/fragment_editor_wrap.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:orientation=\"vertical\"\r\n    tools:context=\".EditorFragment\">\r\n\r\n\r\n\r\n\r\n            <com.nbow.texteditor.CustomEditText\r\n                android:id=\"@+id/editText\"\r\n                android:layout_width=\"match_parent\"\r\n                android:minLines=\"40\"\r\n                android:gravity=\"start\"\r\n                android:imeOptions=\"flagNoExtractUi|actionSend\"\r\n                android:layout_height=\"match_parent\"\r\n                android:inputType=\"textNoSuggestions|textMultiLine\"\r\n                android:singleLine=\"false\"\r\n                android:background=\"@android:color/transparent\"\r\n                android:lastBaselineToBottomHeight=\"25dp\"\r\n                android:textSize=\"16dp\"\r\n                android:paddingEnd=\"3dp\"\r\n                android:paddingStart=\"7dp\"\r\n\r\n\r\n                />\r\n\r\n\r\n</ScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout-land/fragment_editor_wrap.xml b/app/src/main/res/layout-land/fragment_editor_wrap.xml
+--- a/app/src/main/res/layout-land/fragment_editor_wrap.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/layout-land/fragment_editor_wrap.xml	(date 1640858117520)
+@@ -9,7 +9,7 @@
+ 
+ 
+ 
+-            <com.nbow.texteditor.CustomEditText
++            <com.nbow.texteditorpro.CustomEditText
+                 android:id="@+id/editText"
+                 android:layout_width="match_parent"
+                 android:minLines="40"
+@@ -21,8 +21,8 @@
+                 android:background="@android:color/transparent"
+                 android:lastBaselineToBottomHeight="25dp"
+                 android:textSize="16dp"
+-                android:paddingEnd="3dp"
+-                android:paddingStart="7dp"
++                android:layout_marginStart="5dp"
++                android:layout_marginEnd="5dp"
+ 
+ 
+                 />
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    id 'com.android.application'\r\n    id 'kotlin-android'\r\n    id 'kotlin-kapt'\r\n    id 'com.google.gms.google-services'\r\n    id 'com.google.firebase.firebase-perf'\r\n\r\n\r\n}\r\n\r\nandroid {\r\n    compileSdkVersion 31\r\n    buildToolsVersion \"31.0.0\"\r\n\r\n    defaultConfig {\r\n        applicationId \"com.nbow.texteditor\"\r\n        minSdkVersion 19\r\n        targetSdkVersion 31\r\n        versionCode 8\r\n        versionName \"1.3.1\"\r\n        multiDexEnabled true\r\n\r\n        testInstrumentationRunner \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            minifyEnabled true\r\n            shrinkResources true\r\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\r\n        }\r\n        debug{\r\n\r\n            debuggable true\r\n            //minifyEnabled true\r\n            //shrinkResources true\r\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt') , 'proguard-rules.pro'\r\n        }\r\n    }\r\n\r\n    buildFeatures{\r\n        viewBinding true\r\n    }\r\n\r\n    compileOptions {\r\n        sourceCompatibility JavaVersion.VERSION_1_8\r\n        targetCompatibility JavaVersion.VERSION_1_8\r\n    }\r\n    kotlinOptions {\r\n        jvmTarget = '1.8'\r\n    }\r\n\r\n\r\n    dependencies {\r\n\r\n\r\n        implementation \"org.jetbrains.kotlin:kotlin-stdlib:1.5.31\"\r\n        implementation 'androidx.core:core-ktx:1.6.0'\r\n        def preference_version = \"1.1.1\"\r\n\r\n\r\n        // Kotlin\r\n        implementation(\"androidx.preference:preference-ktx:$preference_version\")\r\n\r\n        implementation \"androidx.drawerlayout:drawerlayout:1.1.1\"\r\n\r\n        implementation 'androidx.appcompat:appcompat:1.3.1'\r\n        implementation 'com.google.android.material:material:1.4.0'\r\n        implementation 'androidx.constraintlayout:constraintlayout:2.1.1'\r\n        implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'\r\n        implementation 'androidx.legacy:legacy-support-v4:1.0.0'\r\n        testImplementation 'junit:junit:4.13.2'\r\n        androidTestImplementation 'androidx.test.ext:junit:1.1.3'\r\n        androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'\r\n        implementation \"com.github.duanhong169:colorpicker:1.1.6\"\r\n\r\n\r\n        def lifecycle_version = \"2.4.0-alpha03\"\r\n//    def arch_version = \"2.1.0\"\r\n\r\n        def coroutine_version = \"1.5.0\"\r\n        //for coroutine\r\n        implementation(\"org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version\")\r\n        implementation(\"org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version\")\r\n\r\n        def room_version = \"2.3.0\"\r\n\r\n        implementation(\"androidx.room:room-runtime:$room_version\")\r\n        annotationProcessor \"androidx.room:room-compiler:$room_version\"\r\n\r\n        // optional - Kotlin Extensions and Coroutines support for Room\r\n        implementation(\"androidx.room:room-ktx:$room_version\")\r\n\r\n        // optional - Test helpers\r\n        testImplementation(\"androidx.room:room-testing:$room_version\")\r\n\r\n        // To use Kotlin annotation processing tool (kapt)\r\n        kapt(\"androidx.room:room-compiler:$room_version\")\r\n\r\n\r\n        // ViewModel\r\n        implementation(\"androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version\")\r\n        // LiveData\r\n        implementation(\"androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version\")\r\n\r\n        def activity_version = \"1.3.1\"\r\n\r\n        // Kotlin (for view model by viewModel() to create view model object)\r\n        implementation(\"androidx.activity:activity-ktx:$activity_version\")\r\n\r\n        //lifecycle scope\r\n        implementation(\"androidx.lifecycle:lifecycle-runtime-ktx:2.3.1\")\r\n\r\n\r\n        //viewmodel scope\r\n//    implementation(\"androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1\")\r\n\r\n        implementation(\"androidx.recyclerview:recyclerview:1.2.1\")\r\n        // For control over item selection of both touch and mouse driven selection\r\n        implementation(\"androidx.recyclerview:recyclerview-selection:1.1.0\")\r\n        implementation \"com.github.duanhong169:colorpicker:1.1.6\"\r\n\r\n\r\n\r\n\r\n    }\r\n}\r\n\r\ndependencies {\r\n\r\n    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'\r\n    implementation 'com.google.android.play:core-ktx:1.8.1'\r\n    implementation 'androidx.appcompat:appcompat:1.3.1'\r\n    implementation 'com.google.android.material:material:1.4.0'\r\n    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'\r\n    implementation 'androidx.navigation:navigation-fragment:2.3.5'\r\n    implementation 'androidx.navigation:navigation-ui:2.3.5'\r\n    implementation(\"org.ccil.cowan.tagsoup:tagsoup:1.2\")\r\n    implementation 'com.android.support:multidex:1.0.3'\r\n    implementation 'com.google.firebase:firebase-analytics:17.2.1'\r\n    implementation platform('com.google.firebase:firebase-bom:29.0.0')\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle b/app/build.gradle
+--- a/app/build.gradle	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/build.gradle	(date 1640858200114)
+@@ -2,8 +2,6 @@
+     id 'com.android.application'
+     id 'kotlin-android'
+     id 'kotlin-kapt'
+-    id 'com.google.gms.google-services'
+-    id 'com.google.firebase.firebase-perf'
+ 
+ 
+ }
+@@ -13,11 +11,11 @@
+     buildToolsVersion "31.0.0"
+ 
+     defaultConfig {
+-        applicationId "com.nbow.texteditor"
++        applicationId "com.nbow.texteditorpro"
+         minSdkVersion 19
+         targetSdkVersion 31
+-        versionCode 8
+-        versionName "1.3.1"
++        versionCode 10
++        versionName "1.3.3"
+         multiDexEnabled true
+ 
+         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+@@ -137,7 +135,8 @@
+     implementation 'androidx.navigation:navigation-ui:2.3.5'
+     implementation("org.ccil.cowan.tagsoup:tagsoup:1.2")
+     implementation 'com.android.support:multidex:1.0.3'
+-    implementation 'com.google.firebase:firebase-analytics:17.2.1'
+-    implementation platform('com.google.firebase:firebase-bom:29.0.0')
++    dependencies {
++        implementation 'com.google.android.gms:play-services-ads:20.5.0'
++    }
+ 
+ }
+\ No newline at end of file
+Index: app/src/main/res/menu/overflow_menu.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<menu xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\">\r\n\r\n    <item\r\n        android:id=\"@+id/share\"\r\n        android:title=\"@string/share\"\r\n        android:icon=\"@drawable/ic_share\"\r\n        app:showAsAction=\"never\"\r\n        />\r\n    <item\r\n        android:id=\"@+id/search\"\r\n        android:title=\"@string/search\"\r\n        android:icon=\"@drawable/ic_search\"\r\n        app:showAsAction=\"never\"\r\n        />\r\n\r\n    <item\r\n        android:id=\"@+id/search_replace\"\r\n        android:title=\"@string/find_amp_replace\"\r\n        android:icon=\"@drawable/ic_find_replace\"\r\n        app:showAsAction=\"never\"\r\n        />\r\n\r\n    <item\r\n        android:id=\"@+id/wrap_content\"\r\n        android:title=\"Wrap Content\"\r\n        android:icon=\"@drawable/ic_wrap_content\"/>\r\n\r\n    <item\r\n        android:id=\"@+id/line_number\"\r\n        android:title=\"Line Number\"\r\n        android:icon=\"@drawable/ic_line_number_bullets\"></item>\r\n\r\n    <item\r\n        android:id=\"@+id/print\"\r\n        android:title=\"Print Pdf\"\r\n        android:icon=\"@drawable/ic_print\"\r\n        />\r\n\r\n\r\n</menu>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/menu/overflow_menu.xml b/app/src/main/res/menu/overflow_menu.xml
+--- a/app/src/main/res/menu/overflow_menu.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/menu/overflow_menu.xml	(date 1639898132180)
+@@ -24,7 +24,7 @@
+ 
+     <item
+         android:id="@+id/wrap_content"
+-        android:title="Wrap Content"
++        android:title="@string/wrap_content"
+         android:icon="@drawable/ic_wrap_content"/>
+ 
+     <item
+Index: app/src/main/res/layout/fragment_editor_wrap.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:orientation=\"vertical\"\r\n    tools:context=\".EditorFragment\">\r\n\r\n\r\n            <com.nbow.texteditor.CustomEditText\r\n                android:id=\"@+id/editText\"\r\n                android:layout_width=\"match_parent\"\r\n                android:minLines=\"40\"\r\n                android:imeOptions=\"flagNoExtractUi|actionSend\"\r\n                android:layout_height=\"match_parent\"\r\n                android:inputType=\"textNoSuggestions|textMultiLine\"\r\n                android:singleLine=\"false\"\r\n                android:gravity=\"start\"\r\n                android:background=\"@android:color/transparent\"\r\n                android:lastBaselineToBottomHeight=\"50dp\"\r\n                android:textSize=\"16dp\"\r\n                android:paddingStart=\"3dp\"\r\n                android:paddingEnd=\"7dp\"\r\n\r\n                />\r\n</ScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_editor_wrap.xml b/app/src/main/res/layout/fragment_editor_wrap.xml
+--- a/app/src/main/res/layout/fragment_editor_wrap.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/layout/fragment_editor_wrap.xml	(date 1640858115173)
+@@ -7,7 +7,7 @@
+     tools:context=".EditorFragment">
+ 
+ 
+-            <com.nbow.texteditor.CustomEditText
++            <com.nbow.texteditorpro.CustomEditText
+                 android:id="@+id/editText"
+                 android:layout_width="match_parent"
+                 android:minLines="40"
+@@ -19,8 +19,8 @@
+                 android:background="@android:color/transparent"
+                 android:lastBaselineToBottomHeight="50dp"
+                 android:textSize="16dp"
+-                android:paddingStart="3dp"
+-                android:paddingEnd="7dp"
++                android:layout_marginStart="5dp"
++                android:layout_marginEnd="5dp"
+ 
+                 />
+ </ScrollView>
+\ No newline at end of file
+Index: app/src/test/java/com/nbow/texteditor/ExampleUnitTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/test/java/com/nbow/texteditor/ExampleUnitTest.kt b/app/src/test/java/com/nbow/texteditorpro/ExampleUnitTest.kt
+rename from app/src/test/java/com/nbow/texteditor/ExampleUnitTest.kt
+rename to app/src/test/java/com/nbow/texteditorpro/ExampleUnitTest.kt
+--- a/app/src/test/java/com/nbow/texteditor/ExampleUnitTest.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/test/java/com/nbow/texteditorpro/ExampleUnitTest.kt	(date 1640858110383)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import org.junit.Test
+ 
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    package=\"com.nbow.texteditor\">\r\n\r\n    <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\r\n    <uses-permission android:name=\"android.permission.INTERNET\"/>\r\n    <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />\r\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />\r\n    <uses-permission\r\n        android:name=\"android.permission.MANAGE_DOCUMENTS\"\r\n        tools:ignore=\"ProtectedPermissions\" />\r\n\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:icon=\"@mipmap/ic_logo\"\r\n        android:label=\"@string/app_name\"\r\n        android:requestLegacyExternalStorage=\"true\"\r\n        android:roundIcon=\"@mipmap/ic_logo_round\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/AppMaterialTheme\">\r\n        <activity\r\n            android:name=\".NoteActivity\"\r\n            android:exported=\"true\"\r\n            android:parentActivityName=\".MainActivity\"/>\r\n\r\n\r\n        <activity\r\n            android:name=\".MainActivity\"\r\n            android:exported=\"true\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n            <intent-filter>\r\n                <category android:name=\"android.intent.category.DEFAULT\" />\r\n\r\n                <action android:name=\"android.intent.action.SEND\" />\r\n            </intent-filter>\r\n            <intent-filter>\r\n                <category android:name=\"android.intent.category.DEFAULT\" />\r\n\r\n                <data android:mimeType=\"text/*\" />\r\n            </intent-filter>\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.VIEW\" />\r\n                <action android:name=\"android.intent.action.EDIT\" />\r\n\r\n                <category android:name=\"android.intent.category.DEFAULT\" />\r\n                <category android:name=\"android.intent.category.BROWSABLE\" />\r\n\r\n                <data android:mimeType=\"text/*\" />\r\n                <data android:mimeType=\"application/java\" />\r\n                <data android:mimeType=\"application/sql\" />\r\n                <data android:mimeType=\"application/php\" />\r\n                <data android:mimeType=\"application/x-php\" />\r\n                <data android:mimeType=\"application/x-javascript\" />\r\n                <data android:mimeType=\"application/javascript\" />\r\n                <data android:mimeType=\"application/x-tcl\" />\r\n                <data android:mimeType=\"application/xml\" />\r\n                <data android:mimeType=\"application/octet-stream\" />\r\n            </intent-filter>\r\n        </activity>\r\n\r\n        <provider\r\n            android:name=\"androidx.core.content.FileProvider\"\r\n            android:authorities=\"${applicationId}.provider\"\r\n            android:exported=\"false\"\r\n            android:grantUriPermissions=\"true\">\r\n            <meta-data\r\n                android:name=\"android.support.FILE_PROVIDER_PATHS\"\r\n                android:resource=\"@xml/provider_paths\" />\r\n        </provider>\r\n\r\n\r\n\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/AndroidManifest.xml	(date 1640858115198)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+-    package="com.nbow.texteditor">
++    package="com.nbow.texteditorpro">
+ 
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+     <uses-permission android:name="android.permission.INTERNET"/>
+@@ -20,13 +20,13 @@
+         android:supportsRtl="true"
+         android:theme="@style/AppMaterialTheme">
+         <activity
+-            android:name=".NoteActivity"
++            android:name="com.nbow.texteditorpro.NoteActivity"
+             android:exported="true"
+-            android:parentActivityName=".MainActivity"/>
++            android:parentActivityName="com.nbow.texteditorpro.MainActivity"/>
+ 
+ 
+         <activity
+-            android:name=".MainActivity"
++            android:name="com.nbow.texteditorpro.MainActivity"
+             android:exported="true">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+@@ -73,7 +73,9 @@
+                 android:resource="@xml/provider_paths" />
+         </provider>
+ 
+-
++        <meta-data
++            android:name="com.google.android.gms.ads.APPLICATION_ID"
++            android:value="ca-app-pub-6948459060967328~6739827302"/>
+ 
+     </application>
+ 
+Index: app/src/main/res/layout/fragment_editor.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:orientation=\"vertical\"\r\n    tools:context=\".EditorFragment\">\r\n\r\n    <RelativeLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"\r\n        android:orientation=\"horizontal\"\r\n        >\r\n        <HorizontalScrollView\r\n            android:id=\"@+id/horizontal_scroller\"\r\n            android:layout_width=\"match_parent\"\r\n            android:scrollbars=\"none\"\r\n            android:paddingEnd=\"3dp\"\r\n            android:layout_height=\"match_parent\">\r\n        <com.nbow.texteditor.CustomEditText\r\n            android:id=\"@+id/editText\"\r\n            android:layout_width=\"match_parent\"\r\n            android:minWidth=\"350dp\"\r\n            android:maxWidth=\"680dp\"\r\n            android:minLines=\"40\"\r\n            android:imeOptions=\"flagNoExtractUi|actionSend\"\r\n            android:layout_height=\"match_parent\"\r\n            android:inputType=\"textNoSuggestions|textMultiLine\"\r\n            android:singleLine=\"false\"\r\n            android:gravity=\"start\"\r\n            android:layout_marginStart=\"7dp\"\r\n            android:background=\"@android:color/transparent\"\r\n            android:lastBaselineToBottomHeight=\"50dp\"\r\n            android:textSize=\"16dp\"\r\n            android:paddingStart=\"3dp\"\r\n            android:paddingEnd=\"7dp\"\r\n\r\n        />\r\n        </HorizontalScrollView>\r\n\r\n    </RelativeLayout>\r\n</ScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_editor.xml b/app/src/main/res/layout/fragment_editor.xml
+--- a/app/src/main/res/layout/fragment_editor.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/layout/fragment_editor.xml	(date 1640858117544)
+@@ -17,7 +17,7 @@
+             android:scrollbars="none"
+             android:paddingEnd="3dp"
+             android:layout_height="match_parent">
+-        <com.nbow.texteditor.CustomEditText
++        <com.nbow.texteditorpro.CustomEditText
+             android:id="@+id/editText"
+             android:layout_width="match_parent"
+             android:minWidth="350dp"
+@@ -32,9 +32,8 @@
+             android:background="@android:color/transparent"
+             android:lastBaselineToBottomHeight="50dp"
+             android:textSize="16dp"
+-            android:paddingStart="3dp"
+-            android:paddingEnd="7dp"
+-
++            android:layout_marginLeft="5dp"
++            android:layout_marginEnd="5dp"
+         />
+         </HorizontalScrollView>
+ 
+Index: app/src/androidTest/java/com/nbow/texteditor/ExampleInstrumentedTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/androidTest/java/com/nbow/texteditor/ExampleInstrumentedTest.kt b/app/src/androidTest/java/com/nbow/texteditorpro/ExampleInstrumentedTest.kt
+rename from app/src/androidTest/java/com/nbow/texteditor/ExampleInstrumentedTest.kt
+rename to app/src/androidTest/java/com/nbow/texteditorpro/ExampleInstrumentedTest.kt
+--- a/app/src/androidTest/java/com/nbow/texteditor/ExampleInstrumentedTest.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/androidTest/java/com/nbow/texteditorpro/ExampleInstrumentedTest.kt	(date 1640858113955)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import androidx.test.platform.app.InstrumentationRegistry
+ import androidx.test.ext.junit.runners.AndroidJUnit4
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\r\n\r\n    <string name=\"ignore_case\" translatable=\"false\">Ignore Case</string>\r\n    <string name=\"tab\" translatable=\"false\">tab</string>\r\n    <string name=\"up\" translatable=\"false\">Up</string>\r\n    <string name=\"down\" translatable=\"false\">Down</string>\r\n    <string name=\"paste\" translatable=\"false\">Paste</string>\r\n    <string name=\"copy\" translatable=\"false\">Copy</string>\r\n    <string name=\"select_all\" translatable=\"false\">Select All</string>\r\n    <string name=\"goto_line\" translatable=\"false\">Goto Line</string>\r\n    <string name=\"toolbox\" translatable=\"false\">Toolbox</string>\r\n    <string name=\"save\" translatable=\"false\">Save</string>\r\n    <string name=\"search\" translatable=\"false\">Search</string>\r\n    <string name=\"find_amp_replace\" translatable=\"false\"><![CDATA[Find & Replace]]></string>\r\n    <string name=\"close\" translatable=\"false\">Close</string>\r\n    <string name=\"menu\" translatable=\"false\">menu</string>\r\n    <string name=\"unsaved_file\" translatable=\"false\">Unsaved File</string>\r\n    <string name=\"yes\" translatable=\"false\">Yes</string>\r\n    <string name=\"no\" translatable=\"false\">No</string>\r\n    <string name=\"title_activity_web_view\" translatable=\"false\">WebView</string>\r\n    <!-- Strings used for fragments for navigation -->\r\n    <string name=\"first_fragment_label\" translatable=\"false\">First Fragment</string>\r\n    <string name=\"second_fragment_label\" translatable=\"false\">Second Fragment</string>\r\n    <string name=\"hello_first_fragment\" translatable=\"false\">Hello first fragment</string>\r\n    <string name=\"hello_second_fragment\" translatable=\"false\">Hello second fragment. Arg: %1$s</string>\r\n    <string name=\"font_brush_script_mt\" translatable=\"false\">Brush Script MT</string>\r\n    <string name=\"font_courier_new\" translatable=\"false\">Courier New</string>\r\n    <string name=\"font_garamond\" translatable=\"false\">Garamond</string>\r\n    <string name=\"font_times_new_roman\" translatable=\"false\">Times New Roman</string>\r\n    <string name=\"fonr_trebuchet_ms\" translatable=\"false\">Trebuchet MS</string>\r\n    <string name=\"font_tahoma\" translatable=\"false\">Tahoma</string>\r\n    <string name=\"font_verdana\" translatable=\"false\">Verdana</string>\r\n    <string name=\"font_helvetica\" translatable=\"false\">Helvetica</string>\r\n    <string name=\"font_arial\" translatable=\"false\">Arial</string>\r\n    <string name=\"fonr_georgia\" translatable=\"false\">Georgia</string>\r\n    <string name=\"fonr_normal\" translatable=\"false\">Normal</string>\r\n    <string name=\"app_name\" translatable=\"false\">Text Editor</string>\r\n    <string name=\"default_edit_text_data\" translatable=\"false\">Default Value</string>\r\n    <!-- TODO: Remove or change this placeholder text -->\r\n    <string name=\"hello_blank_fragment\" translatable=\"false\">Hello blank fragment</string>\r\n    <string name=\"title_activity_drawer_layout\" translatable=\"false\">DrawerLayoutActivity</string>\r\n    <string name=\"navigation_drawer_open\" translatable=\"false\">Open navigation drawer</string>\r\n    <string name=\"navigation_drawer_close\" translatable=\"false\">Close navigation drawer</string>\r\n    <string name=\"nav_header_title\" translatable=\"false\">Android Studio</string>\r\n    <string name=\"nav_header_subtitle\" translatable=\"false\">Nbow Developer</string>\r\n    <string name=\"nav_header_desc\" translatable=\"false\">Navigation header</string>\r\n    <string name=\"title_activity_settings\" translatable=\"false\">SettingsActivity</string>\r\n    <string name=\"appereance\" translatable=\"false\">Appereance</string>\r\n    <string name=\"empersand\" translatable=\"false\"><html>&amp;</html></string>\r\n    <string name=\"lessthan\" translatable=\"false\"><html>&lt;</html></string>\r\n    <string name=\"greaterthan\" translatable=\"false\"><html>&gt;</html></string>\r\n    <!--    <string name=\"doublequote\"></string>-->\r\n    <!--    <string name=\"singlequote\">a</string>-->\r\n    <string name=\"attherat\" translatable=\"false\">a</string>\r\n    <string name=\"dollar\" translatable=\"false\">$</string>\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n    <string name=\"select_text_to_apply_effects\">Select Text to apply Effects</string>\r\n    <string name=\"url_removed\">Url Removed</string>\r\n    <string name=\"please_select_text\">Please Select Text</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Please SaveAs to keep effects</string>\r\n    <string name=\"file_already_exits\">File already exist</string>\r\n    <string name=\"file_saved_as_note\">File Saved as Note</string>\r\n    <string name=\"write_something\">write something before align</string>\r\n    <string name=\"heading_applied_current\">Heading Applied To Current Line</string>\r\n    <string name=\"prev\" >prev</string>\r\n    <string name=\"next\" >next</string>\r\n    <string name=\"line_number\" >Line Number</string>\r\n    <string name=\"saved_successfully\" >Saved Successfully</string>\r\n    <string name=\"greet_line\" >Hello!</string>\r\n    <string name=\"file_doesnot_saved\" >File Does not Saved</string>\r\n    <string name=\"file_havenot_permission_to_write\" >Does not have valid permission to write</string>\r\n    <string name=\"search_and_replace\" >Search and Replace</string>\r\n    <string name=\"find\" >Find</string>\r\n    <string name=\"clear_history\" >Clear History</string>\r\n    <string name=\"feedback\" >Report a Bug</string>\r\n    <string name=\"reload_file\">Reload File</string>\r\n    <string name=\"setting\" >Settings</string>\r\n    <string name=\"storage_manager\" >Storage Manager</string>\r\n    <string name=\"history\" >History</string>\r\n    <string name=\"previous\" >Previous</string>\r\n    <string name=\"create_new_file\" >Create New File</string>\r\n    <string name=\"open_existing_file\" >Open Existing File</string>\r\n    <string name=\"save_as_note\" >Save As Note</string>\r\n    <string name=\"action_settings\" >Settings</string>\r\n    <string name=\"replace_all\" >Replace All</string>\r\n    <string name=\"replace\" >Replace</string>\r\n    <string name=\"open\" >Open</string>\r\n    <string name=\"edit\" >Edit</string>\r\n    <string name=\"new_file\" >New</string>\r\n    <string name=\"save_as\" >Save As</string>\r\n    <string name=\"share\" >Share</string>\r\n    <string name=\"unsaved_dialog_message\" >Do you want to save your changes?</string>\r\n    <string name=\"no_change_found\" >No Changes Found</string>\r\n    <string name=\"search_not_found\" >search not found</string>\r\n    <string name=\"cancel\" >Cancel</string>\r\n    <string name=\"please_restart_app\">Please Restart App</string>\r\n\r\n\r\n    <!-- Preference Titles -->\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+--- a/app/src/main/res/values/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values/strings.xml	(date 1640858478947)
+@@ -34,7 +34,7 @@
+     <string name="font_arial" translatable="false">Arial</string>
+     <string name="fonr_georgia" translatable="false">Georgia</string>
+     <string name="fonr_normal" translatable="false">Normal</string>
+-    <string name="app_name" translatable="false">Text Editor</string>
++    <string name="app_name" translatable="false">Text Editor PRO</string>
+     <string name="default_edit_text_data" translatable="false">Default Value</string>
+     <!-- TODO: Remove or change this placeholder text -->
+     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+@@ -105,6 +105,8 @@
+     <string name="search_not_found" >search not found</string>
+     <string name="cancel" >Cancel</string>
+     <string name="please_restart_app">Please Restart App</string>
++    <string name="please_keep_word_wrap_on">Please keep Wrap Content off to get better print quality</string>
++    <string name="wrap_content">Wrap Content</string>
+ 
+ 
+     <!-- Preference Titles -->
+Index: app/src/main/java/com/nbow/texteditor/TextViewUndoRedo.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/TextViewUndoRedo.kt b/app/src/main/java/com/nbow/texteditorpro/TextViewUndoRedo.kt
+rename from app/src/main/java/com/nbow/texteditor/TextViewUndoRedo.kt
+rename to app/src/main/java/com/nbow/texteditorpro/TextViewUndoRedo.kt
+--- a/app/src/main/java/com/nbow/texteditor/TextViewUndoRedo.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/TextViewUndoRedo.kt	(date 1640858117557)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.content.ContentValues.TAG
+ import android.widget.TextView
+Index: app/src/main/java/com/nbow/texteditor/MyViewModelFactory.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/MyViewModelFactory.kt b/app/src/main/java/com/nbow/texteditorpro/MyViewModelFactory.kt
+rename from app/src/main/java/com/nbow/texteditor/MyViewModelFactory.kt
+rename to app/src/main/java/com/nbow/texteditorpro/MyViewModelFactory.kt
+--- a/app/src/main/java/com/nbow/texteditor/MyViewModelFactory.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/MyViewModelFactory.kt	(date 1640858110427)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.app.Application
+ import androidx.lifecycle.ViewModel
+Index: app/src/main/java/com/nbow/texteditor/FragmentAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/FragmentAdapter.kt b/app/src/main/java/com/nbow/texteditorpro/FragmentAdapter.kt
+rename from app/src/main/java/com/nbow/texteditor/FragmentAdapter.kt
+rename to app/src/main/java/com/nbow/texteditorpro/FragmentAdapter.kt
+--- a/app/src/main/java/com/nbow/texteditor/FragmentAdapter.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/FragmentAdapter.kt	(date 1640858115186)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import androidx.fragment.app.Fragment
+ import androidx.fragment.app.FragmentManager
+Index: app/src/main/java/com/nbow/texteditor/MyViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/MyViewModel.kt b/app/src/main/java/com/nbow/texteditorpro/MyViewModel.kt
+rename from app/src/main/java/com/nbow/texteditor/MyViewModel.kt
+rename to app/src/main/java/com/nbow/texteditorpro/MyViewModel.kt
+--- a/app/src/main/java/com/nbow/texteditor/MyViewModel.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/MyViewModel.kt	(date 1640858155809)
+@@ -1,17 +1,14 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.app.Application
+ import android.content.Context
+ import android.net.Uri
+-import android.os.Environment
+-import android.text.Spannable
+ import android.text.SpannableStringBuilder
+-import android.text.Spanned
+ import android.util.Log
+ import androidx.fragment.app.Fragment
+ import androidx.lifecycle.*
+ import androidx.preference.PreferenceManager
+-import com.nbow.texteditor.data.*
++import com.nbow.texteditorpro.data.*
+ import kotlinx.coroutines.Dispatchers
+ import kotlinx.coroutines.Dispatchers.IO
+ import kotlinx.coroutines.launch
+@@ -20,6 +17,7 @@
+ import java.util.*
+ 
+ class MyViewModel(application: Application) : AndroidViewModel(application) {
++    var open = 1;
+     private val fragmentList = MutableLiveData<MutableList<Fragment>>(arrayListOf())
+     public var noteList:MutableList<Note>  = arrayListOf()
+     private val repository : Repository = Repository(application)
+Index: app/src/main/java/com/nbow/texteditor/EditorFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/EditorFragment.kt b/app/src/main/java/com/nbow/texteditorpro/EditorFragment.kt
+rename from app/src/main/java/com/nbow/texteditor/EditorFragment.kt
+rename to app/src/main/java/com/nbow/texteditorpro/EditorFragment.kt
+--- a/app/src/main/java/com/nbow/texteditor/EditorFragment.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/EditorFragment.kt	(date 1640858155824)
+@@ -1,16 +1,13 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+-import android.app.Application
+ import android.content.Context
+ import android.graphics.Typeface
+ import android.net.Uri
+ import android.os.Bundle
+ import android.text.*
+ import android.text.style.*
+-import android.util.DisplayMetrics
+ import android.util.Log
+ import android.util.TypedValue
+-import android.view.KeyEvent
+ import android.view.LayoutInflater
+ import android.view.View
+ import android.view.ViewGroup
+@@ -20,7 +17,6 @@
+ import android.view.View.OnLongClickListener
+ import android.view.accessibility.AccessibilityEvent
+ import androidx.core.widget.doOnTextChanged
+-import androidx.lifecycle.ViewModel
+ import androidx.lifecycle.lifecycleScope
+ import kotlinx.coroutines.Dispatchers.Main
+ import kotlinx.coroutines.launch
+Index: app/src/main/java/com/nbow/texteditor/NoteActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/NoteActivity.kt b/app/src/main/java/com/nbow/texteditorpro/NoteActivity.kt
+rename from app/src/main/java/com/nbow/texteditor/NoteActivity.kt
+rename to app/src/main/java/com/nbow/texteditorpro/NoteActivity.kt
+--- a/app/src/main/java/com/nbow/texteditor/NoteActivity.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/NoteActivity.kt	(date 1640858117254)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import androidx.appcompat.app.AppCompatActivity
+ import android.os.Bundle
+@@ -9,8 +9,8 @@
+ import androidx.lifecycle.ViewModelProvider
+ import androidx.recyclerview.widget.LinearLayoutManager
+ import androidx.recyclerview.widget.RecyclerView
+-import com.nbow.texteditor.RecyclerView.ExampleAdapter
+-import com.nbow.texteditor.RecyclerView.ExampleItem
++import com.nbow.texteditorpro.RecyclerView.ExampleAdapter
++import com.nbow.texteditorpro.RecyclerView.ExampleItem
+ import java.io.File
+ import java.text.DecimalFormat
+ import java.text.SimpleDateFormat
+Index: app/src/main/res/values-de/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n    <string name=\"select_text_to_apply_effects\">Wählen Sie Text, um Effekte anzuwenden</string>\r\n    <string name=\"url_removed\">URL entfernt</string>\r\n    <string name=\"please_select_text\">Bitte wählen Sie Text</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Saveas, um Effekte zu erhalten</string>\r\n    <string name=\"file_already_exits\">Die Datei ist bereits vorhanden</string>\r\n    <string name=\"file_saved_as_note\">Datei als Note gespeichert</string>\r\n    <string name=\"write_something\">Schreiben Sie etwas vor dem Ausrichten</string>\r\n    <string name=\"heading_applied_current\">Überschrift auf der aktuellen Zeile angewendet</string>\r\n    <string name=\"prev\" >pflanzig</string>\r\n    <string name=\"next\" >nächste</string>\r\n    <string name=\"line_number\" >Zeilennummer</string>\r\n    <string name=\"saved_successfully\" >Erfolgreich gespeichert</string>\r\n    <string name=\"greet_line\" >Hallo!</string>\r\n    <string name=\"file_doesnot_saved\" >Datei wird nicht gespeichert</string>\r\n    <string name=\"file_havenot_permission_to_write\" >Hat keine gültige Erlaubnis zum Schreiben</string>\r\n    <string name=\"search_and_replace\" >Suche und Ersetzen</string>\r\n    <string name=\"find\" >Finden</string>\r\n    <string name=\"clear_history\" >Klare Geschichte</string>\r\n    <string name=\"feedback\" >Melde einen technischen Fehler</string>\r\n    <string name=\"reload_file\">Datei neu laden</string>\r\n    <string name=\"setting\" >Einstellungen</string>\r\n    <string name=\"storage_manager\" >Lagerverwalter</string>\r\n    <string name=\"history\" >Geschichte</string>\r\n    <string name=\"previous\" >Vorherige</string>\r\n    <string name=\"create_new_file\" >Neue Datei erstellen.</string>\r\n    <string name=\"open_existing_file\" >Vorhandene Datei öffnen.</string>\r\n    <string name=\"save_as_note\" >Speichern als Note</string>\r\n    <string name=\"action_settings\" >Einstellungen</string>\r\n    <string name=\"replace_all\" >Alles ersetzen</string>\r\n    <string name=\"replace\" >Ersetzen</string>\r\n    <string name=\"open\" >Offen</string>\r\n    <string name=\"edit\" >Bearbeiten</string>\r\n    <string name=\"new_file\" >Neu</string>\r\n    <string name=\"save_as\" >Speichern als</string>\r\n    <string name=\"share\" >Teilen</string>\r\n    <string name=\"unsaved_dialog_message\" >Möchtest du deine Änderungen speichern?</string>\r\n    <string name=\"no_change_found\" >Keine Änderungen gefunden</string>\r\n    <string name=\"search_not_found\" >Suche nicht gefunden</string>\r\n    <string name=\"cancel\" >Abbrechen</string>\r\n\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-de/strings.xml b/app/src/main/res/values-de/strings.xml
+--- a/app/src/main/res/values-de/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-de/strings.xml	(date 1639898245718)
+@@ -40,5 +40,10 @@
+     <string name="search_not_found" >Suche nicht gefunden</string>
+     <string name="cancel" >Abbrechen</string>
+ 
++    <string name="please_restart_app">Bitte starten Sie die App</string>
++<string name="please_keep_word_wrap_on">Bitte halten Sie den Inhalt der Inhalte auf, um eine bessere Druckqualität zu erhalten</string>
++<string name="wrap_content">Inhalte wickeln</string>
++
++
+ 
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/values-ar/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n    <string name=\"select_text_to_apply_effects\">حدد نص لتطبيق التأثيرات</string>\r\n    <string name=\"url_removed\">إزالتها عنوان URL.</string>\r\n    <string name=\"please_select_text\">يرجى اختيار النص</string>\r\n    <string name=\"please_save_as_to_keep_effect\">من فضلك سافيس للحفاظ على التأثيرات</string>\r\n    <string name=\"file_already_exits\">ملف موجود بالفعل</string>\r\n    <string name=\"file_saved_as_note\">ملف محفوظ كملاحظة</string>\r\n    <string name=\"write_something\">اكتب شيئا قبل محاذاة</string>\r\n    <string name=\"heading_applied_current\">العنوان المطبق على الخط الحالي</string>\r\n    <string name=\"prev\" >السابق</string>\r\n    <string name=\"next\" >التالي</string>\r\n    <string name=\"line_number\" >رقم السطر</string>\r\n    <string name=\"saved_successfully\" >حفظ بنجاح</string>\r\n    <string name=\"greet_line\" >مرحبا!</string>\r\n    <string name=\"file_doesnot_saved\" >الملف لا يتم حفظه</string>\r\n    <string name=\"file_havenot_permission_to_write\" >ليس لديه إذن صالح للكتابة</string>\r\n    <string name=\"search_and_replace\" >البحث واستبدالها</string>\r\n    <string name=\"find\" >تجد</string>\r\n    <string name=\"clear_history\" >تاريخ واضح</string>\r\n    <string name=\"feedback\" >الإبلاغ عن خطأ</string>\r\n    <string name=\"reload_file\">تحديث الملف</string>\r\n    <string name=\"setting\" >إعدادات</string>\r\n    <string name=\"storage_manager\" >مدير المخزن</string>\r\n    <string name=\"history\" >تاريخ</string>\r\n    <string name=\"previous\" >سابق</string>\r\n    <string name=\"create_new_file\" >إنشاء ملف جديد</string>\r\n    <string name=\"open_existing_file\" >افتح الملف الموجود</string>\r\n    <string name=\"save_as_note\" >حفظ كما مذكرة</string>\r\n    <string name=\"action_settings\" >إعدادات</string>\r\n    <string name=\"replace_all\" >استبدال الكل</string>\r\n    <string name=\"replace\" >يحل محل</string>\r\n    <string name=\"open\" >فتح</string>\r\n    <string name=\"edit\" >تعديل</string>\r\n    <string name=\"new_file\" >جديد</string>\r\n    <string name=\"save_as\" >حفظ باسم</string>\r\n    <string name=\"share\" >شارك</string>\r\n    <string name=\"unsaved_dialog_message\" >هل تريد حفظ التغييرات؟</string>\r\n    <string name=\"no_change_found\" >لم يتم العثور على تغييرات</string>\r\n    <string name=\"search_not_found\" >البحث غير موجود</string>\r\n    <string name=\"cancel\" >يلغي</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-ar/strings.xml b/app/src/main/res/values-ar/strings.xml
+--- a/app/src/main/res/values-ar/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-ar/strings.xml	(date 1639898209932)
+@@ -39,5 +39,8 @@
+     <string name="no_change_found" >لم يتم العثور على تغييرات</string>
+     <string name="search_not_found" >البحث غير موجود</string>
+     <string name="cancel" >يلغي</string>
++    <string name="please_restart_app">يرجى إعادة تشغيل التطبيق</string>
++<string name="please_keep_word_wrap_on">يرجى الاحتفاظ بلف المحتوى لإيقاف جودة طباعة أفضل</string>
++<string name="wrap_content">لف المحتوى</string>
+ 
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/CustomUnderlineSpan.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/CustomUnderlineSpan.kt b/app/src/main/java/com/nbow/texteditorpro/CustomUnderlineSpan.kt
+rename from app/src/main/java/com/nbow/texteditor/CustomUnderlineSpan.kt
+rename to app/src/main/java/com/nbow/texteditorpro/CustomUnderlineSpan.kt
+--- a/app/src/main/java/com/nbow/texteditor/CustomUnderlineSpan.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/CustomUnderlineSpan.kt	(date 1640858115326)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.text.style.UnderlineSpan
+ 
+Index: app/src/main/res/values-es/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\r\n\r\n    <string name=\"select_text_to_apply_effects\">Seleccione texto para aplicar efectos.</string>\r\n    <string name=\"url_removed\">URL eliminado</string>\r\n    <string name=\"please_select_text\">Por favor seleccione el texto</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Por favor, Saveas para mantener los efectos.</string>\r\n    <string name=\"file_already_exits\">El archivo ya existe</string>\r\n    <string name=\"file_saved_as_note\">Archivo guardado como nota</string>\r\n    <string name=\"write_something\">Escribe algo antes de alinear</string>\r\n    <string name=\"heading_applied_current\">Encabezado aplicado a la línea actual</string>\r\n    <string name=\"prev\" >avance</string>\r\n    <string name=\"next\" >Siguiente</string>\r\n    <string name=\"line_number\" >Número de línea</string>\r\n    <string name=\"saved_successfully\" >Guardado exitosamente</string>\r\n    <string name=\"greet_line\" >¡Hola!</string>\r\n    <string name=\"file_doesnot_saved\" >El archivo no se guarda</string>\r\n    <string name=\"file_havenot_permission_to_write\" >No tiene permiso válido para escribir</string>\r\n    <string name=\"search_and_replace\" >Buscar y reemplazar</string>\r\n    <string name=\"find\" >Encontrar</string>\r\n    <string name=\"clear_history\" >Historia clara</string>\r\n    <string name=\"feedback\" >Reportar un error</string>\r\n    <string name=\"reload_file\">Archivo de recarga</string>\r\n    <string name=\"setting\" >Ajustes</string>\r\n    <string name=\"storage_manager\" >Gerente de almacenamiento</string>\r\n    <string name=\"history\" >Historia</string>\r\n    <string name=\"previous\" >Anterior</string>\r\n    <string name=\"create_new_file\" >Crear nuevo archivo</string>\r\n    <string name=\"open_existing_file\" >Abrir archivo existente</string>\r\n    <string name=\"save_as_note\" >Guardar como nota</string>\r\n    <string name=\"action_settings\" >Ajustes</string>\r\n    <string name=\"replace_all\" >Reemplaza todo</string>\r\n    <string name=\"replace\" >Reemplazar</string>\r\n    <string name=\"open\" >Abierto</string>\r\n    <string name=\"edit\" >Editar</string>\r\n    <string name=\"new_file\" >Nuevo</string>\r\n    <string name=\"save_as\" >Guardar como</string>\r\n    <string name=\"share\" >Cuota</string>\r\n    <string name=\"unsaved_dialog_message\" >¿Quieres guardar tus cambios?</string>\r\n    <string name=\"no_change_found\" >No se han encontrado cambios</string>\r\n    <string name=\"search_not_found\" >búsqueda no encontrada</string>\r\n    <string name=\"cancel\" >Cancelar</string>\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-es/strings.xml b/app/src/main/res/values-es/strings.xml
+--- a/app/src/main/res/values-es/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-es/strings.xml	(date 1639898307757)
+@@ -39,4 +39,8 @@
+     <string name="no_change_found" >No se han encontrado cambios</string>
+     <string name="search_not_found" >búsqueda no encontrada</string>
+     <string name="cancel" >Cancelar</string>
++
++    <string name="please_restart_app">Por favor reinicie la aplicación</string>
++    <string name="please_keep_word_wrap_on">Por favor, mantenga el contenido de envoltura para obtener una mejor calidad de impresión</string>
++    <string name="wrap_content">Resumir contenido</string>
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/DataFile.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/DataFile.kt b/app/src/main/java/com/nbow/texteditorpro/DataFile.kt
+rename from app/src/main/java/com/nbow/texteditor/DataFile.kt
+rename to app/src/main/java/com/nbow/texteditorpro/DataFile.kt
+--- a/app/src/main/java/com/nbow/texteditor/DataFile.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/DataFile.kt	(date 1640858111117)
+@@ -1,4 +1,4 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.net.Uri
+ import android.text.Spanned
+Index: app/src/main/res/values-el/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<resources>\r\n\r\n    <string name=\"select_text_to_apply_effects\">Επιλέξτε κείμενο για να εφαρμόσετε εφέ</string>\r\n    <string name=\"url_removed\">Η διεύθυνση URL αφαιρείται</string>\r\n    <string name=\"please_select_text\">Επιλέξτε κείμενο</string>\r\n    <string name=\"please_save_as_to_keep_effect\">Παρακαλώ saveas για να διατηρήσετε τα αποτελέσματα</string>\r\n    <string name=\"file_already_exits\">Το αρχείο υπάρχει ήδη</string>\r\n    <string name=\"file_saved_as_note\">Το αρχείο αποθηκεύτηκε ως σημείωση</string>\r\n    <string name=\"write_something\">Γράψτε κάτι πριν ευθυγραμμίσετε</string>\r\n    <string name=\"heading_applied_current\">Η επικεφαλίδα εφαρμόζεται στην τρέχουσα γραμμή</string>\r\n    <string name=\"prev\" >προπετίζομαι</string>\r\n    <string name=\"next\" >Επόμενο</string>\r\n    <string name=\"line_number\" >Αριθμός σειράς</string>\r\n    <string name=\"saved_successfully\" >Αποθηκεύτηκε επιτυχώς</string>\r\n    <string name=\"greet_line\" >Γειά σου!</string>\r\n    <string name=\"file_doesnot_saved\" >Το αρχείο δεν αποθηκεύεται</string>\r\n    <string name=\"file_havenot_permission_to_write\" >Δεν έχει έγκυρη άδεια να γράψει</string>\r\n    <string name=\"search_and_replace\" >Αναζήτηση και αντικατάσταση</string>\r\n    <string name=\"find\" >Εύρημα</string>\r\n    <string name=\"clear_history\" >Καθαρισμός ιστορικού</string>\r\n    <string name=\"feedback\" >Αναφέρετε ένα σφάλμα</string>\r\n    <string name=\"reload_file\">Επαναφόρτωση αρχείου</string>\r\n    <string name=\"setting\" >Ρυθμίσεις</string>\r\n    <string name=\"storage_manager\" >Διαχειριστής αποθήκευσης</string>\r\n    <string name=\"history\" >Ιστορία</string>\r\n    <string name=\"previous\" >Προηγούμενος</string>\r\n    <string name=\"create_new_file\" >Δημιουργία νέου αρχείου</string>\r\n    <string name=\"open_existing_file\" >Ανοίξτε το υπάρχον αρχείο</string>\r\n    <string name=\"save_as_note\" >Αποθήκευση ως σημείωση</string>\r\n    <string name=\"action_settings\" >Ρυθμίσεις</string>\r\n    <string name=\"replace_all\" >Αντικαταστήστε όλους</string>\r\n    <string name=\"replace\" >Αντικαθιστώ</string>\r\n    <string name=\"open\" >Ανοιξε</string>\r\n    <string name=\"edit\" >Επεξεργασία</string>\r\n    <string name=\"new_file\" >Νέος</string>\r\n    <string name=\"save_as\" >Αποθήκευση ως</string>\r\n    <string name=\"share\" >Μερίδιο</string>\r\n    <string name=\"unsaved_dialog_message\" >Θέλετε να αποθηκεύσετε τις αλλαγές σας;</string>\r\n    <string name=\"no_change_found\" >Δεν βρέθηκαν αλλαγές</string>\r\n    <string name=\"search_not_found\" >αναζήτηση δεν βρέθηκε</string>\r\n    <string name=\"cancel\" >Ματαίωση</string>\r\n\r\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values-el/strings.xml b/app/src/main/res/values-el/strings.xml
+--- a/app/src/main/res/values-el/strings.xml	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/res/values-el/strings.xml	(date 1639898281705)
+@@ -41,4 +41,8 @@
+     <string name="search_not_found" >αναζήτηση δεν βρέθηκε</string>
+     <string name="cancel" >Ματαίωση</string>
+ 
++    <string name="please_restart_app">Παρακαλούμε επανεκκινήστε την εφαρμογή</string>
++    <string name="please_keep_word_wrap_on">Παρακαλείσθε να διατηρήσετε το περιεχόμενο περιτύλιξης για να αποκτήσετε καλύτερη ποιότητα εκτύπωσης</string>
++    <string name="wrap_content">Περιτύλιγμα περιεχομένου</string>
++
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/nbow/texteditor/CustomEditText.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/nbow/texteditor/CustomEditText.kt b/app/src/main/java/com/nbow/texteditorpro/CustomEditText.kt
+rename from app/src/main/java/com/nbow/texteditor/CustomEditText.kt
+rename to app/src/main/java/com/nbow/texteditorpro/CustomEditText.kt
+--- a/app/src/main/java/com/nbow/texteditor/CustomEditText.kt	(revision 9e5371f9023863f20c2f763520a729f2d7fa4cd8)
++++ b/app/src/main/java/com/nbow/texteditorpro/CustomEditText.kt	(date 1640858155791)
+@@ -1,11 +1,10 @@
+-package com.nbow.texteditor
++package com.nbow.texteditorpro
+ 
+ import android.content.Context
+ import android.graphics.Canvas
+ import android.graphics.Paint
+ import android.graphics.Rect
+ import android.util.AttributeSet
+-import android.widget.EditText
+ import androidx.appcompat.widget.AppCompatEditText
+ import androidx.preference.PreferenceManager
+ import java.util.*

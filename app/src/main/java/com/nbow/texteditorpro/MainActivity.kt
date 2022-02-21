@@ -460,10 +460,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 changeBottamBarColor()
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+
+
+            }
             override fun onTabReselected(tab: TabLayout.Tab?) {}
 
         })
+//        TabLayoutMediator(binding.tabLayout, binding.pager2) { tab, position ->
+//            (adapter.fragmentList[position]).apply{
+//                var fileName = (this as EditorFragment).getFileName()
+//                if(hasUnsavedChanges.value == true) fileName = "*$fileName"
+//
+//                tab.apply {
+//                    if (customView == null) {
+//                        setCustomView(R.layout.tab_layout)
+//                    }
+//                    customView!!.findViewById<TextView>(R.id.file_name).setText(fileName)
+//                }
+//            }
+//        }.attach()
 
 
 
@@ -789,7 +805,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         setCustomTabLayout(tabCount - 1, fileName)
                         adapter.notifyItemInserted(tabCount - 1)
                         selectTab(getTabAt(tabCount - 1))
-
                     }
                 }
             }
@@ -1115,11 +1130,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         model.currentTab = selectedTabPosition
                     }
                 }
-                if(adapter.fragmentList!=null)
+                if(model.currentTab>=0 && model.currentTab<adapter.fragmentList.size)
+                    binding.pager2.currentItem = model.currentTab
+//                if(adapter.fragmentList!=null)
                 createTabsInTabLayout(adapter.fragmentList)
 
-                var count = 0;
-                for ( frag in model.getFragmentList().value!!) {
+
+                for ((count, frag) in model.getFragmentList().value!!.withIndex()) {
                     val fragment = frag as EditorFragment
                     fragment.hasUnsavedChanges.observe(this@MainActivity) {
                         if (it) {
@@ -1140,7 +1157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             fragment.cursorChanged.value = false
                         }
                     }
-                    count++;
+
                 }
 
 //                if (binding.tabLayout.tabCount == 0 && adapter.fragmentList.size==0) {

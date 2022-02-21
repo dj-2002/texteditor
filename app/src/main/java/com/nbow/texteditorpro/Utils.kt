@@ -227,20 +227,6 @@ class Utils {
         return true
     }
 
-    fun isManageExternalStoragePermissionGranted() : Boolean
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (activity!!.checkSelfPermission(Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "Read write permission granted")
-                return true
-            } else {
-                return false
-            }
-        }
-        return true
-
-    }
-
 
     @SuppressLint("Range")
     fun getFileName(uri: Uri): String? {

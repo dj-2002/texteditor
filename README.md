@@ -60,3 +60,5 @@ Feature Rich Editor
 + Direct Save/Export to TXT file
 
 Text Editor has been optimized for use on mobile phones and tablets. It is suitable for both general and professional use.
+
+ou run into any issues or have any suggestions, please feel free to contact us: nbowdeveloper@gmail.com

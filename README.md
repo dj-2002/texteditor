@@ -1,6 +1,7 @@
 # TextEditor App
 TEXT EDITOR APP ANDROID KOTLIN
 
+FREE TO USE AND MODIFY
 
 Live on play store
 

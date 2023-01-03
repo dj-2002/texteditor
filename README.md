@@ -36,9 +36,7 @@ Secure and Offline Text Editing
 
 Privacy is at the core of our text editor. Our app works offline and does not require any data sharing to format and make edits to your text file. Security and user data safety is our primary concern. All text files and data stay locally on your device.
 
-Smart Text Editor which tells you count of words
 
-You can know the number of words, characters and sentences with just a single click. A lot of times users are required to create document with a word limit. Students are required to maintain word limit while creating their project. Text editor offers a smart solution by automatically counting the above parameters for you.
 
 Convert your plain text files to formatted and styled PDFs
 
@@ -51,21 +49,14 @@ Feature Rich Editor
 + Rich text editor app
 + Create Unlimited files and notes without any hassle
 + Share your work as PDF with a single click.
-+ Extract Text From Images using built-in offline OCR engine.
-+ Undo And Redo with a single click
 + Alignment Support
 + Bullets and Numbering Support
 + Wide Variety Of Stylizing and Formatting
-+ Add your favorites document in a separate list.
-+ Deep Search Support lets you find your document from a single word.
-+ Powerful Reader Mode to enjoy your notes
-+ Text to Speech engine with speed and pitch control for free !
 + Print with a click
 + Adjust Font Size
 + Adjust Font Color (Pro)
 + 15+ styling tools to format you notes
 + Direct Save/Export to PDF file
 + Direct Save/Export to TXT file
-+ Dark Mode (Pro)
 
 Text Editor has been optimized for use on mobile phones and tablets. It is suitable for both general and professional use.
